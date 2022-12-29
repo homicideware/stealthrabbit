@@ -25,9 +25,7 @@ import java.util.ArrayList;
 public class Settings extends ThemedActivity {
 
     private static ActionBar actionBar;
-
     private Activity activity;
-    private Context context;
     private View _view;
     private SharedPreferences prefs;
 
@@ -39,12 +37,12 @@ public class Settings extends ThemedActivity {
         prefs = getSharedPreferences("material.hunter", Context.MODE_PRIVATE);
 
         activity = this;
-        context = this;
 
         setContentView(R.layout.settings_activity);
 
         _view = getWindow().getDecorView();
-        toolbar = findViewById(R.id.toolbar);
+        View included = findViewById(R.id.included);
+        toolbar = included.findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
@@ -58,11 +56,10 @@ public class Settings extends ThemedActivity {
         show_wallpaper.setChecked(prefs.getBoolean("show_wallpaper", false));
 
         Slider background_diming_level = findViewById(R.id.settings_background_diming_level);
-        if (show_wallpaper.isChecked()) background_diming_level.setEnabled(true);
-        else background_diming_level.setEnabled(false);
+        background_diming_level.setEnabled(show_wallpaper.isChecked());
 
         int alphaLevel = prefs.getInt("background_alpha_level", 10);
-        background_diming_level.setValue(alphaLevel / 10);
+        background_diming_level.setValue((float) alphaLevel / 10);
         background_diming_level.addOnSliderTouchListener(
                 new Slider.OnSliderTouchListener() {
                     @Override
@@ -73,10 +70,10 @@ public class Settings extends ThemedActivity {
                         prefs.edit()
                                 .putInt(
                                         "background_alpha_level",
-                                        new Double(slider.getValue() * 10.0).intValue())
+                                        Double.valueOf(slider.getValue() * 10.0).intValue())
                                 .apply();
                         PathsUtil.showSnack(
-                                _view, "Restart recomenned >", false, "Go", v -> finishAffinity());
+                                _view, "Restart recommend >", false, "Go", v -> finishAffinity());
                     }
                 });
 
@@ -84,7 +81,7 @@ public class Settings extends ThemedActivity {
             prefs.edit().putBoolean("show_wallpaper", b).apply();
             background_diming_level.setEnabled(b);
             PathsUtil.showSnack(
-                    _view, "Restart recomenned >", false, "Go", v2 -> finishAffinity());
+                    _view, "Restart recommend >", false, "Go", v2 -> finishAffinity());
         });
 
         SwitchMaterial show_timestamp = findViewById(R.id.settings_show_timestamp);

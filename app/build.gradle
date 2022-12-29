@@ -2,35 +2,51 @@ plugins {
     id 'com.android.application'
 }
 
+def globalVersionCode = 40
+def globalVersionName = "willbefine"
+
 android {
-    compileSdk 31
+    compileSdk 33
 
     defaultConfig {
         applicationId "material.hunter"
         minSdk 24
-        targetSdk 30
-        versionCode 40
-        versionName "willbefine"
+        resConfigs "en"
+        targetSdk 33
+        versionCode globalVersionCode
+        versionName globalVersionName
+        multiDexEnabled true
     }
 
     buildTypes {
         release {
-            minifyEnabled false
+            minifyEnabled true
+            shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            buildConfigField("String", "AUTHOR", "\"${System.env.USERNAME}\"")
+        }
+        debug {
+            minifyEnabled true
+            shrinkResources true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            buildConfigField("String", "AUTHOR", "\"${System.env.USERNAME}\"")
         }
     }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
     }
 }
 
+repositories {
+    google()
+    mavenCentral()
+}
 dependencies {
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
-    implementation 'androidx.appcompat:appcompat:1.4.2'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
     implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
     implementation 'com.google.guava:guava:31.1-jre'
     implementation 'com.airbnb.android:lottie:5.2.0'
-    implementation 'com.google.android.material:material:1.6.1'
+    implementation 'com.google.android.material:material:1.7.0'
 }

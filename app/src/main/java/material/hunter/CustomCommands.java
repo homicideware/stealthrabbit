@@ -28,6 +28,10 @@ import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.switchmaterial.SwitchMaterial;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+
 import material.hunter.RecyclerViewAdapter.CustomCommandsRecyclerViewAdapter;
 import material.hunter.RecyclerViewAdapter.CustomCommandsRecyclerViewAdapterDeleteItems;
 import material.hunter.RecyclerViewData.CustomCommandsData;
@@ -36,12 +40,11 @@ import material.hunter.models.CustomCommandsModel;
 import material.hunter.utils.PathsUtil;
 import material.hunter.viewmodels.CustomCommandsViewModel;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-
 public class CustomCommands extends ThemedActivity {
 
+    public static View _view;
+    private static int targetPositionId;
+    MaterialToolbar toolbar;
     private Activity activity;
     private Context context;
     private CustomCommandsRecyclerViewAdapter adapter;
@@ -49,11 +52,6 @@ public class CustomCommands extends ThemedActivity {
     private Button deleteButton;
     private Button moveButton;
     private ActionBar actionBar;
-    private static int targetPositionId;
-
-    public static View _view;
-
-    MaterialToolbar toolbar;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -64,7 +62,8 @@ public class CustomCommands extends ThemedActivity {
         setContentView(R.layout.custom_commands_activity);
 
         _view = getWindow().getDecorView();
-        toolbar = findViewById(R.id.toolbar);
+        View included = findViewById(R.id.included);
+        toolbar = included.findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
@@ -153,7 +152,8 @@ public class CustomCommands extends ThemedActivity {
                 adbBackup.setTitle("Full path to where you want to save the database:");
                 adbBackup.setView(promptView);
                 adbBackup.setNegativeButton("Cancel", (dialog, which) -> dialog.cancel());
-                adbBackup.setPositiveButton("OK", (dialog, which) -> {});
+                adbBackup.setPositiveButton("OK", (dialog, which) -> {
+                });
                 final AlertDialog adBackup = adbBackup.create();
                 adBackup.setOnShowListener(
                         dialog -> {
@@ -174,8 +174,8 @@ public class CustomCommands extends ThemedActivity {
                                                     _view,
                                                     "db is successfully backup to "
                                                             + storedpathEditText
-                                                                    .getText()
-                                                                    .toString(),
+                                                            .getText()
+                                                            .toString(),
                                                     false);
                                         } else {
                                             dialog.dismiss();
@@ -196,7 +196,8 @@ public class CustomCommands extends ThemedActivity {
                 adbRestore.setTitle("Full path of the db file from where you want to restore:");
                 adbRestore.setView(promptView);
                 adbRestore.setNegativeButton("Cancel", (dialog, which) -> dialog.cancel());
-                adbRestore.setPositiveButton("OK", (dialog, which) -> {});
+                adbRestore.setPositiveButton("OK", (dialog, which) -> {
+                });
                 final AlertDialog adRestore = adbRestore.create();
                 adRestore.setOnShowListener(
                         dialog -> {
@@ -217,8 +218,8 @@ public class CustomCommands extends ThemedActivity {
                                                     _view,
                                                     "db is successfully restored to "
                                                             + storedpathEditText
-                                                                    .getText()
-                                                                    .toString(),
+                                                            .getText()
+                                                            .toString(),
                                                     false);
                                         } else {
                                             dialog.dismiss();
@@ -310,7 +311,8 @@ public class CustomCommands extends ThemedActivity {
 
                                                     @Override
                                                     public void onNothingSelected(
-                                                            AdapterView<?> parent) {}
+                                                            AdapterView<?> parent) {
+                                                    }
                                                 });
                                         // if Insert After
                                     } else {
@@ -329,17 +331,20 @@ public class CustomCommands extends ThemedActivity {
 
                                                     @Override
                                                     public void onNothingSelected(
-                                                            AdapterView<?> parent) {}
+                                                            AdapterView<?> parent) {
+                                                    }
                                                 });
                                     }
                                 }
 
                                 @Override
-                                public void onNothingSelected(AdapterView<?> parent) {}
+                                public void onNothingSelected(AdapterView<?> parent) {
+                                }
                             });
 
                     MaterialAlertDialogBuilder adbAdd = new MaterialAlertDialogBuilder(activity);
-                    adbAdd.setPositiveButton("OK", (dialog, which) -> {});
+                    adbAdd.setPositiveButton("OK", (dialog, which) -> {
+                    });
                     final AlertDialog adAdd = adbAdd.create();
                     adAdd.setView(promptViewAdd);
                     adAdd.setCancelable(true);
@@ -408,8 +413,8 @@ public class CustomCommands extends ThemedActivity {
                             promptViewDelete.findViewById(R.id.recyclerview);
                     CustomCommandsRecyclerViewAdapterDeleteItems
                             customCommandsRecyclerViewAdapterDeleteItems =
-                                    new CustomCommandsRecyclerViewAdapterDeleteItems(
-                                            context, customCommandsModelList);
+                            new CustomCommandsRecyclerViewAdapterDeleteItems(
+                                    context, customCommandsModelList);
                     LinearLayoutManager linearLayoutManagerDelete =
                             new LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false);
                     recyclerViewDeleteItem.setLayoutManager(linearLayoutManagerDelete);
@@ -417,7 +422,8 @@ public class CustomCommands extends ThemedActivity {
 
                     MaterialAlertDialogBuilder adbDelete = new MaterialAlertDialogBuilder(activity);
                     adbDelete.setNegativeButton("Cancel", (dialog, which) -> dialog.cancel());
-                    adbDelete.setPositiveButton("Delete", (dialog, which) -> {});
+                    adbDelete.setPositiveButton("Delete", (dialog, which) -> {
+                    });
                     final AlertDialog adDelete = adbDelete.create();
                     adDelete.setMessage("Select the service you want to remove: ");
                     adDelete.setView(promptViewDelete);
@@ -433,8 +439,8 @@ public class CustomCommands extends ThemedActivity {
                                             ArrayList<Integer> selectedTargetIds =
                                                     new ArrayList<>();
                                             for (int i = 0;
-                                                    i < recyclerViewDeleteItem.getChildCount();
-                                                    i++) {
+                                                 i < recyclerViewDeleteItem.getChildCount();
+                                                 i++) {
                                                 viewHolder =
                                                         recyclerViewDeleteItem
                                                                 .findViewHolderForAdapterPosition(
@@ -505,7 +511,8 @@ public class CustomCommands extends ThemedActivity {
 
                     MaterialAlertDialogBuilder adbMove = new MaterialAlertDialogBuilder(activity);
                     adbMove.setNegativeButton("Cancel", (dialog, which) -> dialog.cancel());
-                    adbMove.setPositiveButton("Move", (dialog, which) -> {});
+                    adbMove.setPositiveButton("Move", (dialog, which) -> {
+                    });
                     final AlertDialog adMove = adbMove.create();
                     adMove.setView(promptViewMove);
                     adMove.setCancelable(true);
@@ -521,12 +528,12 @@ public class CustomCommands extends ThemedActivity {
                                                     titlesAfter.getSelectedItemPosition();
                                             if (originalPositionIndex == targetPositionIndex
                                                     || (actions.getSelectedItemPosition() == 0
-                                                            && targetPositionIndex
-                                                                    == (originalPositionIndex + 1))
+                                                    && targetPositionIndex
+                                                    == (originalPositionIndex + 1))
                                                     || (actions.getSelectedItemPosition() == 1
-                                                            && targetPositionIndex
-                                                                    == (originalPositionIndex
-                                                                            - 1))) {
+                                                    && targetPositionIndex
+                                                    == (originalPositionIndex
+                                                    - 1))) {
                                                 PathsUtil.showMessage(
                                                         context,
                                                         "You are moving the item to the same"

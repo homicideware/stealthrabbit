@@ -3,9 +3,13 @@ package material.hunter.utils;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.res.Resources;
 import android.os.Environment;
+import android.util.DisplayMetrics;
 import android.view.View;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
 
 import com.google.android.material.snackbar.Snackbar;
 
@@ -20,18 +24,19 @@ public class PathsUtil {
     public static String APP_SCRIPTS_BIN_PATH;
     public static String SD_PATH;
     public static String APP_SD_PATH;
-    public static String CHROOT_SD_PATH;
     public static String CHROOT_SUDO;
-    public static String CHROOT_INITD_SCRIPT_PATH;
     public static String APP_SD_SQLBACKUP_PATH;
     public static String APP_SD_FILES_IMG_PATH;
     public static String BUSYBOX;
     public static String MAGISK_DB_PATH;
+    @SuppressLint("StaticFieldLeak")
+    private static Context context;
+    @SuppressLint("StaticFieldLeak")
     private static PathsUtil instance;
     private static SharedPreferences prefs;
 
-    @SuppressLint("SdCardPath")
     private PathsUtil(Context context) {
+        PathsUtil.context = context;
         prefs = context.getSharedPreferences("material.hunter", Context.MODE_PRIVATE);
         APP_PATH = context.getFilesDir().getPath();
         APP_DATABASE_PATH = APP_PATH.replace("/files", "/databases");
@@ -43,7 +48,6 @@ public class PathsUtil {
         APP_SD_SQLBACKUP_PATH = APP_SD_PATH + "/Databases";
         APP_SD_FILES_IMG_PATH = APP_SD_PATH + "/Images";
         CHROOT_SUDO = "/usr/bin/sudo";
-        CHROOT_SD_PATH = "/sdcard";
         BUSYBOX = getBusyboxPath();
         MAGISK_DB_PATH = "/data/adb/magisk.db";
     }
@@ -54,10 +58,6 @@ public class PathsUtil {
         }
         return instance;
     }
-
-    /* EOF
-        This three variables defined in bootroot_env
-    */
 
     // Directory with chroots
     public static String SYSTEM_PATH() {
@@ -73,7 +73,6 @@ public class PathsUtil {
     public static String CHROOT_PATH() {
         return SYSTEM_PATH() + "/" + ARCH_FOLDER();
     }
-    /* EOF */
 
     private static String getSdcardPath() {
         return Environment.getExternalStorageDirectory().toString();
@@ -90,15 +89,14 @@ public class PathsUtil {
         return "";
     }
 
-    public static String getBusyboxRaw() {
-        String[] BB_PATHS = {"/system/xbin", "/system/bin"};
-        for (String BB_RAW : BB_PATHS) {
-            File busybox = new File(BB_RAW + "/busybox");
-            if (busybox.exists()) {
-                return BB_RAW;
-            }
-        }
-        return "";
+    public static float dpToPx(float dp){
+        return dp * ((float) context.getResources().getDisplayMetrics().densityDpi / DisplayMetrics.DENSITY_DEFAULT);
+    }
+
+    public static int getNavigationBarHeight() {
+        Resources resources = context.getResources();
+        @SuppressLint({"InternalInsetResource", "DiscouragedApi"}) int resourceId = resources.getIdentifier("navigation_bar_height", "dimen", "android");
+        return resourceId > 0 ? resources.getDimensionPixelSize(resourceId) : 0;
     }
 
     public static void showMessage(Context context, String msg, boolean is_long) {
@@ -107,7 +105,10 @@ public class PathsUtil {
     }
 
     public static void showSnack(View view, String msg, boolean is_long) {
-        Snackbar.make(view, msg, is_long ? Snackbar.LENGTH_LONG : Snackbar.LENGTH_SHORT).show();
+        Snackbar snackbar = Snackbar.make(view, msg, is_long ? Snackbar.LENGTH_LONG : Snackbar.LENGTH_SHORT);
+        View mView = snackbar.getView();
+        mView.setTranslationY(dpToPx(-(getNavigationBarHeight())));
+        snackbar.show();
     }
 
     public static void showSnack(View view, String msg, boolean is_long, String actionText, View.OnClickListener listener) {
@@ -115,6 +116,8 @@ public class PathsUtil {
         if (actionText != null && listener != null) {
             snackbar.setAction(actionText, listener);
         }
+        View mView = snackbar.getView();
+        mView.setTranslationY(dpToPx(-(getNavigationBarHeight())));
         snackbar.show();
     }
 }

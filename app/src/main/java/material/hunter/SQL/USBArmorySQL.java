@@ -1,5 +1,6 @@
 package material.hunter.SQL;
 
+import android.annotation.SuppressLint;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -39,7 +40,7 @@ public class USBArmorySQL extends SQLiteOpenHelper {
 
     public static synchronized USBArmorySQL getInstance(Context context) {
         if (instance == null) {
-            instance = new USBArmorySQL(MainActivity.context);
+            instance = new USBArmorySQL(context);
         }
         return instance;
     }
@@ -131,6 +132,7 @@ public class USBArmorySQL extends SQLiteOpenHelper {
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {}
 
+    @SuppressLint("Range")
     public USBArmoryUSBSwitchModel getUSBSwitchColumnData(
             String targetOSName, String functionName) {
         USBArmoryUSBSwitchModel usbArmoryUSBSwitchModel = new USBArmoryUSBSwitchModel();
@@ -268,24 +270,5 @@ public class USBArmorySQL extends SQLiteOpenHelper {
             return e.toString();
         }
         return null;
-    }
-
-    private boolean ifTableExists(SQLiteDatabase tempDB, String tableName) {
-        boolean tableExists = false;
-        try {
-            Cursor c =
-                    tempDB.rawQuery(
-                            "SELECT name FROM sqlite_master WHERE type='table' AND name='"
-                                    + tableName
-                                    + "'",
-                            null);
-            if (c.getCount() == 1) {
-                tableExists = true;
-            }
-            c.close();
-        } catch (Exception e) {
-            Log.e(TAG, e.toString());
-        }
-        return tableExists;
     }
 }

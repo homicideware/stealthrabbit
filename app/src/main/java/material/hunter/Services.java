@@ -67,7 +67,8 @@ public class Services extends ThemedActivity {
         setContentView(R.layout.services_activity);
 
         _view = getWindow().getDecorView();
-        toolbar = findViewById(R.id.toolbar);
+        View included = findViewById(R.id.included);
+        toolbar = (MaterialToolbar) included.findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);

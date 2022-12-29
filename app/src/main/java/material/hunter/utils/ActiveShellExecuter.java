@@ -1,6 +1,5 @@
 package material.hunter.utils;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Color;
@@ -24,15 +23,12 @@ import java.util.concurrent.Executors;
 
 public abstract class ActiveShellExecuter {
 
-    private Activity activity;
-    private Context context;
-    private ExecutorService executor;
+    private final Context context;
+    private final ExecutorService executor;
+    private final SimpleDateFormat timeStamp = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
     private int endCode = 0;
-    private final SimpleDateFormat timeStamp =
-            new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
 
-    public ActiveShellExecuter(Activity activity, Context context) {
-        this.activity = activity;
+    public ActiveShellExecuter(Context context) {
         this.context = context;
         this.executor = Executors.newSingleThreadExecutor();
     }
@@ -59,7 +55,7 @@ public abstract class ActiveShellExecuter {
                     final Spannable timestamp =
                             prefs.getBoolean("show_timestamp", false)
                                     ? new SpannableString(
-                                            "[ " + timeStamp.format(new Date()) + " ]  ")
+                                    "[ " + timeStamp.format(new Date()) + " ]  ")
                                     : new SpannableString("");
                     if (line.startsWith("[!]"))
                         tempText.setSpan(
@@ -92,9 +88,7 @@ public abstract class ActiveShellExecuter {
                 process.destroy();
                 endCode = process.exitValue();
                 new Handler(Looper.getMainLooper()).post(() -> logger.append("<<<< End with " + endCode + " >>>>\n"));
-            } catch (IOException e) {
-
-            } catch (InterruptedException ex) {
+            } catch (IOException | InterruptedException ignored) {
 
             }
             new Handler(Looper.getMainLooper()).post(() -> onFinished(endCode));

@@ -6,15 +6,12 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Looper;
 import android.os.Handler;
 import android.text.Html;
-import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
 import android.text.Layout;
 import android.text.Spanned;
@@ -33,29 +30,18 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.google.android.material.card.MaterialCardView;
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
-import material.hunter.MainActivity;
 import material.hunter.utils.Checkers;
 import material.hunter.utils.PathsUtil;
 import material.hunter.utils.ShellExecuter;
-import material.hunter.version;
 
 import melville37.contract.JSON;
 import melville37.contract.Web;
-import melville37.MelvilleExecutor;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.MalformedURLException;
-import java.net.URLConnection;
-import java.net.URL;
-import java.nio.charset.Charset;
-import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.regex.Matcher;
@@ -63,31 +49,30 @@ import java.util.regex.Pattern;
 
 public class HomeFragment extends Fragment {
 
-    public static MaterialCardView mh_news_card;
-    public static TextView mh_news;
-    public static ImageView expander;
-    public static TextView version_installed;
-    public static TextView version_avaliable;
-    public static TextView installed_package_name;
-    public static ImageView upgrade;
-    public static MaterialCardView magisk;
-    public static TextView sys_info;
-    public static TextView material_info;
-    public static ImageView materialhunter_license;
-    public static MaterialCardView selinux_card;
-    public static TextView selinux_status;
-    public static MaterialCardView telegram_card;
-    public static TextView telegram_title;
-    public static TextView telegram_description;
-
-    private Context context;
     private Activity activity;
+    private Context context;
     private ExecutorService executor;
     private SharedPreferences prefs;
-    private ShellExecuter exe = new ShellExecuter();
+    private final ShellExecuter exe = new ShellExecuter();
     private int rotationAngle = 0;
     private boolean selinux_enforcing = true;
     private String selinux_now = "enforcing";
+    private MaterialCardView mh_news_card;
+    private TextView mh_news;
+    private ImageView expander;
+    private TextView version_installed;
+    private TextView version_avaliable;
+    private TextView installed_package_name;
+    private ImageView upgrade;
+    private MaterialCardView magisk;
+    private TextView sys_info;
+    private TextView material_info;
+    private ImageView license;
+    private MaterialCardView selinux_card;
+    private TextView selinux_status;
+    private MaterialCardView telegram_card;
+    private TextView telegram_title;
+    private TextView telegram_description;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -117,22 +102,14 @@ public class HomeFragment extends Fragment {
         magisk = view.findViewById(R.id.magisk_card);
         sys_info = view.findViewById(R.id.sys_info);
         material_info = view.findViewById(R.id.material_info);
-        materialhunter_license = view.findViewById(R.id.materialhunter_license);
+        license = view.findViewById(R.id.materialhunter_license);
         selinux_card = view.findViewById(R.id.selinux_card);
         selinux_status = view.findViewById(R.id.selinux_status);
         telegram_card = view.findViewById(R.id.telegram_card);
         telegram_title = view.findViewById(R.id.telegram_title);
         telegram_description = view.findViewById(R.id.telegram_description);
 
-        String package_name = context.getPackageName();
-        String app_version = "";
-
-        try {
-            PackageInfo app_info = context.getPackageManager().getPackageInfo(package_name, 0);
-            app_version = app_info.versionName;
-        } catch (PackageManager.NameNotFoundException e) {
-            app_version = version.name;
-        }
+        String app_version = BuildConfig.VERSION_NAME;
 
         version_installed.setText(app_version);
         installed_package_name.setText(context.getPackageName());
@@ -142,13 +119,11 @@ public class HomeFragment extends Fragment {
             String[] res = {""};
             try {
                 res[0] = Web.getContent("https://raw.githubusercontent.com/Mirivan/dev-root-project/main/.materialhunter");
-                prefs.edit().putString("last_news", res[0]).commit();
+                prefs.edit().putString("last_news", res[0]).apply();
             } catch (IOException e) {
                 res[0] = prefs.getString("last_news", "\u0410\u0432\u0442\u043E\u0440 \u043A\u043B\u0438\u0435\u043D\u0442\u0430 \u0443\u0432\u0430\u0436\u0430\u0435\u0442 \u041A\u043E\u043C\u0430\u0440\u0443, \u0431\u043E\u043B\u044C\u0448\u0435 \u043D\u043E\u0432\u043E\u0441\u0442\u0435\u0439 \u043D\u0435\u0442.");
             }
-            new Handler(Looper.getMainLooper()).post(() -> {
-                mh_news.setText(res[0]);
-            });
+            new Handler(Looper.getMainLooper()).post(() -> mh_news.setText(res[0]));
         });
 
         mh_news_card.setOnClickListener(v -> {
@@ -172,7 +147,7 @@ public class HomeFragment extends Fragment {
 
                         version_avaliable.setText(new_version);
 
-                        if (code > version.latest && ! new_version.equals(version.name)) {
+                        if (code > BuildConfig.VERSION_CODE && ! new_version.equals(BuildConfig.VERSION_NAME)) {
 			            	upgrade.setVisibility(View.VISIBLE);
                             upgrade.setOnClickListener(v -> {
                                 Intent openUrl = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
@@ -181,7 +156,7 @@ public class HomeFragment extends Fragment {
 			            }
                     });
                 }
-            } catch (JSONException | IOException e) {
+            } catch (JSONException | IOException ignored) {
             }
         });
 
@@ -215,20 +190,8 @@ public class HomeFragment extends Fragment {
         executor.execute(() -> {
             StringBuilder sb = new StringBuilder();
 
-            sb.append(
-                "Model: "
-                        + Build.BRAND
-                        + " "
-                        + Build.MODEL
-                        + " ("
-                        + HardwareProps.getProp("ro.build.product")
-                        + ")\n");
-            sb.append(
-                "OS Version: Android "
-                        + Build.VERSION.RELEASE
-                        + ", SDK "
-                        + Build.VERSION.SDK_INT
-                        + "\n");
+            sb.append("Model: ").append(Build.BRAND).append(" ").append(Build.MODEL).append(" (").append(HardwareProps.getProp("ro.build.product")).append(")\n");
+            sb.append("OS Version: Android ").append(Build.VERSION.RELEASE).append(", SDK ").append(Build.VERSION.SDK_INT).append("\n");
             sb.append(
                 "CPU: "
                         + matchString("^Hardware.*: (.*)", exe.RunAsRootOutput("cat /proc/cpuinfo | grep \"Hardware\""), 1)
@@ -262,7 +225,7 @@ public class HomeFragment extends Fragment {
 
         material_info.setText("Made with \u2764\uFE0F by @mirivan");
 
-        materialhunter_license.setOnClickListener(v -> {
+        license.setOnClickListener(v -> {
             Intent intent = new Intent(context, AboutActivity.class);
             startActivity(intent);
         });
@@ -275,23 +238,21 @@ public class HomeFragment extends Fragment {
                 selinux_status.setText("Selinux status: " + selinux_now + ". Click to change it.");
             });
         });
-        selinux_card.setOnClickListener(v -> {
-            executor.execute(() -> {
-                exe.RunAsRoot("setenforce " + (selinux_enforcing ? "0" : "1"));
-                selinux_enforcing = !selinux_enforcing;
-                selinux_now = selinux_enforcing ? "enforcing" : "permissive";
+        selinux_card.setOnClickListener(v -> executor.execute(() -> {
+            exe.RunAsRoot("setenforce " + (selinux_enforcing ? "0" : "1"));
+            selinux_enforcing = !selinux_enforcing;
+            selinux_now = selinux_enforcing ? "enforcing" : "permissive";
 
-                new Handler(Looper.getMainLooper()).post(() -> {
-                    selinux_status.setText("Selinux status: " + selinux_now + ". Click to change it.");
-                });
+            new Handler(Looper.getMainLooper()).post(() -> {
+                selinux_status.setText("Selinux status: " + selinux_now + ". Click to change it.");
             });
-        });
+        }));
 
         executor.execute(() -> {
             String[] telegram_parsed = {""};
             try {
                 telegram_parsed[0] = Web.getContent("https://t.me/kali_nh");
-            } catch (IOException e) {
+            } catch (IOException ignored) {
             }
             new Handler(Looper.getMainLooper()).post(() -> {
                 if (telegram_parsed[0].isEmpty()) {
@@ -359,7 +320,7 @@ public class HomeFragment extends Fragment {
     }
 
     // https://stackoverflow.com/a/15362634
-    public class LinkMovementMethodOverride implements View.OnTouchListener {
+    public static class LinkMovementMethodOverride implements View.OnTouchListener {
 
         @Override
         public boolean onTouch(View v, MotionEvent event) {
@@ -390,7 +351,7 @@ public class HomeFragment extends Fragment {
                     if (link.length != 0) {
                         if (action == MotionEvent.ACTION_UP) {
                             link[0].onClick(widget);
-                        } else if (action == MotionEvent.ACTION_DOWN) {                             
+                        } else if (action == MotionEvent.ACTION_DOWN) {
                             // Selection only works on Spannable text. In our case setSelection doesn't work on spanned text
                             // Selection.setSelection(buffer, buffer.getSpanStart(link[0]), buffer.getSpanEnd(link[0]));
                         }

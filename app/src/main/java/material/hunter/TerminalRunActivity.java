@@ -29,7 +29,7 @@ public class TerminalRunActivity extends Activity {
                 | PackageManager.NameNotFoundException
                 | SecurityException e) {
             PathsUtil.showMessage(
-                    context, "Something worng, try to open terminal in MaterialHunter.", true);
+                    context, "Something wrong, try to open terminal in MaterialHunter.", true);
         }
         finish();
     }

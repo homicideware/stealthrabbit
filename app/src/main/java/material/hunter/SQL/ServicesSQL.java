@@ -1,5 +1,6 @@
 package material.hunter.SQL;
 
+import android.annotation.SuppressLint;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -41,7 +42,7 @@ public class ServicesSQL extends SQLiteOpenHelper {
 
     public static synchronized ServicesSQL getInstance(Context context) {
         if (instance == null) {
-            instance = new ServicesSQL(MainActivity.context);
+            instance = new ServicesSQL(context);
         }
         return instance;
     }
@@ -85,6 +86,7 @@ public class ServicesSQL extends SQLiteOpenHelper {
         this.onCreate(db);
     }
 
+    @SuppressLint("Range")
     public ArrayList<ServicesModel> bindData(ArrayList<ServicesModel> servicesModelArrayList) {
         SQLiteDatabase db = getWritableDatabase();
         Cursor cursor =

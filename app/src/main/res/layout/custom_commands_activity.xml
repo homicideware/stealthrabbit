@@ -4,17 +4,11 @@
     android:layout_height="match_parent"
     android:orientation="vertical" >
 
-    <com.google.android.material.appbar.AppBarLayout
-        android:id="@+id/appbar"
-        style="@style/Widget.Mirivan.AppBar"
+    <include
+        android:id="@+id/included"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
-
-        <com.google.android.material.appbar.MaterialToolbar
-            android:id="@+id/toolbar"
-            style="@style/Widget.Mirivan.Toolbar"
-            android:layout_width="match_parent" />
-    </com.google.android.material.appbar.AppBarLayout>
+        android:layout_height="wrap_content"
+        layout="@layout/actionbar_layout" />
 
     <LinearLayout
         android:id="@+id/f_customcommands_recyclerview_layout"
@@ -22,7 +16,7 @@
         android:layout_height="0dp"
         android:layout_marginTop="4dp"
         app:layout_constraintBottom_toTopOf="@+id/f_customcommands_btn_scrollView"
-        app:layout_constraintTop_toBottomOf="@+id/appbar"
+        app:layout_constraintTop_toBottomOf="@+id/included"
         android:orientation="vertical" >
 
         <androidx.recyclerview.widget.RecyclerView

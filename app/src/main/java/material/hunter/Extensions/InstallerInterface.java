@@ -1,5 +1,6 @@
 package material.hunter.Extensions;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -10,12 +11,11 @@ import android.os.Build;
 import android.os.Environment;
 import android.os.PowerManager;
 
-import material.hunter.MainActivity;
+import material.hunter.BuildConfig;
 import material.hunter.utils.Checkers;
 import material.hunter.utils.PathsUtil;
 import material.hunter.utils.PermissionsUtil;
 import material.hunter.utils.ShellExecuter;
-import material.hunter.version;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -26,13 +26,13 @@ import java.io.OutputStream;
 public class InstallerInterface {
 
     private Activity activity;
-    private Context context;
+    private final Context context;
     private File scriptsDir = new File(PathsUtil.APP_SCRIPTS_PATH);
     private File sdcardDir = new File(PathsUtil.APP_SD_PATH);
     private File etcDir = new File(PathsUtil.APP_INITD_PATH);
-    private PermissionsUtil permissions;
-    private SharedPreferences prefs;
-    private ShellExecuter exe = new ShellExecuter();
+    private final PermissionsUtil permissions;
+    private final SharedPreferences prefs;
+    private final ShellExecuter exe = new ShellExecuter();
 
     public InstallerInterface(Activity activity, Context context) {
         this.activity = activity;
@@ -41,10 +41,11 @@ public class InstallerInterface {
         this.permissions = new PermissionsUtil(this.activity, this.context);
         if (!sdcardDir.isDirectory() || intAssist() || !scriptsDir.isDirectory() || !etcDir.isDirectory()) {
             copyBootFiles();
-            prefs.edit().putInt("version", version.latest).commit();
+            prefs.edit().putInt("version", BuildConfig.VERSION_CODE).apply();
         }
     }
 
+    @SuppressLint("BatteryLife")
     private void copyBootFiles() {
         if (!Checkers.isRoot()) {
             return;
@@ -93,8 +94,8 @@ public class InstallerInterface {
         }
 
         // Request to remove battery optimization mode and request overlay permission for Termux
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            PowerManager pm = (PowerManager) context.getSystemService(context.POWER_SERVICE);
+        {
+            PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
             String packageName = context.getPackageName();
             if (!pm.isIgnoringBatteryOptimizations(packageName)) {
                 Intent intent = new Intent();
@@ -183,7 +184,7 @@ public class InstallerInterface {
                     }
                 }
             }
-        } catch (IOException ex) {
+        } catch (IOException ignored) {
         }
     }
 
@@ -194,11 +195,11 @@ public class InstallerInterface {
         AssetManager assetManager = context.getAssets();
         InputStream in;
         OutputStream out;
-        String newFileName = null;
+        String newFileName;
         try {
             in = assetManager.open(filename);
             newFileName = TARGET_BASE_PATH + "/" + filename;
-            out = new FileOutputStream(renameAssetIfneeded(newFileName));
+            out = new FileOutputStream(renameAssetNeeded(newFileName));
             byte[] buffer = new byte[8092];
             int read;
             while ((read = in.read(buffer)) != -1) {
@@ -215,14 +216,17 @@ public class InstallerInterface {
 
     // This rename the filename which suffix is either [name]-arm64 or [name]-armeabi to [name]
     // according to the user's CPU ABI.
-    private String renameAssetIfneeded(String asset) {
-        if (asset.matches("^.*-arm64$")) {
-            if (Build.CPU_ABI.equals("arm64-v8a")) {
-                return (asset.replaceAll("-arm64$", ""));
-            }
-        } else if (asset.matches("^.*-armeabi$")) {
-            if (!Build.CPU_ABI.equals("arm64-v8a")) {
-                return (asset.replaceAll("-armeabi$", ""));
+    private String renameAssetNeeded(String asset) {
+        String arch = getArch();
+        if (arch != null) {
+            if (asset.matches("^.*-arm64$")) {
+                if (getArch().equals("arm64")) {
+                    return (asset.replaceAll("-arm64$", ""));
+                }
+            } else if (asset.matches("^.*-armeabi$")) {
+                if (!getArch().equals("arm64")) {
+                    return (asset.replaceAll("-armeabi$", ""));
+                }
             }
         }
         return asset;
@@ -230,7 +234,18 @@ public class InstallerInterface {
 
     private boolean intAssist() {
         int now = prefs.getInt("version", 0);
-        if (version.latest != now) return true;
-        else return false;
+        return BuildConfig.VERSION_CODE != now;
+    }
+
+    private String getArch() {
+        for (String androidArch : Build.SUPPORTED_ABIS) {
+            switch (androidArch) {
+                case "arm64-v8a": return "arm64";
+                case "armeabi-v7a": return "arm";
+                case "x86_64": return "x86_64";
+                case "x86": return "x86";
+            }
+        }
+        return null;
     }
 }

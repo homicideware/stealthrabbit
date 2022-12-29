@@ -3,6 +3,7 @@ package material.hunter;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
@@ -27,7 +28,8 @@ public class AboutActivity extends ThemedActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.about_activity);
 
-        toolbar = findViewById(R.id.toolbar);
+        View included = findViewById(R.id.included);
+        toolbar = included.findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
@@ -38,8 +40,8 @@ public class AboutActivity extends ThemedActivity {
         open_licenses = findViewById(R.id.open_licenses);
         open_github = findViewById(R.id.open_github);
 
-        app_name.setText(getString(R.string.app_name) + " " + version.name);
-        author.setText("by " + version.author);
+        app_name.setText(getString(R.string.app_name) + " " + BuildConfig.VERSION_NAME);
+        author.setText("by " + BuildConfig.AUTHOR);
 
         open_developers.setOnClickListener(v -> {
             Intent intent = new Intent(this, AuthorsActivity.class);

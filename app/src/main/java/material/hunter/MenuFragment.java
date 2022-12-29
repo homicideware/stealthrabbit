@@ -8,6 +8,7 @@ import android.content.pm.PackageManager;
 import android.content.pm.ShortcutInfo;
 import android.content.pm.ShortcutManager;
 import android.graphics.drawable.Icon;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -43,6 +44,7 @@ public class MenuFragment extends Fragment {
     private static MaterialCardView terminal;
     private static MaterialCardView custom_commands;
     private static MaterialCardView services;
+    private static MaterialCardView macchanger;
     private static final String SHORTCUT_ID = "material.hunter.shortcut";
 
     @Override
@@ -65,6 +67,7 @@ public class MenuFragment extends Fragment {
         terminal = view.findViewById(R.id.terminal);
         custom_commands = view.findViewById(R.id.custom_commands);
         services = view.findViewById(R.id.services);
+        macchanger = view.findViewById(R.id.macchanger);
         terminalUtil = new TerminalUtil(activity, context);
 
         help.setOnClickListener(v -> {
@@ -95,18 +98,18 @@ public class MenuFragment extends Fragment {
         });
 
         terminal.setOnClickListener(v -> {
-            if (!isShortcutPinned()) {
-                MaterialAlertDialogBuilder adb = new MaterialAlertDialogBuilder(context);
-                adb.setTitle("MaterialHunter");
-                adb.setMessage("We recommend creating a shortcut on your desktop to quickly launch the Terminal");
-                adb.setPositiveButton("Create", (di, i) -> {
-                    createShortcut();
-                });
-                adb.setNeutralButton("Open in app", (di, i) -> {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                if (isShortcutPinned()) {
                     runTerminalInChroot();
-                });
-                adb.setNegativeButton("Cancel", (di, i) -> {});
-                adb.show();
+                } else {
+                    MaterialAlertDialogBuilder adb = new MaterialAlertDialogBuilder(context);
+                    adb.setTitle("MaterialHunter");
+                    adb.setMessage("We recommend creating a shortcut on your desktop to quickly launch the Terminal.");
+                    adb.setPositiveButton("Create", (di, i) -> createShortcut());
+                    adb.setNeutralButton("Open in app", (di, i) -> runTerminalInChroot());
+                    adb.setNegativeButton("Cancel", (di, i) -> {});
+                    adb.show();
+                }
             } else {
                 runTerminalInChroot();
             }
@@ -119,6 +122,11 @@ public class MenuFragment extends Fragment {
 
         services.setOnClickListener(v -> {
             Intent intent = new Intent(context, Services.class);
+            startActivity(intent);
+        });
+
+        macchanger.setOnClickListener(v -> {
+            Intent intent = new Intent(context, MACChanger.class);
             startActivity(intent);
         });
     }

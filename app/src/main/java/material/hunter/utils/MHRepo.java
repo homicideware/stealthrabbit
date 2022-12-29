@@ -30,8 +30,8 @@ public class MHRepo {
             try {
                 String obj = repo.getString(keys.get(i));
                 JSONObject chroot = new JSONObject(obj);
-                if (chroot.has("name") && (chroot.has("url") || chroot.has("file")) && chroot.has("author"))
-                    continue;
+                if (chroot.has("name") && (chroot.has("url") || chroot.has("file")) && chroot.has("author")) {
+                }
                 else
                     return false;
             } catch (JSONException e) {
@@ -50,7 +50,7 @@ public class MHRepo {
                 String name = jsonObj.getString("name");
                 mainKeys.add(name);
             }
-        } catch (JSONException e) {
+        } catch (JSONException ignored) {
         }
         return mainKeys;
     }

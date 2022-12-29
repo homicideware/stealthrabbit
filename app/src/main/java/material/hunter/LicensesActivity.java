@@ -2,6 +2,7 @@ package material.hunter;
 
 import android.content.res.AssetManager;
 import android.os.Bundle;
+import android.view.View;
 
 import androidx.appcompat.app.ActionBar;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -33,7 +34,8 @@ public class LicensesActivity extends ThemedActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.licenses_activity);
 
-        toolbar = findViewById(R.id.toolbar);
+        View included = findViewById(R.id.included);
+        toolbar = included.findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
@@ -61,12 +63,12 @@ public class LicensesActivity extends ThemedActivity {
                     builder = new StringBuilder();
                 }
             }
-        } catch (IOException e) {
+        } catch (IOException ignored) {
         } finally {
             if (reader != null) {
                 try {
                     reader.close();
-                } catch (IOException e) {
+                } catch (IOException ignored) {
                 }
             }
         }

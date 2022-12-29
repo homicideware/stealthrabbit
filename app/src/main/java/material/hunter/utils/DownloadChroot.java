@@ -1,6 +1,5 @@
 package material.hunter.utils;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Color;
@@ -17,7 +16,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
 import java.text.SimpleDateFormat;
@@ -26,26 +24,23 @@ import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import material.hunter.version;
+import material.hunter.BuildConfig;
 
 public abstract class DownloadChroot {
 
-    private Activity activity;
-    private Context context;
-    private ExecutorService executor;
+    private final Context context;
+    private final ExecutorService executor;
     private TextView logger;
     private SharedPreferences prefs;
     private int mResultCode = 0;
-    private final SimpleDateFormat timeStamp =
-            new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
+    private final SimpleDateFormat timeStamp = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
 
-    public DownloadChroot(Activity activity, Context context) {
-        this.activity = activity;
+    public DownloadChroot(Context context) {
         this.context = context;
         this.executor = Executors.newSingleThreadExecutor();
     }
 
-    private void init(String link, File out) {
+    private void start(String link, File out) {
         onPrepare();
         prefs = context.getSharedPreferences(
                 "material.hunter", Context.MODE_PRIVATE);
@@ -55,12 +50,12 @@ public abstract class DownloadChroot {
 
                 int count;
                 URL url = new URL(link);
-                URLConnection connection = (HttpURLConnection) url.openConnection();
+                URLConnection connection = url.openConnection();
                 connection.setRequestProperty(
                         "User-Agent",
                         "Mozilla/5.0 (Linux; Android " + Build.VERSION.RELEASE + "; " + Build.DEVICE +")" +
                         " AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.131 Mobile Safari/537.36"
-                        + " MaterialHunter/" + version.name);
+                        + " MaterialHunter/" + BuildConfig.VERSION_CODE);
                 int lengthOfFile = connection.getContentLength();
                 connection.setConnectTimeout(10000);
                 connection.setReadTimeout(10000);
@@ -113,7 +108,7 @@ public abstract class DownloadChroot {
 
     public void exec(String link, File out, TextView logger) {
         this.logger = logger;
-        init(link, out);
+        start(link, out);
     }
 
     public abstract void onPrepare();

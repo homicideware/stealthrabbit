@@ -72,8 +72,8 @@ public class USBArmory extends ThemedActivity {
     private TextView mountedImageHintTextView;
     private View _view;
 
-    private ShellExecuter exe = new ShellExecuter();
-    private EditText[] usbSwitchInfoEditTextGroup = new TextInputEditText[5];
+    private final ShellExecuter exe = new ShellExecuter();
+    private final EditText[] usbSwitchInfoEditTextGroup = new TextInputEditText[5];
 
     MaterialToolbar toolbar;
 
@@ -87,7 +87,8 @@ public class USBArmory extends ThemedActivity {
         setContentView(R.layout.usbarmory_activity);
 
         _view = getWindow().getDecorView();
-        toolbar = findViewById(R.id.toolbar);
+        View included = findViewById(R.id.included);
+        toolbar = included.findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
@@ -203,44 +204,31 @@ public class USBArmory extends ThemedActivity {
                 });
 
         targetOSSpinner.setOnItemClickListener(
-                new AdapterView.OnItemClickListener() {
-                    @Override
-                    public void onItemClick(AdapterView<?> adapterView, View v, int i, long l) {
-                        if (i == 2) {
-                            usbFuncSpinner.setAdapter(usbFuncMACArrayAdapter);
-                        } else {
-                            usbFuncSpinner.setAdapter(usbFuncWinArrayAdapter);
-                        }
-                        refreshUSBSwitchInfos(
-                                gettargetOSSpinnerString(), getusbFuncSpinnerString());
+                (adapterView, v, i, l) -> {
+                    if (i == 2) {
+                        usbFuncSpinner.setAdapter(usbFuncMACArrayAdapter);
+                    } else {
+                        usbFuncSpinner.setAdapter(usbFuncWinArrayAdapter);
                     }
+                    refreshUSBSwitchInfos(
+                            gettargetOSSpinnerString(), getusbFuncSpinnerString());
                 });
 
         usbFuncSpinner.setOnItemClickListener(
-                new AdapterView.OnItemClickListener() {
-                    @Override
-                    public void onItemClick(
-                            AdapterView<?> parent, View view, int position, long id) {
-                        if (position == 0) {
-                            adbSpinnerLayout.setEnabled(false);
-                            adbSpinner.setText("Disable", false);
-                        } else {
-                            adbSpinnerLayout.setEnabled(true);
-                        }
-                        refreshUSBSwitchInfos(
-                                gettargetOSSpinnerString(), getusbFuncSpinnerString());
+                (parent, view, position, id) -> {
+                    if (position == 0) {
+                        adbSpinnerLayout.setEnabled(false);
+                        adbSpinner.setText("Disable", false);
+                    } else {
+                        adbSpinnerLayout.setEnabled(true);
                     }
+                    refreshUSBSwitchInfos(
+                            gettargetOSSpinnerString(), getusbFuncSpinnerString());
                 });
 
         adbSpinner.setOnItemClickListener(
-                new AdapterView.OnItemClickListener() {
-                    @Override
-                    public void onItemClick(
-                            AdapterView<?> parent, View view, int position, long id) {
-                        refreshUSBSwitchInfos(
-                                gettargetOSSpinnerString(), getusbFuncSpinnerString());
-                    }
-                });
+                (parent, view, position, id) -> refreshUSBSwitchInfos(
+                        gettargetOSSpinnerString(), getusbFuncSpinnerString()));
 
         setUSBIfaceButton.setOnClickListener(
                 v -> {
@@ -327,70 +315,66 @@ public class USBArmory extends ThemedActivity {
                 });
 
         reloadUSBStateImageButton.setOnClickListener(
-                v -> {
-                    executor.execute(
-                            () -> {
-                                String result =
-                                        exe.RunAsRootOutput(
-                                                "find /config/usb_gadget/g1/configs/b.1 -type l"
-                                                        + " -exec readlink -e {} \\; | xargs echo");
-                                new Handler(Looper.getMainLooper())
-                                        .post(
-                                                () -> {
-                                                    if (result.equals("")) {
-                                                        usbStatusTextView.setText(
-                                                                "No USB function has been enabled");
+                v -> executor.execute(
+                        () -> {
+                            String result =
+                                    exe.RunAsRootOutput(
+                                            "find /config/usb_gadget/g1/configs/b.1 -type l"
+                                                    + " -exec readlink -e {} \\; | xargs echo");
+                            new Handler(Looper.getMainLooper())
+                                    .post(
+                                            () -> {
+                                                if (result.equals("")) {
+                                                    usbStatusTextView.setText(
+                                                            "No USB function has been enabled");
+                                                    imageMounterLL.setVisibility(View.GONE);
+                                                    mountedImageHintTextView.setVisibility(
+                                                            View.VISIBLE);
+                                                } else {
+                                                    usbStatusTextView.setText(
+                                                            result.replaceAll(
+                                                                            "/config/usb_gadget/g1/functions/",
+                                                                            "")
+                                                                    .replaceAll(
+                                                                            "/config/usb_gadget/g1/functions",
+                                                                            "gsi.rndis")
+                                                                    .replaceAll(" ", "\n"));
+                                                    if (usbStatusTextView
+                                                            .getText()
+                                                            .toString()
+                                                            .contains("mass_storage")) {
+                                                        imageMounterLL.setVisibility(
+                                                                View.VISIBLE);
+                                                        mountedImageHintTextView.setVisibility(
+                                                                View.GONE);
+                                                        getImageFiles();
+                                                    } else {
                                                         imageMounterLL.setVisibility(View.GONE);
                                                         mountedImageHintTextView.setVisibility(
                                                                 View.VISIBLE);
-                                                    } else {
-                                                        usbStatusTextView.setText(
-                                                                result.replaceAll(
-                                                                                "/config/usb_gadget/g1/functions/",
-                                                                                "")
-                                                                        .replaceAll(
-                                                                                "/config/usb_gadget/g1/functions",
-                                                                                "gsi.rndis")
-                                                                        .replaceAll(" ", "\n"));
-                                                        if (usbStatusTextView
-                                                                .getText()
-                                                                .toString()
-                                                                .contains("mass_storage")) {
-                                                            imageMounterLL.setVisibility(
-                                                                    View.VISIBLE);
-                                                            mountedImageHintTextView.setVisibility(
-                                                                    View.GONE);
-                                                            getImageFiles();
-                                                        } else {
-                                                            imageMounterLL.setVisibility(View.GONE);
-                                                            mountedImageHintTextView.setVisibility(
-                                                                    View.VISIBLE);
-                                                        }
                                                     }
-                                                });
-                            });
-                });
+                                                }
+                                            });
+                        }));
 
         reloadMountStateButton.setOnClickListener(
-                v -> {
-                    executor.execute(
-                            () -> {
-                                String result =
-                                        exe.RunAsRootOutput(
-                                                "cat /config/usb_gadget/g1/functions/mass_storage.0/lun.0/file");
-                                new Handler(Looper.getMainLooper())
-                                        .post(
-                                                () -> {
-                                                    if (result.equals("")) {
-                                                        mountedImageTextView.setText(
-                                                                "No image is mounted");
-                                                    } else {
-                                                        mountedImageTextView.setText(result);
-                                                    }
-                                                    getImageFiles();
-                                                });
-                            });
-                });
+                v -> executor.execute(
+                        () -> {
+                            String result =
+                                    exe.RunAsRootOutput(
+                                            "cat /config/usb_gadget/g1/functions/mass_storage.0/lun.0/file");
+                            new Handler(Looper.getMainLooper())
+                                    .post(
+                                            () -> {
+                                                if (result.equals("")) {
+                                                    mountedImageTextView.setText(
+                                                            "No image is mounted");
+                                                } else {
+                                                    mountedImageTextView.setText(result);
+                                                }
+                                                getImageFiles();
+                                            });
+                        }));
 
         mountImgButton.setOnClickListener(
                 v -> {
@@ -487,8 +471,8 @@ public class USBArmory extends ThemedActivity {
                                             false);
                                     reloadMountStateButton.performClick();
                                 } else {
-                                    PathsUtil.showSnack(
-                                            _view,
+                                    PathsUtil.showMessage(
+                                            context,
                                             "Failed to unmount image "
                                                     + imgFileSpinner.getText().toString()
                                                     + ". Your drive may be still be in use by the"
@@ -520,7 +504,7 @@ public class USBArmory extends ThemedActivity {
                                 PathsUtil.showSnack(
                                         _view,
                                         "Something wrong when processing key "
-                                                + Integer.toString(i),
+                                                + i,
                                         false);
                             }
                             PathsUtil.showSnack(_view, "Done!", false);

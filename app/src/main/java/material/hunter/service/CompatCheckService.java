@@ -14,7 +14,6 @@ import material.hunter.utils.ShellExecuter;
 
 public class CompatCheckService extends IntentService {
 
-    private String message = "";
     private int RESULTCODE = -1;
     private SharedPreferences prefs;
 
@@ -40,7 +39,7 @@ public class CompatCheckService extends IntentService {
     @Override
     public void onCreate() {
         super.onCreate();
-        prefs = MainActivity.context.getSharedPreferences("material.hunter", MODE_PRIVATE);
+        prefs = getApplicationContext().getSharedPreferences("material.hunter", MODE_PRIVATE);
     }
 
     @Override

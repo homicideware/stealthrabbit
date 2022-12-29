@@ -1,5 +1,6 @@
 package material.hunter.SQL;
 
+import android.annotation.SuppressLint;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -42,7 +43,7 @@ public class CustomCommandsSQL extends SQLiteOpenHelper {
 
     public static synchronized CustomCommandsSQL getInstance(Context context) {
         if (instance == null) {
-            instance = new CustomCommandsSQL(MainActivity.context);
+            instance = new CustomCommandsSQL(context);
         }
         return instance;
     }
@@ -83,6 +84,7 @@ public class CustomCommandsSQL extends SQLiteOpenHelper {
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {}
 
+    @SuppressLint("Range")
     public ArrayList<CustomCommandsModel> bindData(
             ArrayList<CustomCommandsModel> customCommandsModelArrayList) {
         SQLiteDatabase db = getWritableDatabase();
@@ -348,24 +350,5 @@ public class CustomCommandsSQL extends SQLiteOpenHelper {
             return e.toString();
         }
         return null;
-    }
-
-    private boolean ifTableExists(SQLiteDatabase tempDB, String tableName) {
-        boolean tableExists = false;
-        try {
-            Cursor c =
-                    tempDB.rawQuery(
-                            "SELECT name FROM sqlite_master WHERE type='table' AND name='"
-                                    + tableName
-                                    + "'",
-                            null);
-            if (c.getCount() == 1) {
-                tableExists = true;
-            }
-            c.close();
-        } catch (Exception e) {
-            Log.e(TAG, e.toString());
-        }
-        return tableExists;
     }
 }

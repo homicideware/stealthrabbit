@@ -4,18 +4,14 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.util.TypedValue;
 import android.view.MenuItem;
-import android.view.WindowManager;
+import android.view.View;
 
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatDelegate;
-import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
@@ -30,16 +26,13 @@ import material.hunter.utils.PathsUtil;
 import material.hunter.utils.PermissionsUtil;
 import material.hunter.utils.TerminalUtil;
 
-import mirivan.TransparentQ;
-
 public class MainActivity extends ThemedActivity {
 
-    public static Activity activity;
-    public static Context context;
+    private Activity activity;
+    private Context context;
     private static ActionBar actionBar;
     private static MenuItem lastSelectedMenuItem;
     private BottomNavigationView bn;
-    private PermissionsUtil permissions;
     private SharedPreferences prefs;
     private static boolean chroot_installed = false;
     private static float kernel_base = 1.0f;
@@ -60,23 +53,6 @@ public class MainActivity extends ThemedActivity {
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
         } else {
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
-        }
-        if (prefs.getBoolean("show_wallpaper", false)) {
-            getWindow()
-                    .setFlags(
-                            WindowManager.LayoutParams.FLAG_SHOW_WALLPAPER,
-                            WindowManager.LayoutParams.FLAG_SHOW_WALLPAPER);
-            int alpha_level = prefs.getInt("background_alpha_level", 10);
-            TypedValue typedValue = new TypedValue();
-            getTheme().resolveAttribute(R.attr.colorSurface, typedValue, true);
-            String color =
-                    Integer.toHexString(ContextCompat.getColor(this, typedValue.resourceId))
-                            .substring(2);
-            getWindow()
-                    .getDecorView()
-                    .setBackground(
-                            new ColorDrawable(
-                                    Color.parseColor(TransparentQ.p2c(color, alpha_level))));
         }
 
         context = this;
@@ -116,18 +92,14 @@ public class MainActivity extends ThemedActivity {
 
     private void setRootView() {
         setContentView(R.layout.main_activity);
-        toolbar = findViewById(R.id.toolbar);
+        View included = findViewById(R.id.included);
+        toolbar = included.findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         actionBar = getSupportActionBar();
 
         bn = findViewById(R.id.bottomnavigation);
 
-        bn.setOnItemSelectedListener(item -> {
-            return changeFragment(item.getItemId(), item);
-        });
-
-        FragmentManager fm = getSupportFragmentManager();
-        FragmentTransaction fmt = fm.beginTransaction();
+        bn.setOnItemSelectedListener(item -> changeFragment(item.getItemId(), item));
 
         if (lastSelectedMenuItem == null) lastSelectedMenuItem = bn.getMenu().getItem(0);
 
@@ -238,9 +210,7 @@ public class MainActivity extends ThemedActivity {
 
     public static void setChrootInstalled(boolean _chroot_installed) {
         chroot_installed = _chroot_installed;
-        new Handler(Looper.getMainLooper()).post(() -> {
-            MenuFragment.compatVerified(_chroot_installed);
-        });
+        new Handler(Looper.getMainLooper()).post(() -> MenuFragment.compatVerified(_chroot_installed));
     }
 
     public static float getKernelBase() {

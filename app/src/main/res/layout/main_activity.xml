@@ -4,17 +4,11 @@
     android:layout_height="match_parent"
     android:orientation="vertical" >
 
-    <com.google.android.material.appbar.AppBarLayout
-        android:id="@+id/appbar"
-        style="@style/Widget.Mirivan.AppBar"
+    <include
+        android:id="@+id/included"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
-
-        <com.google.android.material.appbar.MaterialToolbar
-            android:id="@+id/toolbar"
-            style="@style/Widget.Mirivan.Toolbar"
-            android:layout_width="match_parent" />
-    </com.google.android.material.appbar.AppBarLayout>
+        android:layout_height="wrap_content"
+        layout="@layout/actionbar_layout" />
 
     <FrameLayout
         android:id="@+id/frame"

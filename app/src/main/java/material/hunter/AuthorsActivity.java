@@ -2,6 +2,7 @@ package material.hunter;
 
 import android.content.res.AssetManager;
 import android.os.Bundle;
+import android.view.View;
 
 import androidx.appcompat.app.ActionBar;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -24,7 +25,7 @@ public class AuthorsActivity extends ThemedActivity {
     private static ActionBar actionBar;
 
     private RecyclerView recycler;
-    private List<AuthorsModel> list = new ArrayList<AuthorsModel>();
+    private final List<AuthorsModel> list = new ArrayList<AuthorsModel>();
 
     MaterialToolbar toolbar;
 
@@ -33,7 +34,8 @@ public class AuthorsActivity extends ThemedActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.authors_activity);
 
-        toolbar = findViewById(R.id.toolbar);
+        View included = findViewById(R.id.included);
+        toolbar = included.findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
@@ -62,7 +64,7 @@ public class AuthorsActivity extends ThemedActivity {
                                 builded.length > 2 ? builded[2] : ""));
                 builder = new StringBuilder();
             }
-        } catch (IOException e) {
+        } catch (IOException ignored) {
         } finally {
             if (reader != null) {
                 try {

@@ -31,20 +31,18 @@ public class TerminalUtil {
             "grep \"allow-external-apps\" /data/data/com.termux/files/home/.termux/termux.properties |"
                 + " sed -n \"s/^allow-external-apps=\\(.*\\)/\\1/p\"";
     public static final String TERMUX_SET_EXTERNAL_APPS_TRUE_CMD =
-            "if [ -z \"$(grep \\\"allow-external-apps\\\" /data/data/com.termux/files/home/.termux/termux.properties)\" ]; then"
-                + " echo \"allow-external-apps=true\" >> /data/data/com.termux/files/home/.termux/termux.properties; else sed -i -r"
-                + " s/\"^#?allow-external-apps=.*\"/\"allow-external-apps=true\"/g"
-                + " /data/data/com.termux/files/home/.termux/termux.properties; fi";
+            "if [[ ! $(grep \"allow-external-apps=\" /data/data/com.termux/files/home/.termux/termux.properties) ]]; then" +
+                    " echo \"allow-external-apps=true\" >> /data/data/com.termux/files/home/.termux/termux.properties; else sed -i -r" +
+                    " s/\"^#?allow-external-apps=.*\"/\"allow-external-apps=true\"/g" +
+                    " /data/data/com.termux/files/home/.termux/termux.properties; fi";
 
-    private Activity activity;
-    private Context context;
-    private static ShellExecuter exe = new ShellExecuter();
+    private final Context context;
+    private static final ShellExecuter exe = new ShellExecuter();
     private static ExecutorService executor;
     private static SharedPreferences prefs;
     private static PermissionsUtil permissions;
 
     public TerminalUtil(Activity activity, Context context) {
-        this.activity = activity;
         this.context = context;
         executor = Executors.newSingleThreadExecutor();
         permissions = new PermissionsUtil(activity, context);

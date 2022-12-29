@@ -1,8 +1,6 @@
 package material.hunter;
 
 import android.app.Activity;
-import android.content.ClipboardManager;
-import android.content.ClipData;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -12,7 +10,6 @@ import android.os.Handler;
 import android.os.Looper;
 import android.text.Html;
 import android.text.method.LinkMovementMethod;
-import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -22,8 +19,6 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
-import android.widget.EditText;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -62,7 +57,7 @@ public class ManagerFragment extends Fragment {
     private Context context;
     private ActionBar actionBar;
     private ExecutorService executor;
-    private ShellExecuter exe = new ShellExecuter();
+    private final ShellExecuter exe = new ShellExecuter();
     private TextView resultViewerLoggerTextView;
     private Button mountChrootButton;
     private Button unmountChrootButton;
@@ -152,9 +147,9 @@ public class ManagerFragment extends Fragment {
                     apply.setOnClickListener(v -> {
                         if (path.getText().toString().matches("^[A-z0-9.\\/\\-_~]+$")) {
                             sharedPreferences
-                                .edit()
-                                .putString("chroot_directory", path.getText().toString())
-                                .apply();
+                                    .edit()
+                                    .putString("chroot_directory", path.getText().toString())
+                                    .apply();
                             editAd.dismiss();
                             compatCheck();
                         } else PathsUtil.showSnack(getView(), "Invalid chroot directory name.", false);
@@ -208,7 +203,7 @@ public class ManagerFragment extends Fragment {
                 ad2.setOnShowListener(dialog -> {
                     final Button apply = ad2.getButton(DialogInterface.BUTTON_POSITIVE);
                     apply.setOnClickListener(v -> {
-	                    String _hostname = hostname.getText().toString();
+                        String _hostname = hostname.getText().toString();
                         if (!_hostname.matches("([a-zA-Z0-9-]){2,253}")) {
                             PathsUtil.showSnack(getView(), "Invalid hostname.", false);
                         } else {
@@ -255,51 +250,47 @@ public class ManagerFragment extends Fragment {
     }
 
     private void setStartButton() {
-        mountChrootButton.setOnClickListener(view -> {
-            new ActiveShellExecuter(activity, context) {
-                @Override
-                public void onPrepare() {
-                    setAllButtonEnable(false);
-                }
+        mountChrootButton.setOnClickListener(view -> new ActiveShellExecuter(context) {
+            @Override
+            public void onPrepare() {
+                setAllButtonEnable(false);
+            }
 
-                @Override
-                public void onNewLine(String line) {}
+            @Override
+            public void onNewLine(String line) {}
 
-                @Override
-                public void onFinished(int code) {
-                    if (code == 0) {
-                        setButtonVisibilty(IS_MOUNTED);
-                        setMountStatsTextView(IS_MOUNTED);
-                        setAllButtonEnable(true);
-                        compatCheck();
-                    }
+            @Override
+            public void onFinished(int code) {
+                if (code == 0) {
+                    setButtonVisibility(IS_MOUNTED);
+                    setMountStatsTextView(IS_MOUNTED);
+                    setAllButtonEnable(true);
+                    compatCheck();
                 }
-            }.exec(PathsUtil.APP_SCRIPTS_PATH + "/bootroot", resultViewerLoggerTextView);
-        });
+            }
+        }.exec(PathsUtil.APP_SCRIPTS_PATH + "/bootroot", resultViewerLoggerTextView));
     }
 
     private void setStopButton() {
-        unmountChrootButton.setOnClickListener(view -> {
-            new ActiveShellExecuter(activity, context) {
-                @Override
-                public void onPrepare() {
-                    setAllButtonEnable(false);
-                }
+        unmountChrootButton.setOnClickListener(view -> new ActiveShellExecuter(context) {
+            @Override
+            public void onPrepare() {
+                setAllButtonEnable(false);
+            }
 
-                @Override
-                public void onNewLine(String line) {}
+            @Override
+            public void onNewLine(String line) {}
 
-                @Override
-                public void onFinished(int code) {
-                    if (code == 0) {
-                        setButtonVisibilty(IS_MOUNTED);
-                        setMountStatsTextView(IS_MOUNTED);
-                        setAllButtonEnable(true);
-                        compatCheck();
-                    }
+            @Override
+            public void onFinished(int code) {
+                if (code == 0) {
+                    setButtonVisibility(IS_MOUNTED);
+                    setMountStatsTextView(IS_MOUNTED);
+                    setAllButtonEnable(true);
+                    compatCheck();
                 }
-            }.exec(PathsUtil.APP_SCRIPTS_PATH + "/killroot", resultViewerLoggerTextView);
-        });
+            }
+        }.exec(PathsUtil.APP_SCRIPTS_PATH + "/killroot", resultViewerLoggerTextView));
     }
 
     private void setInstallButton() {
@@ -342,7 +333,7 @@ public class ManagerFragment extends Fragment {
                         String filename = chroot_url.substring(chroot_url.lastIndexOf('/') + 1, chroot_url.length());
                         File chroot = new File(PathsUtil.APP_PATH + "/" + filename);
 
-                        new DownloadChroot(activity, context) {
+                        new DownloadChroot(context) {
 
                             @Override
                             public void onPrepare() {
@@ -367,7 +358,7 @@ public class ManagerFragment extends Fragment {
                             public void onFinished(int resultCode) {
                                 setAllButtonEnable(true);
                                 if (resultCode == 0) {
-                                    new ActiveShellExecuter(activity, context) {
+                                    new ActiveShellExecuter(context) {
 
                                         @Override
                                         public void onPrepare() {
@@ -388,13 +379,13 @@ public class ManagerFragment extends Fragment {
                                             chroot.delete();
                                         }
                                     }.exec(
-                                        PathsUtil.APP_SCRIPTS_PATH
-                                                + "/chrootmgr -c \"restore "
-                                                + chroot
-                                                + " "
-                                                + PathsUtil.CHROOT_PATH()
-                                                + "\"",
-                                        resultViewerLoggerTextView);
+                                            PathsUtil.APP_SCRIPTS_PATH
+                                                    + "/chrootmgr -c \"restore "
+                                                    + chroot
+                                                    + " "
+                                                    + PathsUtil.CHROOT_PATH()
+                                                    + "\"",
+                                            resultViewerLoggerTextView);
                                 } else {
                                     progressbar.hide();
                                 }
@@ -415,7 +406,7 @@ public class ManagerFragment extends Fragment {
                 int[] position = {0};
                 instruction.setText(
                         Html.fromHtml("Create your own repository:\n"
-                                + "<a href='https://github.com/Mirivan/dev-root-project/blob/main/REPOSITORY.md'>according to this instruction</a>",
+                                        + "<a href='https://github.com/Mirivan/dev-root-project/blob/main/REPOSITORY.md'>according to this instruction</a>",
                                 Html.FROM_HTML_MODE_LEGACY));
                 instruction.setMovementMethod(LinkMovementMethod.getInstance());
                 input.setText(sharedPreferences.getString("chroot_prev_repository", context.getResources().getString(R.string.mh_repository)));
@@ -449,9 +440,7 @@ public class ManagerFragment extends Fragment {
                     });
                 });
 
-                selector.setOnItemClickListener((parent, v, p, l) -> {
-                    position[0] = p;
-                });
+                selector.setOnItemClickListener((parent, v, p, l) -> position[0] = p);
 
                 adb2.setView(repov);
                 adb2.setPositiveButton("Download", (dialogInterface, i) -> {});
@@ -471,7 +460,7 @@ public class ManagerFragment extends Fragment {
                                 chroot_url = chroot_json.getString("url");
                             else if (chroot_json.has("file")) {
                                 String inputText = input.getText().toString();
-                                chroot_url = inputText.substring(inputText.lastIndexOf('/') + 1, inputText.length()) + "/" + chroot_json.getString("file");
+                                chroot_url = inputText.substring(inputText.lastIndexOf('/') + 1) + "/" + chroot_json.getString("file");
                             } else throw new NullPointerException();
                             chroot_author[0] = chroot_json.getString("author");
 
@@ -498,7 +487,7 @@ public class ManagerFragment extends Fragment {
                         String filename = chroot_url.substring(chroot_url.lastIndexOf('/') + 1, chroot_url.length());
                         File chroot = new File(PathsUtil.APP_PATH + "/" + filename);
 
-                        new DownloadChroot(activity, context) {
+                        new DownloadChroot(context) {
 
                             @Override
                             public void onPrepare() {
@@ -524,7 +513,7 @@ public class ManagerFragment extends Fragment {
                             public void onFinished(int resultCode) {
                                 setAllButtonEnable(true);
                                 if (resultCode == 0) {
-                                    new ActiveShellExecuter(activity, context) {
+                                    new ActiveShellExecuter(context) {
 
                                         @Override
                                         public void onPrepare() {
@@ -545,18 +534,18 @@ public class ManagerFragment extends Fragment {
                                             chroot.delete();
                                         }
                                     }.exec(
-                                        PathsUtil.APP_SCRIPTS_PATH
-                                                + "/chrootmgr -c \"restore "
-                                                + chroot
-                                                + " "
-                                                + PathsUtil.CHROOT_PATH()
-                                                + "\"",
-                                        resultViewerLoggerTextView);
+                                            PathsUtil.APP_SCRIPTS_PATH
+                                                    + "/chrootmgr -c \"restore "
+                                                    + chroot
+                                                    + " "
+                                                    + PathsUtil.CHROOT_PATH()
+                                                    + "\"",
+                                            resultViewerLoggerTextView);
                                 } else {
                                     progressbar.hide();
                                 }
                             }
-                        }.exec(chroot_url, chroot, resultViewerLoggerTextView); 
+                        }.exec(chroot_url, chroot, resultViewerLoggerTextView);
                     });
                 });
                 adb2Ad.show();
@@ -573,13 +562,13 @@ public class ManagerFragment extends Fragment {
                 final AlertDialog adb3Ad = adb3.create();
                 adb3Ad.setOnShowListener(dialog -> {
                     final Button restore = adb3Ad.getButton(DialogInterface.BUTTON_POSITIVE);
-                        restore.setOnClickListener(v -> {
-                            sharedPreferences
-                            .edit()
-                            .putString("chroot_restore_path", et.getText().toString())
-                            .apply();
+                    restore.setOnClickListener(v -> {
+                        sharedPreferences
+                                .edit()
+                                .putString("chroot_restore_path", et.getText().toString())
+                                .apply();
 
-                        new ActiveShellExecuter(activity, context) {
+                        new ActiveShellExecuter(context) {
 
                             @Override
                             public void onPrepare() {
@@ -602,13 +591,13 @@ public class ManagerFragment extends Fragment {
                                 progressbar.setIndeterminate(false);
                             }
                         }.exec(
-                            PathsUtil.APP_SCRIPTS_PATH
-                                    + "/chrootmgr -c \"restore "
-                                    + et.getText().toString()
-                                    + " "
-                                    + PathsUtil.CHROOT_PATH()
-                                    + "\"",
-                            resultViewerLoggerTextView);
+                                PathsUtil.APP_SCRIPTS_PATH
+                                        + "/chrootmgr -c \"restore "
+                                        + et.getText().toString()
+                                        + " "
+                                        + PathsUtil.CHROOT_PATH()
+                                        + "\"",
+                                resultViewerLoggerTextView);
                     });
                 });
                 adb3Ad.show();
@@ -627,14 +616,14 @@ public class ManagerFragment extends Fragment {
             AlertDialog removingDialog = removing.create();
             adb.setTitle("Confirmation");
             adb.setMessage(
-                "The chroot environment will be deleted, including the following data:"
-                        + "\n"
-                        + "\n• files stored inside the environment"
-                        + "\n• installed packages"
-                        + "\n• environment settings"
-                        + "\n• other data");
+                    "The chroot environment will be deleted, including the following data:"
+                            + "\n"
+                            + "\n• files stored inside the environment"
+                            + "\n• installed packages"
+                            + "\n• environment settings"
+                            + "\n• other data");
             adb.setPositiveButton("I'm sure.", (dialogInterface, i) -> {
-                new ActiveShellExecuter(activity, context) {
+                new ActiveShellExecuter(context) {
                     @Override
                     public void onPrepare() {
                         disableToolbarMenu(true);
@@ -657,10 +646,10 @@ public class ManagerFragment extends Fragment {
                         removingDialog.dismiss();
                     }
                 }.exec(
-                    PathsUtil.APP_SCRIPTS_PATH
-                            + "/chrootmgr -c \"remove "
-                            + PathsUtil.CHROOT_PATH()
-                            + "\"", resultViewerLoggerTextView);
+                        PathsUtil.APP_SCRIPTS_PATH
+                                + "/chrootmgr -c \"remove "
+                                + PathsUtil.CHROOT_PATH()
+                                + "\"", resultViewerLoggerTextView);
             });
             adb.setNegativeButton("Cancel", (dialogInterface, i) -> {});
             adb.show();
@@ -673,10 +662,10 @@ public class ManagerFragment extends Fragment {
             View v = getLayoutInflater().inflate(R.layout.manager_dialog_backup, null);
             TextInputEditText path = v.findViewById(R.id.input);
             path.setText(
-                sharedPreferences.getString("chroot_backup_path", ""));
+                    sharedPreferences.getString("chroot_backup_path", ""));
             adb.setView(v);
             adb.setPositiveButton("Do", (dialogInterface, i) -> {
-                new ActiveShellExecuter(activity, context) {
+                new ActiveShellExecuter(context) {
                     @Override
                     public void onPrepare() {
                         sharedPreferences.edit().putString("chroot_backup_path", path.getText().toString()).apply();
@@ -697,16 +686,16 @@ public class ManagerFragment extends Fragment {
                         progressbar.setIndeterminate(true);
                     }
                 }.exec(
-                    PathsUtil.APP_SCRIPTS_PATH
-                            + "/chrootmgr -c \"backup "
-                            + PathsUtil.CHROOT_PATH() + " " + path.getText().toString() + "\"", resultViewerLoggerTextView);
+                        PathsUtil.APP_SCRIPTS_PATH
+                                + "/chrootmgr -c \"backup "
+                                + PathsUtil.CHROOT_PATH() + " " + path.getText().toString() + "\"", resultViewerLoggerTextView);
             });
             adb.show();
         });
     }
 
     private void showBanner() {
-        new ActiveShellExecuter(activity, context) {
+        new ActiveShellExecuter(context) {
             @Override
             public void onPrepare() {}
 
@@ -719,7 +708,7 @@ public class ManagerFragment extends Fragment {
     }
 
     private void compatCheck() {
-        new ActiveShellExecuter(activity, context) {
+        new ActiveShellExecuter(context) {
             @Override
             public void onPrepare() {
                 disableToolbarMenu(true);
@@ -731,15 +720,15 @@ public class ManagerFragment extends Fragment {
             @Override
             public void onFinished(int code) {
                 disableToolbarMenu(false);
-                setButtonVisibilty(code);
+                setButtonVisibility(code);
                 setMountStatsTextView(code);
                 setAllButtonEnable(true);
                 context.startService(new Intent(context, CompatCheckService.class).putExtra("RESULTCODE", code));
             }
         }.exec(
-            PathsUtil.APP_SCRIPTS_PATH
-                + "/chrootmgr -c \"status\" -p "
-                + PathsUtil.CHROOT_PATH(), resultViewerLoggerTextView);
+                PathsUtil.APP_SCRIPTS_PATH
+                        + "/chrootmgr -c \"status\" -p "
+                        + PathsUtil.CHROOT_PATH(), resultViewerLoggerTextView);
     }
 
     private void setMountStatsTextView(int MODE) {
@@ -754,7 +743,7 @@ public class ManagerFragment extends Fragment {
         }
     }
 
-    private void setButtonVisibilty(int MODE) {
+    private void setButtonVisibility(int MODE) {
         switch (MODE) {
             case IS_MOUNTED:
                 mountChrootButton.setVisibility(View.GONE);

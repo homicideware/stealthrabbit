@@ -11,11 +11,11 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
 
-import material.hunter.version;
+import material.hunter.BuildConfig;
 
 public class Web {
 
-    public static String getContent(String link) throws MalformedURLException, IOException {
+    public static String getContent(String link) throws IOException {
 
         String result;
 
@@ -25,10 +25,10 @@ public class Web {
                 "User-Agent",
                 "Mozilla/5.0 (Linux; Android " + Build.VERSION.RELEASE + "; " + Build.DEVICE +")" +
                 " AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.131 Mobile Safari/537.36"
-                + " MaterialHunter/" + version.name);
+                + " MaterialHunter/" + BuildConfig.VERSION_CODE);
         connection.connect();
 
-        BufferedReader r = new BufferedReader(new InputStreamReader(connection.getInputStream(), "UTF-8"));
+        BufferedReader r = new BufferedReader(new InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_8));
 
         StringBuilder sb = new StringBuilder();
         String line;
