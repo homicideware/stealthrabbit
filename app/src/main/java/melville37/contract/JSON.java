@@ -1,17 +1,12 @@
 package melville37.contract;
 
-import java.io.IOException;
-
-import java.net.MalformedURLException;
-
-import java.util.ArrayList;
-import java.util.Iterator;
-
-import melville37.contract.Web;
-
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.util.ArrayList;
+import java.util.Iterator;
 
 public class JSON {
 

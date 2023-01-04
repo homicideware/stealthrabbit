@@ -8,6 +8,7 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatDelegate;
@@ -17,10 +18,10 @@ import com.google.android.material.color.DynamicColors;
 import com.google.android.material.slider.Slider;
 import com.google.android.material.switchmaterial.SwitchMaterial;
 
+import java.util.ArrayList;
+
 import material.hunter.utils.PathsUtil;
 import material.hunter.utils.TerminalUtil;
-
-import java.util.ArrayList;
 
 public class Settings extends ThemedActivity {
 
@@ -63,10 +64,10 @@ public class Settings extends ThemedActivity {
         background_diming_level.addOnSliderTouchListener(
                 new Slider.OnSliderTouchListener() {
                     @Override
-                    public void onStartTrackingTouch(Slider slider) {}
+                    public void onStartTrackingTouch(@NonNull Slider slider) {}
 
                     @Override
-                    public void onStopTrackingTouch(Slider slider) {
+                    public void onStopTrackingTouch(@NonNull Slider slider) {
                         prefs.edit()
                                 .putInt(
                                         "background_alpha_level",
@@ -86,16 +87,12 @@ public class Settings extends ThemedActivity {
 
         SwitchMaterial show_timestamp = findViewById(R.id.settings_show_timestamp);
         show_timestamp.setChecked(prefs.getBoolean("show_timestamp", false));
-        show_timestamp.setOnCheckedChangeListener((v, b) -> {
-            prefs.edit().putBoolean("show_timestamp", b).apply();
-        });
+        show_timestamp.setOnCheckedChangeListener((v, b) -> prefs.edit().putBoolean("show_timestamp", b).apply());
 
         SwitchMaterial hide_magisk_notification =
                 findViewById(R.id.settings_hide_magisk_notification);
         hide_magisk_notification.setChecked(prefs.getBoolean("hide_magisk_notification", false));
-        hide_magisk_notification.setOnCheckedChangeListener((v, b) -> {
-            prefs.edit().putBoolean("hide_magisk_notification", b).apply();
-        });
+        hide_magisk_notification.setOnCheckedChangeListener((v, b) -> prefs.edit().putBoolean("hide_magisk_notification", b).apply());
 
         AutoCompleteTextView app_theme = findViewById(R.id.settings_apptheme);
         int theme = prefs.getInt("theme", 0);

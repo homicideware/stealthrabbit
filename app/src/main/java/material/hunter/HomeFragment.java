@@ -9,12 +9,12 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Looper;
 import android.os.Handler;
+import android.os.Looper;
 import android.text.Html;
-import android.text.style.ClickableSpan;
 import android.text.Layout;
 import android.text.Spanned;
+import android.text.style.ClickableSpan;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -31,13 +31,6 @@ import androidx.fragment.app.Fragment;
 
 import com.google.android.material.card.MaterialCardView;
 
-import material.hunter.utils.Checkers;
-import material.hunter.utils.PathsUtil;
-import material.hunter.utils.ShellExecuter;
-
-import melville37.contract.JSON;
-import melville37.contract.Web;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -46,6 +39,12 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import material.hunter.utils.Checkers;
+import material.hunter.utils.PathsUtil;
+import material.hunter.utils.ShellExecuter;
+import melville37.contract.JSON;
+import melville37.contract.Web;
 
 public class HomeFragment extends Fragment {
 

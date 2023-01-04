@@ -31,6 +31,10 @@ import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.switchmaterial.SwitchMaterial;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+
 import material.hunter.RecyclerViewAdapter.ServicesRecyclerViewAdapter;
 import material.hunter.RecyclerViewAdapter.ServicesRecyclerViewAdapterDeleteItems;
 import material.hunter.RecyclerViewData.ServicesData;
@@ -38,10 +42,6 @@ import material.hunter.SQL.ServicesSQL;
 import material.hunter.models.ServicesModel;
 import material.hunter.utils.PathsUtil;
 import material.hunter.viewmodels.ServicesViewModel;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 
 public class Services extends ThemedActivity {
 

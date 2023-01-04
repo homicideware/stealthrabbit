@@ -23,9 +23,11 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
+import java.nio.file.Path;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -67,6 +69,8 @@ public class MACChanger extends ThemedActivity {
         macaddress_layout = findViewById(R.id.macaddress_layout);
         macaddress = findViewById(R.id.macaddress);
 
+        executor.execute(() -> exe.RunAsRoot("dos2unix " + PathsUtil.APP_SCRIPTS_PATH + "/changemac"));
+
         loadInterfaces();
 
         iface.setOnItemClickListener((adapterView, view, pos, l) -> {
@@ -80,7 +84,7 @@ public class MACChanger extends ThemedActivity {
 
         macaddress_layout.setEndIconOnClickListener(v -> {
             if (!macaddress.getText().toString().isEmpty() || macaddress.getText().toString().matches("(([0-9A-f]{2}:){5}[0-9A-f]{2})")) {
-                if (iface.getText().toString().matches("^(s|)wl.*$") && (Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q || Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)) {
+                if (iface.getText().toString().matches("(s|)wlan(0|1)") && (Build.VERSION.SDK_INT != Build.VERSION_CODES.R)) {
                     new YetAnotherActiveShellExecuter() {
                         @Override
                         public void onPrepare() {
@@ -115,10 +119,10 @@ public class MACChanger extends ThemedActivity {
                                             if (isNetworkAvailable()) {
                                                 String macOnUp = exe.RunAsRootOutput("ip addr show " + iface.getText() + " | sed -n \"s/.*link\\/ether \\(\\([0-9A-f]\\{2\\}:\\)\\{5\\}[0-9A-f]\\{2\\}\\).*/\\1/p\"");
                                                 new Handler(Looper.getMainLooper()).post(() -> {
-                                                    if (!CHANGED_MAC.equals(macOnUp)) {
+                                                    if (!CHANGED_MAC.equalsIgnoreCase(macOnUp)) {
                                                         View view = getLayoutInflater().inflate(R.layout.macchanger_a12dialog, null);
                                                         TextView message = view.findViewById(R.id.message);
-                                                        message.setText(Html.fromHtml("Failed to change the MAC address on your device. The Android version of your device is greater than 10, in which case you need to use XPosed (or <a href=\"https://github.com/LSPosed/LSPosed#install\">LSPosed</a>) and the <a href=\"https://github.com/DavidBerdik/MACsposed\">MACsposed</a> module. More details <a href=\"https://github.com/DavidBerdik/MACsposed\">here</a>.", Html.FROM_HTML_MODE_LEGACY));
+                                                        message.setText(Html.fromHtml("Failed to change the MAC address on your device. The Android version of your device is greater than 11 (12+), in which case you need to use XPosed (or <a href=\"https://github.com/LSPosed/LSPosed#install\">LSPosed</a>) and the <a href=\"https://github.com/DavidBerdik/MACsposed\">MACsposed</a> module. More details <a href=\"https://github.com/DavidBerdik/MACsposed\">here</a>.", Html.FROM_HTML_MODE_LEGACY));
                                                         message.setMovementMethod(new LinkMovementMethod());
                                                         new MaterialAlertDialogBuilder(MACChanger.this)
                                                                 .setTitle("Failed to change MAC address.")
@@ -157,21 +161,49 @@ public class MACChanger extends ThemedActivity {
                         }
 
                         @Override
-                        public void onNewLine(String line) {
-                            iface_layout.setEnabled(true);
-                            macaddress_layout.setEnabled(true);
-                            loadMacAddress();
-                        }
+                        public void onNewLine(String line) {}
 
                         @Override
                         public void onFinished(int code) {
                             if (code == 0) {
-                                PathsUtil.showSnack(_view, "MAC address successful changed.", false);
+                                new YetAnotherActiveShellExecuter() {
+                                    @Override
+                                    public void onPrepare() {}
+
+                                    @Override
+                                    public void onNewLine(String line) {}
+
+                                    @Override
+                                    public void onFinished(int code) {
+                                        if (code == 0) {
+                                            PathsUtil.showSnack(_view, "MAC address successful changed.", false);
+                                        } else {
+                                            PathsUtil.showSnack(_view, "Failed to change MAC address.", false);
+                                        }
+                                        new YetAnotherActiveShellExecuter() {
+                                            @Override
+                                            public void onPrepare() {}
+
+                                            @Override
+                                            public void onNewLine(String line) {}
+
+                                            @Override
+                                            public void onFinished(int code) {
+                                                if (code != 0) {
+                                                    PathsUtil.showSnack(_view, "Failed to up interface.", false);
+                                                }
+                                                loadMacAddress();
+                                                iface_layout.setEnabled(true);
+                                                macaddress_layout.setEnabled(true);
+                                            }
+                                        }.exec("ip link set " + iface.getText().toString() + " up");
+                                    }
+                                }.exec(PathsUtil.APP_SCRIPTS_BIN_PATH + "/macchanger " + iface.getText().toString() + " -m " + macaddress.getText().toString());
                             } else {
-                                PathsUtil.showSnack(_view, "Failed to change MAC address.", false);
+                                PathsUtil.showSnack(_view, "Failed to demote interface.", false);
                             }
                         }
-                    }.exec(PathsUtil.APP_SCRIPTS_BIN_PATH + "/macchanger " + iface.getText().toString() + " -m " + macaddress.getText().toString());
+                    }.exec("ip link set " + iface.getText().toString() + " down");
                 }
             } else {
                 PathsUtil.showSnack(_view, "MAC address format error.", false);

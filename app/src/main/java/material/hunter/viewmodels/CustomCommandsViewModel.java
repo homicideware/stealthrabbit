@@ -6,10 +6,10 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import java.util.List;
+
 import material.hunter.RecyclerViewData.CustomCommandsData;
 import material.hunter.models.CustomCommandsModel;
-
-import java.util.List;
 
 public class CustomCommandsViewModel extends ViewModel {
 

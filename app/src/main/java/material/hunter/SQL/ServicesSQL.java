@@ -9,14 +9,13 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Environment;
 import android.text.TextUtils;
 
-import material.hunter.MainActivity;
-import material.hunter.models.ServicesModel;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
+
+import material.hunter.models.ServicesModel;
 
 public class ServicesSQL extends SQLiteOpenHelper {
 

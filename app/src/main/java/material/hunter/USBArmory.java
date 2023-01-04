@@ -8,10 +8,8 @@ import android.os.Handler;
 import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
@@ -33,18 +31,17 @@ import com.google.common.base.Predicates;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Lists;
 
-import material.hunter.SQL.USBArmorySQL;
-import material.hunter.ThemedActivity;
-import material.hunter.models.USBArmoryUSBSwitchModel;
-import material.hunter.utils.PathsUtil;
-import material.hunter.utils.ShellExecuter;
-
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+
+import material.hunter.SQL.USBArmorySQL;
+import material.hunter.models.USBArmoryUSBSwitchModel;
+import material.hunter.utils.PathsUtil;
+import material.hunter.utils.ShellExecuter;
 
 public class USBArmory extends ThemedActivity {
 

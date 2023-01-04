@@ -10,15 +10,14 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.appbar.MaterialToolbar;
 
-import material.hunter.models.LicenseModel;
-import material.hunter.RecyclerViewAdapter.LicensesRecyclerViewAdapter;
-import material.hunter.utils.PathsUtil;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
+
+import material.hunter.RecyclerViewAdapter.LicensesRecyclerViewAdapter;
+import material.hunter.models.LicenseModel;
 
 public class LicensesActivity extends ThemedActivity {
 

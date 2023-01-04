@@ -16,6 +16,7 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
 import com.google.android.material.appbar.MaterialToolbar;
+import com.google.android.material.badge.BadgeDrawable;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
@@ -23,7 +24,6 @@ import material.hunter.Extensions.InstallerInterface;
 import material.hunter.utils.Checkers;
 import material.hunter.utils.NotificationsUtil;
 import material.hunter.utils.PathsUtil;
-import material.hunter.utils.PermissionsUtil;
 import material.hunter.utils.TerminalUtil;
 
 public class MainActivity extends ThemedActivity {
@@ -32,7 +32,7 @@ public class MainActivity extends ThemedActivity {
     private Context context;
     private static ActionBar actionBar;
     private static MenuItem lastSelectedMenuItem;
-    private BottomNavigationView bn;
+    private static BottomNavigationView bn;
     private SharedPreferences prefs;
     private static boolean chroot_installed = false;
     private static float kernel_base = 1.0f;
@@ -172,6 +172,8 @@ public class MainActivity extends ThemedActivity {
             case R.id.manager:
                 fmt.show(_manager).hide(_menu).hide(_home).commit();
                 getSupportActionBar().setTitle("Manager");
+                bn.getOrCreateBadge(R.id.manager).clearNumber();
+                bn.removeBadge(R.id.manager);
                 break;
             case R.id.menu:
                 fmt.show(_menu).hide(_home).hide(_manager).commit();
@@ -189,15 +191,24 @@ public class MainActivity extends ThemedActivity {
         if (NeedToExit)
             adb.setPositiveButton(
                     "Exit",
-                    (dialog, which) -> {
-                        finishAffinity();
-                    });
+                    (dialog, which) -> finishAffinity());
         else adb.setPositiveButton("Cancel", (dialog, which) -> {});
         adb.show();
     }
 
     public static ActionBar getActionBarView() {
         return actionBar;
+    }
+
+    public static boolean addBadgeNumberForItem(int itemId) {
+        if (getLastSelectedMenuItem().getItemId() != itemId) {
+            BadgeDrawable badge = bn.getOrCreateBadge(itemId);
+            int number = badge.getNumber();
+            badge.setNumber(number + 1);
+            return true;
+        } else {
+            return false;
+        }
     }
 
     public static MenuItem getLastSelectedMenuItem() {

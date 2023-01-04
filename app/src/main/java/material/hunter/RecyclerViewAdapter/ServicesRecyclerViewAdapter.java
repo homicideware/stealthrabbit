@@ -23,14 +23,14 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.google.android.material.textfield.TextInputEditText;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import material.hunter.R;
 import material.hunter.RecyclerViewData.ServicesData;
 import material.hunter.SQL.ServicesSQL;
 import material.hunter.models.ServicesModel;
 import material.hunter.utils.PathsUtil;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class ServicesRecyclerViewAdapter extends RecyclerView.Adapter<ServicesRecyclerViewAdapter.ItemViewHolder> implements Filterable {
 

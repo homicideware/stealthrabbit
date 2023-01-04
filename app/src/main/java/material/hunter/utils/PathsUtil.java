@@ -9,8 +9,6 @@ import android.util.DisplayMetrics;
 import android.view.View;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
-
 import com.google.android.material.snackbar.Snackbar;
 
 import java.io.File;

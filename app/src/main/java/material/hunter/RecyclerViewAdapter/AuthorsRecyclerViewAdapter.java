@@ -17,10 +17,10 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.card.MaterialCardView;
 
-import material.hunter.models.AuthorsModel;
-import material.hunter.R;
-
 import java.util.List;
+
+import material.hunter.R;
+import material.hunter.models.AuthorsModel;
 
 public class AuthorsRecyclerViewAdapter
         extends RecyclerView.Adapter<AuthorsRecyclerViewAdapter.ViewHolder> {

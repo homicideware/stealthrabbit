@@ -1,11 +1,11 @@
 package material.hunter.utils;
 
-import melville37.contract.JSON;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+
+import melville37.contract.JSON;
 
 public class MHRepo {
 

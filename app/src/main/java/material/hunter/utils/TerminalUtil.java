@@ -12,16 +12,11 @@ import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
 import android.view.LayoutInflater;
-import android.view.View;
-import android.widget.TextView;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
-import material.hunter.R;
-
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import material.hunter.utils.PathsUtil;
 
 public class TerminalUtil {
 

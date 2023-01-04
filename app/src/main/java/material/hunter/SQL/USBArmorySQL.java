@@ -9,14 +9,13 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Environment;
 import android.util.Log;
 
-import material.hunter.MainActivity;
-import material.hunter.models.USBArmoryUSBSwitchModel;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
+
+import material.hunter.models.USBArmoryUSBSwitchModel;
 
 public class USBArmorySQL extends SQLiteOpenHelper {
 

@@ -16,21 +16,15 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.content.pm.ShortcutInfoCompat;
 import androidx.core.content.pm.ShortcutManagerCompat;
-import androidx.core.graphics.drawable.IconCompat;
 import androidx.fragment.app.Fragment;
 
 import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import java.io.File;
-import java.lang.SecurityException;
 import java.util.ArrayList;
-import java.util.List;
 
-import material.hunter.MainActivity;
-import material.hunter.TerminalRunActivity;
 import material.hunter.utils.PathsUtil;
 import material.hunter.utils.TerminalUtil;
 

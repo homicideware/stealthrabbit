@@ -10,15 +10,15 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.appbar.MaterialToolbar;
 
-import material.hunter.RecyclerViewAdapter.AuthorsRecyclerViewAdapter;
-import material.hunter.models.AuthorsModel;
-import material.hunter.utils.PathsUtil;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
+
+import material.hunter.RecyclerViewAdapter.AuthorsRecyclerViewAdapter;
+import material.hunter.models.AuthorsModel;
+import material.hunter.utils.PathsUtil;
 
 public class AuthorsActivity extends ThemedActivity {
 

@@ -6,17 +6,16 @@ import androidx.lifecycle.MutableLiveData;
 
 import com.google.android.material.switchmaterial.SwitchMaterial;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import material.hunter.SQL.ServicesSQL;
 import material.hunter.Services;
 import material.hunter.models.ServicesModel;
 import material.hunter.utils.PathsUtil;
 import material.hunter.utils.ShellExecuter;
-
 import melville37.MelvilleExecutor;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 public class ServicesData {
 

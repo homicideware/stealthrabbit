@@ -8,7 +8,6 @@ import android.os.IBinder;
 import androidx.annotation.Nullable;
 
 import material.hunter.MainActivity;
-import material.hunter.R;
 import material.hunter.utils.PathsUtil;
 import material.hunter.utils.ShellExecuter;
 

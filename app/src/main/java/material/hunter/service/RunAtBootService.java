@@ -11,13 +11,13 @@ import androidx.annotation.NonNull;
 import androidx.core.app.JobIntentService;
 import androidx.core.app.NotificationCompat;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import material.hunter.R;
 import material.hunter.utils.Checkers;
 import material.hunter.utils.PathsUtil;
 import material.hunter.utils.ShellExecuter;
-
-import java.util.HashMap;
-import java.util.Map;
 
 public class RunAtBootService extends JobIntentService {
 

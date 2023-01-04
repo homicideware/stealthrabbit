@@ -1,9 +1,7 @@
 package melville37;
 
-import android.os.Looper;
 import android.os.Handler;
-
-import androidx.annotation.MainThread;
+import android.os.Looper;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;

@@ -11,17 +11,17 @@ import android.os.Build;
 import android.os.Environment;
 import android.os.PowerManager;
 
-import material.hunter.BuildConfig;
-import material.hunter.utils.Checkers;
-import material.hunter.utils.PathsUtil;
-import material.hunter.utils.PermissionsUtil;
-import material.hunter.utils.ShellExecuter;
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+
+import material.hunter.BuildConfig;
+import material.hunter.utils.Checkers;
+import material.hunter.utils.PathsUtil;
+import material.hunter.utils.PermissionsUtil;
+import material.hunter.utils.ShellExecuter;
 
 public class InstallerInterface {
 

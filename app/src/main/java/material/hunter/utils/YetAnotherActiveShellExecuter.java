@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -16,9 +17,15 @@ public abstract class YetAnotherActiveShellExecuter {
     private final ExecutorService executor;
     private int endCode = 0;
     private OutputStream stdin;
+    private boolean chroot = false;
 
     public YetAnotherActiveShellExecuter() {
         this.executor = Executors.newSingleThreadExecutor();
+    }
+
+    public YetAnotherActiveShellExecuter(boolean chroot) {
+        this.executor = Executors.newSingleThreadExecutor();
+        this.chroot = chroot;
     }
 
     private void init(String command) {
@@ -29,7 +36,15 @@ public abstract class YetAnotherActiveShellExecuter {
                 Process process = Runtime.getRuntime().exec("su -mm");
                 stdin = process.getOutputStream();
                 InputStream stdout = process.getInputStream();
-                stdin.write((command + "\n").getBytes());
+                if (chroot) {
+                    stdin.write((PathsUtil.BUSYBOX + " chroot " + PathsUtil.CHROOT_PATH() + " " + PathsUtil.CHROOT_SUDO + " -E PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:$PATH su\n").getBytes());
+                    stdin.write((command + "\n").getBytes());
+                    stdin.write(("exit\n").getBytes());
+                    stdin.write(("exit\n").getBytes());
+                } else {
+                    stdin.write((command + "\n").getBytes());
+                    stdin.write(("exit\n").getBytes());
+                }
                 stdin.flush();
                 stdin.close();
                 BufferedReader br = new BufferedReader(new InputStreamReader(stdout));

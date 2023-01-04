@@ -10,14 +10,13 @@ import android.os.Environment;
 import android.text.TextUtils;
 import android.util.Log;
 
-import material.hunter.MainActivity;
-import material.hunter.models.CustomCommandsModel;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
+
+import material.hunter.models.CustomCommandsModel;
 
 public class CustomCommandsSQL extends SQLiteOpenHelper {
 

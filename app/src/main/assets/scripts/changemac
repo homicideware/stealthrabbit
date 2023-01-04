@@ -24,8 +24,8 @@ fi
 echo "[!] Changing MAC address for $IFACE now..."
 
 ANDROID_VER=$(getprop ro.build.version.release)
-if [ ${ANDROID_VER//\.*} -ge 11 ]; then
-    echo "[!] Your device is running Android version >= 11, using network wait method (to check success)."
+if [ ${ANDROID_VER//\.*} -gt 11 ]; then
+    echo "[!] Your device is running Android version > 11, using network wait method (to check success)."
     svc wifi disable
     echo "[!] Wait about 5 seconds before soft shutdown on $IFACE"
     sleep 5

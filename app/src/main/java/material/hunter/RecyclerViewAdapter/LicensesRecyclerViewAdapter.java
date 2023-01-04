@@ -11,10 +11,10 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import material.hunter.models.LicenseModel;
-import material.hunter.R;
-
 import java.util.List;
+
+import material.hunter.R;
+import material.hunter.models.LicenseModel;
 
 public class LicensesRecyclerViewAdapter
         extends RecyclerView.Adapter<LicensesRecyclerViewAdapter.ViewHolder> {

@@ -9,18 +9,17 @@ import android.os.Looper;
 
 import androidx.lifecycle.MutableLiveData;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import material.hunter.SQL.CustomCommandsSQL;
 import material.hunter.models.CustomCommandsModel;
 import material.hunter.utils.NotificationsUtil;
 import material.hunter.utils.PathsUtil;
 import material.hunter.utils.ShellExecuter;
 import material.hunter.utils.TerminalUtil;
-
 import melville37.MelvilleExecutor;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 public class CustomCommandsData {
 

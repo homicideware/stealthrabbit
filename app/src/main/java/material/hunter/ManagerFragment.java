@@ -33,15 +33,6 @@ import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
-import material.hunter.service.CompatCheckService;
-import material.hunter.utils.ActiveShellExecuter;
-import material.hunter.utils.DownloadChroot;
-import material.hunter.utils.MHRepo;
-import material.hunter.utils.PathsUtil;
-import material.hunter.utils.ShellExecuter;
-
-import melville37.contract.JSON;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -51,12 +42,19 @@ import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import material.hunter.service.CompatCheckService;
+import material.hunter.utils.ActiveShellExecuter;
+import material.hunter.utils.DownloadChroot;
+import material.hunter.utils.MHRepo;
+import material.hunter.utils.PathsUtil;
+import material.hunter.utils.ShellExecuter;
+import melville37.contract.JSON;
+
 public class ManagerFragment extends Fragment {
 
     private Activity activity;
     private Context context;
     private ActionBar actionBar;
-    private ExecutorService executor;
     private final ShellExecuter exe = new ShellExecuter();
     private TextView resultViewerLoggerTextView;
     private Button mountChrootButton;
@@ -79,7 +77,6 @@ public class ManagerFragment extends Fragment {
         activity = getActivity();
         context = getContext();
         actionBar = MainActivity.getActionBarView();
-        executor = Executors.newSingleThreadExecutor();
         sharedPreferences = context.getSharedPreferences("material.hunter", Context.MODE_PRIVATE);
     }
 
@@ -257,7 +254,9 @@ public class ManagerFragment extends Fragment {
             }
 
             @Override
-            public void onNewLine(String line) {}
+            public void onNewLine(String line) {
+                MainActivity.addBadgeNumberForItem(R.id.manager);
+            }
 
             @Override
             public void onFinished(int code) {
@@ -279,7 +278,9 @@ public class ManagerFragment extends Fragment {
             }
 
             @Override
-            public void onNewLine(String line) {}
+            public void onNewLine(String line) {
+                MainActivity.addBadgeNumberForItem(R.id.manager);
+            }
 
             @Override
             public void onFinished(int code) {
@@ -347,7 +348,9 @@ public class ManagerFragment extends Fragment {
                             }
 
                             @Override
-                            public void onNewLine(String line) {}
+                            public void onNewLine(String line) {
+                                MainActivity.addBadgeNumberForItem(R.id.manager);
+                            }
 
                             @Override
                             public void onProgressUpdate(int progress) {
@@ -367,7 +370,9 @@ public class ManagerFragment extends Fragment {
                                         }
 
                                         @Override
-                                        public void onNewLine(String line) {}
+                                        public void onNewLine(String line) {
+                                            MainActivity.addBadgeNumberForItem(R.id.manager);
+                                        }
 
                                         @Override
                                         public void onFinished(int code) {
@@ -502,7 +507,9 @@ public class ManagerFragment extends Fragment {
                             }
 
                             @Override
-                            public void onNewLine(String line) {}
+                            public void onNewLine(String line) {
+                                MainActivity.addBadgeNumberForItem(R.id.manager);
+                            }
 
                             @Override
                             public void onProgressUpdate(int progress) {
@@ -522,7 +529,9 @@ public class ManagerFragment extends Fragment {
                                         }
 
                                         @Override
-                                        public void onNewLine(String line) {}
+                                        public void onNewLine(String line) {
+                                            MainActivity.addBadgeNumberForItem(R.id.manager);
+                                        }
 
                                         @Override
                                         public void onFinished(int code) {
@@ -580,7 +589,9 @@ public class ManagerFragment extends Fragment {
                             }
 
                             @Override
-                            public void onNewLine(String line) {}
+                            public void onNewLine(String line) {
+                                MainActivity.addBadgeNumberForItem(R.id.manager);
+                            }
 
                             @Override
                             public void onFinished(int code) {
@@ -622,35 +633,35 @@ public class ManagerFragment extends Fragment {
                             + "\n• installed packages"
                             + "\n• environment settings"
                             + "\n• other data");
-            adb.setPositiveButton("I'm sure.", (dialogInterface, i) -> {
-                new ActiveShellExecuter(context) {
-                    @Override
-                    public void onPrepare() {
-                        disableToolbarMenu(true);
-                        setAllButtonEnable(false);
-                        progressbar.show();
-                        progressbar.setIndeterminate(true);
-                        removingDialog.show();
-                    }
+            adb.setPositiveButton("I'm sure.", (dialogInterface, i) -> new ActiveShellExecuter(context) {
+                @Override
+                public void onPrepare() {
+                    disableToolbarMenu(true);
+                    setAllButtonEnable(false);
+                    progressbar.show();
+                    progressbar.setIndeterminate(true);
+                    removingDialog.show();
+                }
 
-                    @Override
-                    public void onNewLine(String line) {}
+                @Override
+                public void onNewLine(String line) {
+                    MainActivity.addBadgeNumberForItem(R.id.manager);
+                }
 
-                    @Override
-                    public void onFinished(int code) {
-                        disableToolbarMenu(false);
-                        setAllButtonEnable(true);
-                        compatCheck();
-                        progressbar.hide();
-                        progressbar.setIndeterminate(false);
-                        removingDialog.dismiss();
-                    }
-                }.exec(
-                        PathsUtil.APP_SCRIPTS_PATH
-                                + "/chrootmgr -c \"remove "
-                                + PathsUtil.CHROOT_PATH()
-                                + "\"", resultViewerLoggerTextView);
-            });
+                @Override
+                public void onFinished(int code) {
+                    disableToolbarMenu(false);
+                    setAllButtonEnable(true);
+                    compatCheck();
+                    progressbar.hide();
+                    progressbar.setIndeterminate(false);
+                    removingDialog.dismiss();
+                }
+            }.exec(
+                    PathsUtil.APP_SCRIPTS_PATH
+                            + "/chrootmgr -c \"remove "
+                            + PathsUtil.CHROOT_PATH()
+                            + "\"", resultViewerLoggerTextView));
             adb.setNegativeButton("Cancel", (dialogInterface, i) -> {});
             adb.show();
         });
@@ -676,7 +687,9 @@ public class ManagerFragment extends Fragment {
                     }
 
                     @Override
-                    public void onNewLine(String line) {}
+                    public void onNewLine(String line) {
+                        MainActivity.addBadgeNumberForItem(R.id.manager);
+                    }
 
                     @Override
                     public void onFinished(int code) {
@@ -700,7 +713,9 @@ public class ManagerFragment extends Fragment {
             public void onPrepare() {}
 
             @Override
-            public void onNewLine(String line) {}
+            public void onNewLine(String line) {
+                MainActivity.addBadgeNumberForItem(R.id.manager);
+            }
 
             @Override
             public void onFinished(int code) {}
@@ -715,7 +730,9 @@ public class ManagerFragment extends Fragment {
             }
 
             @Override
-            public void onNewLine(String line) {}
+            public void onNewLine(String line) {
+                MainActivity.addBadgeNumberForItem(R.id.manager);
+            }
 
             @Override
             public void onFinished(int code) {
