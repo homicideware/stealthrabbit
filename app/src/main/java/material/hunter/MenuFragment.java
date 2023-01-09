@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.pm.ShortcutInfo;
 import android.content.pm.ShortcutManager;
@@ -30,22 +31,38 @@ import material.hunter.utils.TerminalUtil;
 
 public class MenuFragment extends Fragment {
 
-    private Activity activity;
-    private Context context;
-    private TerminalUtil terminalUtil;
+    private static final String SHORTCUT_ID = "material.hunter.shortcut";
     private static MaterialCardView help;
     private static MaterialCardView usbarmory;
     private static MaterialCardView terminal;
     private static MaterialCardView custom_commands;
     private static MaterialCardView services;
     private static MaterialCardView macchanger;
-    private static final String SHORTCUT_ID = "material.hunter.shortcut";
+    private Activity activity;
+    private Context context;
+    private SharedPreferences prefs;
+    private TerminalUtil terminalUtil;
+
+    public static void compatVerified(boolean is) {
+        ArrayList<View> views = new ArrayList<View>();
+        // views.add(view);
+        views.add(terminal);
+        views.add(custom_commands);
+        views.add(services);
+        for (int i = 0; i < views.size(); i++) {
+            View view = views.get(i);
+            view.setEnabled(is);
+            view.setVisibility(is ? View.VISIBLE : View.GONE);
+        }
+        help.setVisibility(is ? View.GONE : View.VISIBLE);
+    }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         activity = getActivity();
         context = getContext();
+        prefs = context.getSharedPreferences("material.hunter", Context.MODE_PRIVATE);
     }
 
     @Override
@@ -68,26 +85,28 @@ public class MenuFragment extends Fragment {
             MaterialAlertDialogBuilder adb = new MaterialAlertDialogBuilder(context);
             adb.setTitle("Menu");
             adb.setMessage(
-                "When the chroot isn't running, some elements that interact with it are hidden.");
-            adb.setPositiveButton("Ok", (di, i) -> {});
+                    "When the chroot isn't running, some elements that interact with it are hidden.");
+            adb.setPositiveButton("Ok", (di, i) -> {
+            });
             adb.show();
-		});
+        });
 
         usbarmory.setOnClickListener(v -> {
             MaterialAlertDialogBuilder adb = new MaterialAlertDialogBuilder(context);
             adb.setTitle("USB Armory");
             if (MainActivity.getKernelBase() < 3.11f) {
                 adb.setMessage(
-                    "Your kernel version less than 3.11, ConfigFS isn't supported.");
+                        "Your kernel version less than 3.11, ConfigFS isn't supported.");
             } else if (!new File("/config/usb_gadget").exists()) {
                 adb.setMessage(
-                    "Not supported by the kernel. The error can be caused by selinux.");
+                        "Not supported by the kernel. The error can be caused by selinux.");
             } else {
-                Intent intent = new Intent(context, USBArmory.class);
+                Intent intent = new Intent(context, USBArmoryActivity.class);
                 startActivity(intent);
                 return;
             }
-            adb.setPositiveButton("Ok", (di, i) -> {});
+            adb.setPositiveButton("Ok", (di, i) -> {
+            });
             adb.show();
         });
 
@@ -101,7 +120,8 @@ public class MenuFragment extends Fragment {
                     adb.setMessage("We recommend creating a shortcut on your desktop to quickly launch the Terminal.");
                     adb.setPositiveButton("Create", (di, i) -> createShortcut());
                     adb.setNeutralButton("Open in app", (di, i) -> runTerminalInChroot());
-                    adb.setNegativeButton("Cancel", (di, i) -> {});
+                    adb.setNegativeButton("Cancel", (di, i) -> {
+                    });
                     adb.show();
                 }
             } else {
@@ -110,12 +130,12 @@ public class MenuFragment extends Fragment {
         });
 
         custom_commands.setOnClickListener(v -> {
-            Intent intent = new Intent(context, CustomCommands.class);
+            Intent intent = new Intent(context, CustomCommandsActivity.class);
             startActivity(intent);
         });
 
         services.setOnClickListener(v -> {
-            Intent intent = new Intent(context, Services.class);
+            Intent intent = new Intent(context, ServicesActivity.class);
             startActivity(intent);
         });
 
@@ -125,24 +145,14 @@ public class MenuFragment extends Fragment {
         });
     }
 
-    public static void compatVerified(boolean is) {
-        ArrayList<View> views = new ArrayList<View>();
-        // views.add(view);
-        views.add(terminal);
-        views.add(custom_commands);
-        views.add(services);
-        for (int i = 0; i < views.size(); i++) {
-            View view = views.get(i);
-            view.setEnabled(is);
-            view.setVisibility(is ? View.VISIBLE : View.GONE);
-        }
-        help.setVisibility(is ? View.GONE : View.VISIBLE);
-    }
-
     private void runTerminalInChroot() {
         try {
             terminalUtil.runCommand(PathsUtil.APP_SCRIPTS_PATH + "/bootroot_login", false);
-        } catch (ActivityNotFoundException | PackageManager.NameNotFoundException e) {
+        } catch (ActivityNotFoundException e) {
+            if (prefs.getString("terminal_type", TerminalUtil.TERMINAL_TYPE_TERMUX).equals(TerminalUtil.TERMINAL_TYPE_TERMUX)) {
+                terminalUtil.checkIsTermuxApiSupported();
+            }
+        } catch (PackageManager.NameNotFoundException e) {
             terminalUtil.showTerminalNotInstalledDialog();
         } catch (SecurityException e) {
             terminalUtil.showPermissionDeniedDialog();

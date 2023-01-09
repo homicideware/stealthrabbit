@@ -11,4 +11,8 @@ public class Checkers {
         ShellExecuter exe = new ShellExecuter();
         return exe.RunAsRootOutput("su -c getenforce").equals("Enforcing");
     }
+
+    public static boolean isBusyboxInstalled() {
+        return !PathsUtil.getBusyboxPath().isEmpty();
+    }
 }

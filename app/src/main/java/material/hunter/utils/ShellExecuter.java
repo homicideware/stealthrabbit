@@ -13,7 +13,8 @@ public class ShellExecuter {
 
     private final String TAG = "ShellExecuter";
 
-    public ShellExecuter() {}
+    public ShellExecuter() {
+    }
 
     public void RunAsRoot(String command) {
         try {
@@ -74,7 +75,8 @@ public class ShellExecuter {
                 output = new StringBuilder(output.substring(0, output.length() - 1));
             br.close();
             br = new BufferedReader(new InputStreamReader(stderr));
-            while ((line = br.readLine()) != null) {}
+            while ((line = br.readLine()) != null) {
+            }
             br.close();
             process.waitFor();
             process.destroy();
@@ -116,13 +118,13 @@ public class ShellExecuter {
             InputStream stdout = process.getInputStream();
             stdin.write(
                     (PathsUtil.BUSYBOX
-                                    + " chroot "
-                                    + PathsUtil.CHROOT_PATH()
-                                    + " "
-                                    + PathsUtil.CHROOT_SUDO
-                                    + " -E PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:$PATH"
-                                    + " su"
-                                    + '\n')
+                            + " chroot "
+                            + PathsUtil.CHROOT_PATH()
+                            + " "
+                            + PathsUtil.CHROOT_SUDO
+                            + " -E PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:$PATH"
+                            + " su"
+                            + '\n')
                             .getBytes());
             stdin.write((command + '\n').getBytes());
             stdin.write(("exit\n").getBytes());
@@ -138,7 +140,8 @@ public class ShellExecuter {
                 output = new StringBuilder(output.substring(0, output.length() - 1));
             br.close();
             br = new BufferedReader(new InputStreamReader(stderr));
-            while ((line = br.readLine()) != null) {}
+            while ((line = br.readLine()) != null) {
+            }
             br.close();
             process.waitFor();
             process.destroy();
@@ -156,13 +159,13 @@ public class ShellExecuter {
             OutputStream stdin = process.getOutputStream();
             stdin.write(
                     (PathsUtil.BUSYBOX
-                                    + " chroot "
-                                    + PathsUtil.CHROOT_PATH()
-                                    + " "
-                                    + PathsUtil.CHROOT_SUDO
-                                    + " -E PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:$PATH"
-                                    + " su"
-                                    + '\n')
+                            + " chroot "
+                            + PathsUtil.CHROOT_PATH()
+                            + " "
+                            + PathsUtil.CHROOT_SUDO
+                            + " -E PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:$PATH"
+                            + " su"
+                            + '\n')
                             .getBytes());
             stdin.write((command + '\n').getBytes());
             stdin.write(("exit\n").getBytes());

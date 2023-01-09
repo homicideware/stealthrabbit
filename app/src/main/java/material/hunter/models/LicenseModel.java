@@ -2,8 +2,8 @@ package material.hunter.models;
 
 public class LicenseModel {
 
-    private String title;
-    private String license;
+    private final String title;
+    private final String license;
 
     public LicenseModel(String title, String license) {
         this.title = title;

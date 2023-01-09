@@ -2,6 +2,7 @@ package material.hunter;
 
 import android.HardwareProps;
 import android.animation.ObjectAnimator;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -50,9 +51,9 @@ public class HomeFragment extends Fragment {
 
     private Activity activity;
     private Context context;
+    private final ShellExecuter exe = new ShellExecuter();
     private ExecutorService executor;
     private SharedPreferences prefs;
-    private final ShellExecuter exe = new ShellExecuter();
     private int rotationAngle = 0;
     private boolean selinux_enforcing = true;
     private String selinux_now = "enforcing";
@@ -60,13 +61,12 @@ public class HomeFragment extends Fragment {
     private TextView mh_news;
     private ImageView expander;
     private TextView version_installed;
-    private TextView version_avaliable;
-    private TextView installed_package_name;
+    private TextView version_available;
     private ImageView upgrade;
     private MaterialCardView magisk;
     private TextView sys_info;
     private TextView material_info;
-    private ImageView license;
+    private MaterialCardView info_card;
     private MaterialCardView selinux_card;
     private TextView selinux_status;
     private MaterialCardView telegram_card;
@@ -95,23 +95,19 @@ public class HomeFragment extends Fragment {
         mh_news = view.findViewById(R.id.mh_news);
         expander = view.findViewById(R.id.expander);
         version_installed = view.findViewById(R.id.version_installed);
-        version_avaliable = view.findViewById(R.id.version_avaliable);
-        installed_package_name = view.findViewById(R.id.installed_package_name);
+        version_available = view.findViewById(R.id.version_avaliable);
         upgrade = view.findViewById(R.id.upgrade);
         magisk = view.findViewById(R.id.magisk_card);
         sys_info = view.findViewById(R.id.sys_info);
         material_info = view.findViewById(R.id.material_info);
-        license = view.findViewById(R.id.materialhunter_license);
+        info_card = view.findViewById(R.id.info_card);
         selinux_card = view.findViewById(R.id.selinux_card);
         selinux_status = view.findViewById(R.id.selinux_status);
         telegram_card = view.findViewById(R.id.telegram_card);
         telegram_title = view.findViewById(R.id.telegram_title);
         telegram_description = view.findViewById(R.id.telegram_description);
 
-        String app_version = BuildConfig.VERSION_NAME;
-
-        version_installed.setText(app_version);
-        installed_package_name.setText(context.getPackageName());
+        version_installed.setText(BuildConfig.VERSION_NAME);
         mh_news.setOnTouchListener(new LinkMovementMethodOverride());
 
         executor.execute(() -> {
@@ -144,15 +140,15 @@ public class HomeFragment extends Fragment {
 
                     new Handler(Looper.getMainLooper()).post(() -> {
 
-                        version_avaliable.setText(new_version);
+                        version_available.setText(new_version);
 
-                        if (code > BuildConfig.VERSION_CODE && ! new_version.equals(BuildConfig.VERSION_NAME)) {
-			            	upgrade.setVisibility(View.VISIBLE);
+                        if (code > BuildConfig.VERSION_CODE && !new_version.equals(BuildConfig.VERSION_NAME)) {
+                            upgrade.setVisibility(View.VISIBLE);
                             upgrade.setOnClickListener(v -> {
                                 Intent openUrl = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
                                 startActivity(openUrl);
                             });
-			            }
+                        }
                     });
                 }
             } catch (JSONException | IOException ignored) {
@@ -191,32 +187,24 @@ public class HomeFragment extends Fragment {
 
             sb.append("Model: ").append(Build.BRAND).append(" ").append(Build.MODEL).append(" (").append(HardwareProps.getProp("ro.build.product")).append(")\n");
             sb.append("OS Version: Android ").append(Build.VERSION.RELEASE).append(", SDK ").append(Build.VERSION.SDK_INT).append("\n");
-            sb.append(
-                "CPU: "
-                        + matchString("^Hardware.*: (.*)", exe.RunAsRootOutput("cat /proc/cpuinfo | grep \"Hardware\""), 1)
-                        + "\n");
+
+            String CPU = matchString("^Hardware.*: (.*)", exe.RunAsRootOutput("cat /proc/cpuinfo | grep \"Hardware\""), 1);
+            if (!CPU.isEmpty())
+                sb.append("CPU: ").append(CPU).append("\n");
 
             String kernel_version = matchString("^([0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3})", exe.RunAsRootOutput("uname -r"), 1);
 
-            sb.append(
-                "Kernel version: "
-                        + kernel_version
-                        + "\n\n");
+            sb.append("Kernel version: ").append(kernel_version).append("\n\n");
 
-            sb.append(
-                "System-as-root: "
-                        + exe.RunAsRootOutput("grep ' / ' /proc/mounts | grep -qv 'rootfs' || grep -q ' /system_root ' /proc/mounts && echo true || echo false")
-                        + "\n");
+            sb.append("System-as-root: ").append(exe.RunAsRootOutput("grep ' / ' /proc/mounts | grep -qv 'rootfs' || grep -q ' /system_root ' /proc/mounts && echo true || echo false")).append("\n");
 
-            sb.append(
-                "Device is AB: "
-                        + (HardwareProps.deviceIsAB() ? "true" : "false"));
+            sb.append("Device is AB: ").append(HardwareProps.deviceIsAB() ? "true" : "false");
 
             new Handler(Looper.getMainLooper()).post(() -> {
                 sys_info.setText(sb.toString());
                 try {
                     MainActivity.setKernelBase(Float.parseFloat(matchString("^([1-9]\\.[1-9][0-9]{0,2})", kernel_version, 1)));
-                } catch(NumberFormatException e) {
+                } catch (NumberFormatException e) {
                     PathsUtil.showSnack(getView(), "Failed to parse kernel base version.", false);
                 }
             });
@@ -224,7 +212,7 @@ public class HomeFragment extends Fragment {
 
         material_info.setText("Made with \u2764\uFE0F by @mirivan");
 
-        license.setOnClickListener(v -> {
+        info_card.setOnClickListener(v -> {
             Intent intent = new Intent(context, AboutActivity.class);
             startActivity(intent);
         });
@@ -263,13 +251,14 @@ public class HomeFragment extends Fragment {
                     });
                 }
                 telegram_title.setText(
-                    Html.fromHtml(
-                        matchString(".*<meta property=\"og:title\" content=\"(.*)\">", telegram_parsed[0], "N/a", 1),
-                        Html.FROM_HTML_MODE_LEGACY));
+                        Html.fromHtml(
+                                matchString(".*<meta property=\"og:title\" content=\"(.*)\">", telegram_parsed[0], "N/a", 1),
+                                Html.FROM_HTML_MODE_LEGACY));
                 telegram_description.setText(
-                    Html.fromHtml(
-                        matchString(".*<meta property=\"og:description\" content=\"(.*)\">", telegram_parsed[0], 1),
-                        Html.FROM_HTML_MODE_LEGACY));
+                        Html.fromHtml(
+                                matchString(".*<meta property=\"og:description\" content=\"(.*)\">", telegram_parsed[0], 1),
+                                Html.FROM_HTML_MODE_LEGACY));
+                telegram_description.setSelected(true);
             });
         });
     }
@@ -284,7 +273,7 @@ public class HomeFragment extends Fragment {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.settings:
-                Intent intent = new Intent(context, Settings.class);
+                Intent intent = new Intent(context, SettingsActivity.class);
                 startActivity(intent);
                 break;
         }
@@ -321,6 +310,7 @@ public class HomeFragment extends Fragment {
     // https://stackoverflow.com/a/15362634
     public static class LinkMovementMethodOverride implements View.OnTouchListener {
 
+        @SuppressLint("ClickableViewAccessibility")
         @Override
         public boolean onTouch(View v, MotionEvent event) {
             TextView widget = (TextView) v;

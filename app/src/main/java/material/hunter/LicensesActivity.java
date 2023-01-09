@@ -13,6 +13,7 @@ import com.google.android.material.appbar.MaterialToolbar;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,11 +23,9 @@ import material.hunter.models.LicenseModel;
 public class LicensesActivity extends ThemedActivity {
 
     private static ActionBar actionBar;
-
-    private RecyclerView recycler;
-    private List<LicenseModel> list = new ArrayList<LicenseModel>();
-
     MaterialToolbar toolbar;
+    private RecyclerView recycler;
+    private final List<LicenseModel> list = new ArrayList<LicenseModel>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,16 +48,16 @@ public class LicensesActivity extends ThemedActivity {
             for (String dir : dirs) {
 
                 String[] assets = assetManager.list(licensesDir + "/" + dir);
-                
+
                 for (String asset : assets) {
-                    reader = new BufferedReader(new InputStreamReader(assetManager.open(licensesDir + "/" + dir + "/" + asset), "UTF-8"));
+                    reader = new BufferedReader(new InputStreamReader(assetManager.open(licensesDir + "/" + dir + "/" + asset), StandardCharsets.UTF_8));
 
                     int value;
                     while ((value = reader.read()) != -1) {
                         builder.append((char) value);
                     }
                     String builded = builder.toString();
-                    list.add(new LicenseModel(asset, builded.substring(0, builded.length() -1)));
+                    list.add(new LicenseModel(asset, builded.substring(0, builded.length() - 1)));
                     builder = new StringBuilder();
                 }
             }

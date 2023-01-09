@@ -2,8 +2,8 @@ plugins {
     id 'com.android.application'
 }
 
-def globalVersionCode = 40
-def globalVersionName = "willbefine"
+def globalVersionCode = 41
+def globalVersionName = "4.1"
 
 android {
     compileSdk 33

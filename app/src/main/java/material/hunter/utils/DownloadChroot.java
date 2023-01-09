@@ -30,10 +30,10 @@ public abstract class DownloadChroot {
 
     private final Context context;
     private final ExecutorService executor;
+    private final SimpleDateFormat timeStamp = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
     private TextView logger;
     private SharedPreferences prefs;
     private int mResultCode = 0;
-    private final SimpleDateFormat timeStamp = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
 
     public DownloadChroot(Context context) {
         this.context = context;
@@ -53,9 +53,9 @@ public abstract class DownloadChroot {
                 URLConnection connection = url.openConnection();
                 connection.setRequestProperty(
                         "User-Agent",
-                        "Mozilla/5.0 (Linux; Android " + Build.VERSION.RELEASE + "; " + Build.DEVICE +")" +
-                        " AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.131 Mobile Safari/537.36"
-                        + " MaterialHunter/" + BuildConfig.VERSION_CODE);
+                        "Mozilla/5.0 (Linux; Android " + Build.VERSION.RELEASE + "; " + Build.DEVICE + ")" +
+                                " AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.131 Mobile Safari/537.36"
+                                + " MaterialHunter/" + BuildConfig.VERSION_CODE);
                 int lengthOfFile = connection.getContentLength();
                 connection.setConnectTimeout(10000);
                 connection.setReadTimeout(10000);
@@ -88,8 +88,8 @@ public abstract class DownloadChroot {
         new Handler(Looper.getMainLooper()).post(() -> {
             Spannable timestamp =
                     prefs.getBoolean("show_timestamp", false)
-                        ? new SpannableString(timeStamp.format(new Date()) + " > ")
-                        : new SpannableString("");
+                            ? new SpannableString(timeStamp.format(new Date()) + " > ")
+                            : new SpannableString("");
             Spannable tempText = new SpannableString(line + "\n");
             if (line.startsWith("[!]"))
                 tempText.setSpan(

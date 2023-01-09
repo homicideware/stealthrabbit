@@ -43,10 +43,12 @@ import material.hunter.models.USBArmoryUSBSwitchModel;
 import material.hunter.utils.PathsUtil;
 import material.hunter.utils.ShellExecuter;
 
-public class USBArmory extends ThemedActivity {
+public class USBArmoryActivity extends ThemedActivity {
 
     private static boolean is_init_exists = false;
-
+    private final ShellExecuter exe = new ShellExecuter();
+    private final EditText[] usbSwitchInfoEditTextGroup = new TextInputEditText[5];
+    MaterialToolbar toolbar;
     private Activity activity;
     private Context context;
     private ActionBar actionBar;
@@ -68,11 +70,6 @@ public class USBArmory extends ThemedActivity {
     private TextView mountedImageTextView;
     private TextView mountedImageHintTextView;
     private View _view;
-
-    private final ShellExecuter exe = new ShellExecuter();
-    private final EditText[] usbSwitchInfoEditTextGroup = new TextInputEditText[5];
-
-    MaterialToolbar toolbar;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -129,7 +126,7 @@ public class USBArmory extends ThemedActivity {
 
         ArrayAdapter<String> usb_target =
                 new ArrayAdapter<String>(
-                        activity, R.layout.mh_spinner_item, new String[] {"Windows", "Linux", "Mac OS"});
+                        activity, R.layout.mh_spinner_item, new String[]{"Windows", "Linux", "Mac OS"});
         ArrayAdapter<String> usb_functions =
                 new ArrayAdapter<String>(
                         activity,
@@ -142,7 +139,7 @@ public class USBArmory extends ThemedActivity {
                         getResources().getStringArray(R.array.usbarmory_usb_states_mac));
         ArrayAdapter<String> adb_enable =
                 new ArrayAdapter<String>(
-                        activity, R.layout.mh_spinner_item, new String[] {"Enable", "Disable"});
+                        activity, R.layout.mh_spinner_item, new String[]{"Enable", "Disable"});
 
         targetOSSpinner.setAdapter(usb_target);
         usbFuncSpinner.setAdapter(usb_functions);
@@ -215,7 +212,7 @@ public class USBArmory extends ThemedActivity {
                 (parent, view, position, id) -> {
                     if (position == 0) {
                         adbSpinnerLayout.setEnabled(false);
-                        adbSpinner.setText("Disable", false);
+                        adbSpinner.setText("Enable", false);
                     } else {
                         adbSpinnerLayout.setEnabled(true);
                     }
@@ -235,13 +232,13 @@ public class USBArmory extends ThemedActivity {
                                 targetOSSpinner.getText().toString().equals("Windows")
                                         ? "win"
                                         : targetOSSpinner.getText().toString().equals("Linux")
-                                                ? "lnx"
-                                                : targetOSSpinner
-                                                                .getText()
-                                                                .toString()
-                                                                .equals("Mac OS")
-                                                        ? "mac"
-                                                        : "";
+                                        ? "lnx"
+                                        : targetOSSpinner
+                                        .getText()
+                                        .toString()
+                                        .equals("Mac OS")
+                                        ? "mac"
+                                        : "";
                         String functions = usbFuncSpinner.getText().toString();
                         String adbEnable =
                                 adbSpinner.getText().toString().equals("Enable") ? ",adb" : "";
@@ -253,20 +250,20 @@ public class USBArmory extends ThemedActivity {
                                 usbSwitchInfoEditTextGroup[2].getText().toString().isEmpty()
                                         ? ""
                                         : " -m '"
-                                                + usbSwitchInfoEditTextGroup[2].getText().toString()
-                                                + "'";
+                                        + usbSwitchInfoEditTextGroup[2].getText().toString()
+                                        + "'";
                         String product =
                                 usbSwitchInfoEditTextGroup[3].getText().toString().isEmpty()
                                         ? ""
                                         : " -P '"
-                                                + usbSwitchInfoEditTextGroup[3].getText().toString()
-                                                + "'";
+                                        + usbSwitchInfoEditTextGroup[3].getText().toString()
+                                        + "'";
                         String serialnumber =
                                 usbSwitchInfoEditTextGroup[4].getText().toString().isEmpty()
                                         ? ""
                                         : " -s '"
-                                                + usbSwitchInfoEditTextGroup[4].getText().toString()
-                                                + "'";
+                                        + usbSwitchInfoEditTextGroup[4].getText().toString()
+                                        + "'";
 
                         executor.execute(
                                 () -> {
@@ -388,17 +385,17 @@ public class USBArmory extends ThemedActivity {
                                                 exe.RunAsRootReturnValue(
                                                         String.format(
                                                                 "%s%s && echo '%s/%s' >"
-                                                                    + " /config/usb_gadget/g1/functions/mass_storage.0/lun.0/file",
+                                                                        + " /config/usb_gadget/g1/functions/mass_storage.0/lun.0/file",
                                                                 "echo '1' >"
-                                                                    + " /config/usb_gadget/g1/functions/mass_storage.0/lun.0/ro",
+                                                                        + " /config/usb_gadget/g1/functions/mass_storage.0/lun.0/ro",
                                                                 imgFileSpinner
-                                                                                .getText()
-                                                                                .toString()
-                                                                                .contains(".iso")
+                                                                        .getText()
+                                                                        .toString()
+                                                                        .contains(".iso")
                                                                         ? " && echo '1' >"
-                                                                              + " /config/usb_gadget/g1/functions/mass_storage.0/lun.0/cdrom"
+                                                                        + " /config/usb_gadget/g1/functions/mass_storage.0/lun.0/cdrom"
                                                                         : " && echo '0' >"
-                                                                              + " /config/usb_gadget/g1/functions/mass_storage.0/lun.0/cdrom",
+                                                                        + " /config/usb_gadget/g1/functions/mass_storage.0/lun.0/cdrom",
                                                                 PathsUtil.APP_SD_FILES_IMG_PATH,
                                                                 imgFileSpinner
                                                                         .getText()
@@ -408,17 +405,17 @@ public class USBArmory extends ThemedActivity {
                                                 exe.RunAsRootReturnValue(
                                                         String.format(
                                                                 "%s%s && echo '%s/%s' >"
-                                                                    + " /config/usb_gadget/g1/functions/mass_storage.0/lun.0/file",
+                                                                        + " /config/usb_gadget/g1/functions/mass_storage.0/lun.0/file",
                                                                 "echo '0' >"
-                                                                    + " /config/usb_gadget/g1/functions/mass_storage.0/lun.0/ro",
+                                                                        + " /config/usb_gadget/g1/functions/mass_storage.0/lun.0/ro",
                                                                 imgFileSpinner
-                                                                                .getText()
-                                                                                .toString()
-                                                                                .contains(".iso")
+                                                                        .getText()
+                                                                        .toString()
+                                                                        .contains(".iso")
                                                                         ? " && echo '1' >"
-                                                                              + " /config/usb_gadget/g1/functions/mass_storage.0/lun.0/cdrom"
+                                                                        + " /config/usb_gadget/g1/functions/mass_storage.0/lun.0/cdrom"
                                                                         : " && echo '0' >"
-                                                                              + " /config/usb_gadget/g1/functions/mass_storage.0/lun.0/cdrom",
+                                                                        + " /config/usb_gadget/g1/functions/mass_storage.0/lun.0/cdrom",
                                                                 PathsUtil.APP_SD_FILES_IMG_PATH,
                                                                 imgFileSpinner
                                                                         .getText()
@@ -455,11 +452,11 @@ public class USBArmory extends ThemedActivity {
                                 int result =
                                         exe.RunAsRootReturnValue(
                                                 "echo '' >"
-                                                    + " /config/usb_gadget/g1/functions/mass_storage.0/lun.0/file"
-                                                    + " && echo '0' >"
-                                                    + " /config/usb_gadget/g1/functions/mass_storage.0/lun.0/ro"
-                                                    + " && echo '0' >"
-                                                    + " /config/usb_gadget/g1/functions/mass_storage.0/lun.0/cdrom");
+                                                        + " /config/usb_gadget/g1/functions/mass_storage.0/lun.0/file"
+                                                        + " && echo '0' >"
+                                                        + " /config/usb_gadget/g1/functions/mass_storage.0/lun.0/ro"
+                                                        + " && echo '0' >"
+                                                        + " /config/usb_gadget/g1/functions/mass_storage.0/lun.0/cdrom");
                                 if (result == 0) {
                                     PathsUtil.showSnack(
                                             _view,
@@ -538,28 +535,29 @@ public class USBArmory extends ThemedActivity {
                 adbBackup.setTitle("Full path to where you want to save the database:");
                 adbBackup.setView(promptView);
                 adbBackup.setNegativeButton("Cancel", (dialog, which) -> dialog.cancel());
-                adbBackup.setPositiveButton("OK", (dialog, which) -> {});
+                adbBackup.setPositiveButton("OK", (dialog, which) -> {
+                });
                 final AlertDialog adBackup = adbBackup.create();
                 adBackup.setOnShowListener(dialog -> {
                     final Button buttonOK = adBackup.getButton(DialogInterface.BUTTON_POSITIVE);
                     buttonOK.setOnClickListener(v -> {
                         String returnedResult =
-                            USBArmorySQL.getInstance(context)
-                                    .backupData(
-                                        storedpathEditText
-                                                .getText()
-                                                .toString());
+                                USBArmorySQL.getInstance(context)
+                                        .backupData(
+                                                storedpathEditText
+                                                        .getText()
+                                                        .toString());
                         if (returnedResult == null) {
                             PathsUtil.showSnack(
-                                _view,
-                                "db is successfully backup to "
-                                        + storedpathEditText.getText().toString(),
-                                false);
+                                    _view,
+                                    "db is successfully backup to "
+                                            + storedpathEditText.getText().toString(),
+                                    false);
                         } else {
                             PathsUtil.showSnack(
-                                _view,
-                                "Failed to backup the DB.",
-                                false);
+                                    _view,
+                                    "Failed to backup the DB.",
+                                    false);
                         }
                         dialog.dismiss();
                     });
@@ -572,31 +570,32 @@ public class USBArmory extends ThemedActivity {
                 adbRestore.setTitle("Full path of the db file from where you want to restore:");
                 adbRestore.setView(promptView);
                 adbRestore.setNegativeButton("Cancel", (dialog, which) -> dialog.cancel());
-                adbRestore.setPositiveButton("OK", (dialog, which) -> {});
+                adbRestore.setPositiveButton("OK", (dialog, which) -> {
+                });
                 final AlertDialog adRestore = adbRestore.create();
                 adRestore.setOnShowListener(dialog -> {
                     final Button buttonOK = adRestore.getButton(DialogInterface.BUTTON_POSITIVE);
                     buttonOK.setOnClickListener(v -> {
                         String returnedResult =
-                            USBArmorySQL.getInstance(context)
-                                    .restoreData(
-                                        storedpathEditText
-                                                .getText()
-                                                .toString());
+                                USBArmorySQL.getInstance(context)
+                                        .restoreData(
+                                                storedpathEditText
+                                                        .getText()
+                                                        .toString());
                         if (returnedResult == null) {
                             PathsUtil.showSnack(
-                                _view,
-                                "db is successfully restored to "
-                                        + storedpathEditText.getText().toString(),
-                                false);
+                                    _view,
+                                    "db is successfully restored to "
+                                            + storedpathEditText.getText().toString(),
+                                    false);
                             refreshUSBSwitchInfos(
-                                gettargetOSSpinnerString(),
-                                getusbFuncSpinnerString());
+                                    gettargetOSSpinnerString(),
+                                    getusbFuncSpinnerString());
                         } else {
                             PathsUtil.showSnack(
-                                _view,
-                                "Failed to restore the DB.",
-                                false);
+                                    _view,
+                                    "Failed to restore the DB.",
+                                    false);
                         }
                         dialog.dismiss();
                     });
@@ -650,7 +649,7 @@ public class USBArmory extends ThemedActivity {
                 new ArrayAdapter<>(activity, R.layout.mh_spinner_item, result);
         imgFileSpinner.setAdapter(imageAdapter);
 
-        if (result.size() > 0) imgFileSpinner.setText(result.get(0).toString(), false);
+        if (result.size() > 0) imgFileSpinner.setText(result.get(0), false);
         mountImgButton.setEnabled(true);
         unmountImgButton.setEnabled(true);
     }
@@ -722,23 +721,23 @@ public class USBArmory extends ThemedActivity {
     private void refreshUSBSwitchInfos(String targetOSName, String functionName) {
         executor.execute(() -> {
             USBArmoryUSBSwitchModel result =
-                USBArmorySQL.getInstance(context)
-                        .getUSBSwitchColumnData(targetOSName, functionName);
+                    USBArmorySQL.getInstance(context)
+                            .getUSBSwitchColumnData(targetOSName, functionName);
             String manufacturer =
-                (result).getmanufacturer().isEmpty()
-                        ? exe.RunAsRootOutput(
-                                "cat /config/usb_gadget/g1/strings/0x409/manufacturer")
-                        : (result).getmanufacturer();
+                    (result).getmanufacturer().isEmpty()
+                            ? exe.RunAsRootOutput(
+                            "cat /config/usb_gadget/g1/strings/0x409/manufacturer")
+                            : (result).getmanufacturer();
             String product =
-                (result).getproduct().isEmpty()
-                        ? exe.RunAsRootOutput(
-                                "cat /config/usb_gadget/g1/strings/0x409/product")
-                        : (result).getproduct();
+                    (result).getproduct().isEmpty()
+                            ? exe.RunAsRootOutput(
+                            "cat /config/usb_gadget/g1/strings/0x409/product")
+                            : (result).getproduct();
             String serialnumber =
-                (result).getserialnumber().isEmpty()
-                        ? exe.RunAsRootOutput(
-                                "cat /config/usb_gadget/g1/strings/0x409/serialnumber")
-                        : (result).getserialnumber();
+                    (result).getserialnumber().isEmpty()
+                            ? exe.RunAsRootOutput(
+                            "cat /config/usb_gadget/g1/strings/0x409/serialnumber")
+                            : (result).getserialnumber();
             new Handler(Looper.getMainLooper()).post(() -> {
                 usbSwitchInfoEditTextGroup[0].setText((result).getidVendor());
                 usbSwitchInfoEditTextGroup[1].setText((result).getidProduct());

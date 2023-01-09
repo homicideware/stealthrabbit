@@ -10,11 +10,11 @@ import java.util.Iterator;
 
 public class JSON {
 
-    public static JSONObject getFromWeb(String link) throws JSONException, MalformedURLException, IOException {
+    public static JSONObject getFromWeb(String link) throws JSONException, IOException {
         JSONObject result = null;
         String content = Web.getContent(link);
         if (content != null) {
-            result = new JSONObject(content);       
+            result = new JSONObject(content);
         }
         return result;
     }

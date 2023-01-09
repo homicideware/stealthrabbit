@@ -23,14 +23,13 @@ import java.util.ArrayList;
 import material.hunter.utils.PathsUtil;
 import material.hunter.utils.TerminalUtil;
 
-public class Settings extends ThemedActivity {
+public class SettingsActivity extends ThemedActivity {
 
     private static ActionBar actionBar;
+    MaterialToolbar toolbar;
     private Activity activity;
     private View _view;
     private SharedPreferences prefs;
-
-    MaterialToolbar toolbar;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -64,7 +63,8 @@ public class Settings extends ThemedActivity {
         background_diming_level.addOnSliderTouchListener(
                 new Slider.OnSliderTouchListener() {
                     @Override
-                    public void onStartTrackingTouch(@NonNull Slider slider) {}
+                    public void onStartTrackingTouch(@NonNull Slider slider) {
+                    }
 
                     @Override
                     public void onStopTrackingTouch(@NonNull Slider slider) {
@@ -143,8 +143,8 @@ public class Settings extends ThemedActivity {
         select_terminal.setOnItemClickListener((adapterView, view, pos, l) -> {
             String mTerminal_type =
                     pos == 0
-                        ? TerminalUtil.TERMINAL_TYPE_TERMUX
-                        : pos == 1
+                            ? TerminalUtil.TERMINAL_TYPE_TERMUX
+                            : pos == 1
                             ? TerminalUtil.TERMINAL_TYPE_NETHUNTER
                             : TerminalUtil.TERMINAL_TYPE_TERMUX;
             prefs.edit().putString("terminal_type", mTerminal_type).apply();

@@ -28,11 +28,10 @@
                 android:id="@+id/warn_text"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
                 android:gravity="center"
                 android:padding="5dp"
                 android:text="MAC addresses are unique identifiers on networks, they only need to be unique, they can be changed on most network hardware."
-                android:textSize="18sp"
+                android:textSize="18dp"
                 android:textStyle="bold" />
 
             <com.google.android.material.textfield.TextInputLayout

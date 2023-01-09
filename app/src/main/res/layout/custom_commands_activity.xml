@@ -2,22 +2,22 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical" >
+    android:orientation="vertical">
 
     <include
         android:id="@+id/included"
+        layout="@layout/actionbar_layout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        layout="@layout/actionbar_layout" />
+        android:layout_height="wrap_content" />
 
     <LinearLayout
         android:id="@+id/f_customcommands_recyclerview_layout"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_marginTop="4dp"
+        android:orientation="vertical"
         app:layout_constraintBottom_toTopOf="@+id/f_customcommands_btn_scrollView"
-        app:layout_constraintTop_toBottomOf="@+id/included"
-        android:orientation="vertical" >
+        app:layout_constraintTop_toBottomOf="@+id/included">
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/f_customcommands_recyclerview"
@@ -32,21 +32,21 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/f_customcommands_recyclerview_layout" >
+        app:layout_constraintTop_toBottomOf="@+id/f_customcommands_recyclerview_layout">
 
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:orientation="horizontal" >
+            android:orientation="horizontal">
 
             <Button
                 android:id="@+id/f_customcommands_addItemButton"
                 style="@style/Widget.Material3.Button.ElevatedButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="2dp"
                 android:layout_marginStart="2dp"
+                android:layout_marginEnd="2dp"
                 android:text="Add" />
 
             <Button
@@ -54,8 +54,8 @@
                 style="@style/Widget.Material3.Button.ElevatedButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="2dp"
                 android:layout_marginStart="2dp"
+                android:layout_marginEnd="2dp"
                 android:text="Delete" />
 
             <Button
@@ -63,8 +63,8 @@
                 style="@style/Widget.Material3.Button.ElevatedButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="2dp"
                 android:layout_marginStart="2dp"
+                android:layout_marginEnd="2dp"
                 android:text="Move" />
         </LinearLayout>
     </HorizontalScrollView>

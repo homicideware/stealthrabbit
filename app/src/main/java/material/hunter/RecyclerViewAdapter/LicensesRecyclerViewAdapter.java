@@ -19,9 +19,9 @@ import material.hunter.models.LicenseModel;
 public class LicensesRecyclerViewAdapter
         extends RecyclerView.Adapter<LicensesRecyclerViewAdapter.ViewHolder> {
 
-    private Activity activity;
-    private Context context;
-    private List<LicenseModel> list;
+    private final Activity activity;
+    private final Context context;
+    private final List<LicenseModel> list;
 
     public LicensesRecyclerViewAdapter(
             Activity activity, Context context, List<LicenseModel> list) {

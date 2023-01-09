@@ -2,23 +2,23 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:padding="20dp" >
+    android:padding="20dp">
 
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:scrollbars="none" >
+        android:scrollbars="none">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical" >
+            android:orientation="vertical">
 
             <com.google.android.material.textfield.TextInputLayout
                 style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="4dp" >
+                android:layout_marginBottom="4dp">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/f_services_edit_adb_et_title"
@@ -33,7 +33,7 @@
                 style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="4dp" >
+                android:layout_marginBottom="4dp">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/f_services_edit_adb_et_startcommand"
@@ -47,7 +47,7 @@
                 style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="4dp" >
+                android:layout_marginBottom="4dp">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/f_services_edit_adb_et_stopcommand"
@@ -61,7 +61,7 @@
                 style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="4dp" >
+                android:layout_marginBottom="4dp">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/f_services_edit_adb_et_checkstatuscommand"
@@ -76,7 +76,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Run on chroot start"
-                android:textSize="18sp" />
+                android:textSize="18dp" />
         </LinearLayout>
     </ScrollView>
 

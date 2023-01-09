@@ -31,8 +31,7 @@ public class MHRepo {
                 String obj = repo.getString(keys.get(i));
                 JSONObject chroot = new JSONObject(obj);
                 if (chroot.has("name") && (chroot.has("url") || chroot.has("file")) && chroot.has("author")) {
-                }
-                else
+                } else
                     return false;
             } catch (JSONException e) {
                 return false;

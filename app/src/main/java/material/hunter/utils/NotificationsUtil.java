@@ -18,7 +18,7 @@ public class NotificationsUtil {
 
     private static Context context;
     private static NotificationsUtil instance;
-    private static String CHANNEL_ID = "MaterialHunterNotifyChannel";
+    private static final String CHANNEL_ID = "MaterialHunterNotifyChannel";
 
     private NotificationsUtil(Context mContext) {
         context = mContext;

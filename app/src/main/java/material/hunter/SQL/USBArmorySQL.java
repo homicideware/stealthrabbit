@@ -47,51 +47,51 @@ public class USBArmorySQL extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
         final String[][] USBSwitchData = {
-            {"Windows", "reset", "0x1234", "0x5678", "", "", ""},
-            {"Windows", "hid", "0x046d", "0xc316", "", "", ""},
-            {"Windows", "hid,adb", "0x046d", "0xc317", "", "", ""},
-            {"Windows", "mass_storage", "0x9051", "0x168a", "", "", ""},
-            {"Windows", "mass_storage,adb", "0x9051", "0x168b", "", "", ""},
-            {"Windows", "rndis", "0x0525", "0xa4a2", "", "", ""},
-            {"Windows", "rndis,adb", "0x0525", "0xa4a3", "", "", ""},
-            {"Windows", "hid,mass_storage", "0x046d", "0xc318", "", "", ""},
-            {"Windows", "hid,mass_storage,adb", "0x046d", "0xc319", "", "", ""},
-            {"Windows", "rndis,hid", "0x0525", "0xa4a6", "", "", ""},
-            {"Windows", "rndis,hid,adb", "0x0525", "0xa4a7", "", "", ""},
-            {"Windows", "rndis,mass_storage", "0x0525", "0xa4a4", "", "", ""},
-            {"Windows", "rndis,mass_storage,adb", "0x0525", "0xa4a5", "", "", ""},
-            {"Windows", "rndis,hid,mass_storage", "0x0525", "0xa4a8", "", "", ""},
-            {"Windows", "rndis,hid,mass_storage,adb", "0x0525", "0xa4a9", "", "", ""},
-            {"Linux", "reset", "0x1234", "0x5678", "", "", ""},
-            {"Linux", "hid", "0x046d", "0xc316", "", "", ""},
-            {"Linux", "hid,adb", "0x046d", "0xc317", "", "", ""},
-            {"Linux", "mass_storage", "0x9051", "0x168a", "", "", ""},
-            {"Linux", "mass_storage,adb", "0x9051", "0x168b", "", "", ""},
-            {"Linux", "rndis", "0x0525", "0xa4a2", "", "", ""},
-            {"Linux", "rndis,adb", "0x0525", "0xa4a3", "", "", ""},
-            {"Linux", "hid,mass_storage", "0x046d", "0xc318", "", "", ""},
-            {"Linux", "hid,mass_storage,adb", "0x046d", "0xc319", "", "", ""},
-            {"Linux", "rndis,hid", "0x0525", "0xa4a6", "", "", ""},
-            {"Linux", "rndis,hid,adb", "0x0525", "0xa4a7", "", "", ""},
-            {"Linux", "rndis,mass_storage", "0x0525", "0xa4a4", "", "", ""},
-            {"Linux", "rndis,mass_storage,adb", "0x0525", "0xa4a5", "", "", ""},
-            {"Linux", "rndis,hid,mass_storage", "0x0525", "0xa4a8", "", "", ""},
-            {"Linux", "rndis,hid,mass_storage,adb", "0x0525", "0xa4a9", "", "", ""},
-            {"Mac OS", "reset", "0x1234", "0x5678", "", "", ""},
-            {"Mac OS", "hid", "0x05ac", "0x0201", "", "", ""},
-            {"Mac OS", "hid,adb", "0x05ac", "0x0201", "", "", ""},
-            {"Mac OS", "mass_storage", "0x0930", "0x6545", "", "", ""},
-            {"Mac OS", "mass_storage,adb", "0x0930", "0x6545", "", "", ""},
-            {"Mac OS", "acm,ecm", "0x1d6b", "0x0105", "", "", ""},
-            {"Mac OS", "acm,ecm,adb", "0x1d6b", "0x0105", "", "", ""},
-            {"Mac OS", "hid,mass_storage", "0x05ac", "0x0201", "", "", ""},
-            {"Mac OS", "hid,mass_storage,adb", "0x05ac", "0x0201", "", "", ""},
-            {"Mac OS", "acm,ecm,hid", "0x05ac", "0x0201", "", "", ""},
-            {"Mac OS", "acm,ecm,hid,adb", "0x05ac", "0x0201", "", "", ""},
-            {"Mac OS", "acm,ecm,mass_storage", "0x1d6b", "0x0105", "", "", ""},
-            {"Mac OS", "acm,ecm,mass_storage,adb", "0x1d6b", "0x0105", "", "", ""},
-            {"Mac OS", "acm,ecm,hid,mass_storage", "0x05ac", "0x0201", "", "", ""},
-            {"Mac OS", "acm,ecm,hid,mass_storage,adb", "0x05ac", "0x0201", "", "", ""}
+                {"Windows", "reset", "0x1234", "0x5678", "", "", ""},
+                {"Windows", "hid", "0x046d", "0xc316", "", "", ""},
+                {"Windows", "hid,adb", "0x046d", "0xc317", "", "", ""},
+                {"Windows", "mass_storage", "0x9051", "0x168a", "", "", ""},
+                {"Windows", "mass_storage,adb", "0x9051", "0x168b", "", "", ""},
+                {"Windows", "rndis", "0x0525", "0xa4a2", "", "", ""},
+                {"Windows", "rndis,adb", "0x0525", "0xa4a3", "", "", ""},
+                {"Windows", "hid,mass_storage", "0x046d", "0xc318", "", "", ""},
+                {"Windows", "hid,mass_storage,adb", "0x046d", "0xc319", "", "", ""},
+                {"Windows", "rndis,hid", "0x0525", "0xa4a6", "", "", ""},
+                {"Windows", "rndis,hid,adb", "0x0525", "0xa4a7", "", "", ""},
+                {"Windows", "rndis,mass_storage", "0x0525", "0xa4a4", "", "", ""},
+                {"Windows", "rndis,mass_storage,adb", "0x0525", "0xa4a5", "", "", ""},
+                {"Windows", "rndis,hid,mass_storage", "0x0525", "0xa4a8", "", "", ""},
+                {"Windows", "rndis,hid,mass_storage,adb", "0x0525", "0xa4a9", "", "", ""},
+                {"Linux", "reset", "0x1234", "0x5678", "", "", ""},
+                {"Linux", "hid", "0x046d", "0xc316", "", "", ""},
+                {"Linux", "hid,adb", "0x046d", "0xc317", "", "", ""},
+                {"Linux", "mass_storage", "0x9051", "0x168a", "", "", ""},
+                {"Linux", "mass_storage,adb", "0x9051", "0x168b", "", "", ""},
+                {"Linux", "rndis", "0x0525", "0xa4a2", "", "", ""},
+                {"Linux", "rndis,adb", "0x0525", "0xa4a3", "", "", ""},
+                {"Linux", "hid,mass_storage", "0x046d", "0xc318", "", "", ""},
+                {"Linux", "hid,mass_storage,adb", "0x046d", "0xc319", "", "", ""},
+                {"Linux", "rndis,hid", "0x0525", "0xa4a6", "", "", ""},
+                {"Linux", "rndis,hid,adb", "0x0525", "0xa4a7", "", "", ""},
+                {"Linux", "rndis,mass_storage", "0x0525", "0xa4a4", "", "", ""},
+                {"Linux", "rndis,mass_storage,adb", "0x0525", "0xa4a5", "", "", ""},
+                {"Linux", "rndis,hid,mass_storage", "0x0525", "0xa4a8", "", "", ""},
+                {"Linux", "rndis,hid,mass_storage,adb", "0x0525", "0xa4a9", "", "", ""},
+                {"Mac OS", "reset", "0x1234", "0x5678", "", "", ""},
+                {"Mac OS", "hid", "0x05ac", "0x0201", "", "", ""},
+                {"Mac OS", "hid,adb", "0x05ac", "0x0201", "", "", ""},
+                {"Mac OS", "mass_storage", "0x0930", "0x6545", "", "", ""},
+                {"Mac OS", "mass_storage,adb", "0x0930", "0x6545", "", "", ""},
+                {"Mac OS", "acm,ecm", "0x1d6b", "0x0105", "", "", ""},
+                {"Mac OS", "acm,ecm,adb", "0x1d6b", "0x0105", "", "", ""},
+                {"Mac OS", "hid,mass_storage", "0x05ac", "0x0201", "", "", ""},
+                {"Mac OS", "hid,mass_storage,adb", "0x05ac", "0x0201", "", "", ""},
+                {"Mac OS", "acm,ecm,hid", "0x05ac", "0x0201", "", "", ""},
+                {"Mac OS", "acm,ecm,hid,adb", "0x05ac", "0x0201", "", "", ""},
+                {"Mac OS", "acm,ecm,mass_storage", "0x1d6b", "0x0105", "", "", ""},
+                {"Mac OS", "acm,ecm,mass_storage,adb", "0x1d6b", "0x0105", "", "", ""},
+                {"Mac OS", "acm,ecm,hid,mass_storage", "0x05ac", "0x0201", "", "", ""},
+                {"Mac OS", "acm,ecm,hid,mass_storage,adb", "0x05ac", "0x0201", "", "", ""}
         };
         db.execSQL(
                 "CREATE TABLE "
@@ -129,7 +129,8 @@ public class USBArmorySQL extends SQLiteOpenHelper {
     }
 
     @Override
-    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {}
+    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+    }
 
     @SuppressLint("Range")
     public USBArmoryUSBSwitchModel getUSBSwitchColumnData(
@@ -242,8 +243,8 @@ public class USBArmorySQL extends SQLiteOpenHelper {
         if (tempDB.getVersion() > this.getReadableDatabase().getVersion()) {
             tempDB.close();
             return "db cannot be restored.\n"
-                       + "Reason: the db version of your backup db is newer than the current db"
-                       + " version.";
+                    + "Reason: the db version of your backup db is newer than the current db"
+                    + " version.";
         }
         tempDB.close();
 

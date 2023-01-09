@@ -2,10 +2,10 @@ package material.hunter.models;
 
 public class AuthorsModel {
 
-    private String nickname;
-    private String nicknamedesc;
-    private String url;
-    private String description;
+    private final String nickname;
+    private final String nicknamedesc;
+    private final String url;
+    private final String description;
 
     public AuthorsModel(String nickname, String nicknamedesc, String url, String description) {
         this.nickname = nickname;

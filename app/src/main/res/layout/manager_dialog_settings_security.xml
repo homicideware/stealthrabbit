@@ -3,29 +3,30 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="24dp" >
+    android:padding="24dp">
 
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:scrollbars="none" >
+        android:scrollbars="none">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical" >
+            android:orientation="vertical">
 
             <TextView
                 style="@style/Widget.Mirivan.Title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:padding="4dp"
                 android:text="Security" />
 
             <com.google.android.material.switchmaterial.SwitchMaterial
                 android:id="@+id/mount_sdcard"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:padding="8dp"
+                android:padding="4dp"
                 android:text="Mount sdcard partition"
                 android:textSize="16dp"
                 app:useMaterialThemeColors="false" />
@@ -34,7 +35,7 @@
                 android:id="@+id/mount_system"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:padding="8dp"
+                android:padding="4dp"
                 android:text="Mount system partition"
                 android:textSize="16dp"
                 app:useMaterialThemeColors="false" />
@@ -43,7 +44,7 @@
                 android:id="@+id/mount_data"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:padding="8dp"
+                android:padding="4dp"
                 android:text="Mount data partition"
                 android:textSize="16dp"
                 app:useMaterialThemeColors="false" />
@@ -53,13 +54,14 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
+                android:padding="4dp"
                 android:text="Hostname" />
 
             <com.google.android.material.textfield.TextInputLayout
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp" >
+                android:layout_marginTop="16dp">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/hostname"

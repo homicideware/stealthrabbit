@@ -171,7 +171,8 @@ public class ServicesRecyclerViewAdapter extends RecyclerView.Adapter<ServicesRe
                     MaterialAlertDialogBuilder adbEdit = new MaterialAlertDialogBuilder(context);
                     adbEdit.setView(promptViewEdit);
                     adbEdit.setCancelable(true);
-                    adbEdit.setPositiveButton("OK", (dialog, which) -> {});
+                    adbEdit.setPositiveButton("OK", (dialog, which) -> {
+                    });
                     final AlertDialog adEdit = adbEdit.create();
                     adEdit.setOnShowListener(
                             dialog -> {
@@ -266,10 +267,10 @@ public class ServicesRecyclerViewAdapter extends RecyclerView.Adapter<ServicesRe
     }
 
     static class ItemViewHolder extends RecyclerView.ViewHolder {
-        private MaterialCardView card;
         private final TextView nametextView;
         private final TextView statustextView;
-        private SwitchMaterial mSwitch;
+        private final MaterialCardView card;
+        private final SwitchMaterial mSwitch;
 
         private ItemViewHolder(View view) {
             super(view);

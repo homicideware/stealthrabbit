@@ -87,7 +87,7 @@ public class PathsUtil {
         return "";
     }
 
-    public static float dpToPx(float dp){
+    public static float dpToPx(float dp) {
         return dp * ((float) context.getResources().getDisplayMetrics().densityDpi / DisplayMetrics.DENSITY_DEFAULT);
     }
 

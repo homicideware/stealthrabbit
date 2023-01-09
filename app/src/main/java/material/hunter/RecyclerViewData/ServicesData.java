@@ -11,7 +11,7 @@ import java.util.Collections;
 import java.util.List;
 
 import material.hunter.SQL.ServicesSQL;
-import material.hunter.Services;
+import material.hunter.ServicesActivity;
 import material.hunter.models.ServicesModel;
 import material.hunter.utils.PathsUtil;
 import material.hunter.utils.ShellExecuter;
@@ -52,7 +52,8 @@ public class ServicesData {
         new MelvilleExecutor() {
 
             @Override
-            public void onPreExecute() {}
+            public void onPreExecute() {
+            }
 
             @Override
             public void doInBackground() {
@@ -61,14 +62,14 @@ public class ServicesData {
                         model.get(i)
                                 .setStatus(
                                         new ShellExecuter()
-                                                                .RunAsRootReturnValue(
-                                                                        PathsUtil.BUSYBOX
-                                                                                + " ps | grep -v"
-                                                                                + " grep | grep '"
-                                                                                + model.get(i)
-                                                                                        .getCommandforCheckServiceStatus()
-                                                                                + "'")
-                                                        == 0
+                                                .RunAsRootReturnValue(
+                                                        PathsUtil.BUSYBOX
+                                                                + " ps | grep -v"
+                                                                + " grep | grep '"
+                                                                + model.get(i)
+                                                                .getCommandforCheckServiceStatus()
+                                                                + "'")
+                                                == 0
                                                 ? "[+] Service is running"
                                                 : "[-] Service isn't running");
                     }
@@ -100,10 +101,10 @@ public class ServicesData {
                     model.get(position)
                             .setStatus(
                                     new ShellExecuter()
-                                                            .RunAsChrootReturnValue(
-                                                                    model.get(position)
-                                                                            .getCommandforStartService())
-                                                    == 0
+                                            .RunAsChrootReturnValue(
+                                                    model.get(position)
+                                                            .getCommandforStartService())
+                                            == 0
                                             ? "[+] Service is running"
                                             : "[-] Service isn't running");
                 }
@@ -118,7 +119,7 @@ public class ServicesData {
                 getServicesModels().postValue(getServicesModels().getValue());
                 if (!mSwitch.isChecked())
                     PathsUtil.showSnack(
-                            Services._view,
+                            ServicesActivity._view,
                             "Failed starting "
                                     + getServicesModels().getValue().get(position).getServiceName()
                                     + " service.",
@@ -143,10 +144,10 @@ public class ServicesData {
                     model.get(position)
                             .setStatus(
                                     new ShellExecuter()
-                                                            .RunAsChrootReturnValue(
-                                                                    model.get(position)
-                                                                            .getCommandforStopService())
-                                                    == 0
+                                            .RunAsChrootReturnValue(
+                                                    model.get(position)
+                                                            .getCommandforStopService())
+                                            == 0
                                             ? "[-] Service isn't running"
                                             : "[+] Service is running");
                 }
@@ -161,7 +162,7 @@ public class ServicesData {
                 getServicesModels().postValue(getServicesModels().getValue());
                 if (mSwitch.isChecked())
                     PathsUtil.showSnack(
-                            Services._view,
+                            ServicesActivity._view,
                             "Failed stopping "
                                     + getServicesModels().getValue().get(position).getServiceName()
                                     + " service.",
@@ -176,7 +177,8 @@ public class ServicesData {
         new MelvilleExecutor() {
 
             @Override
-            public void onPreExecute() {}
+            public void onPreExecute() {
+            }
 
             @Override
             public void doInBackground() {
@@ -207,7 +209,8 @@ public class ServicesData {
         new MelvilleExecutor() {
 
             @Override
-            public void onPreExecute() {}
+            public void onPreExecute() {
+            }
 
             @Override
             public void doInBackground() {
@@ -247,7 +250,8 @@ public class ServicesData {
         new MelvilleExecutor() {
 
             @Override
-            public void onPreExecute() {}
+            public void onPreExecute() {
+            }
 
             @Override
             public void doInBackground() {
@@ -278,7 +282,8 @@ public class ServicesData {
         new MelvilleExecutor() {
 
             @Override
-            public void onPreExecute() {}
+            public void onPreExecute() {
+            }
 
             @Override
             public void doInBackground() {
@@ -322,10 +327,11 @@ public class ServicesData {
         if (returnedResult == null) {
             new MelvilleExecutor() {
 
-                List<ServicesModel> model = getInitCopyOfServicesModelListFull();
+                final List<ServicesModel> model = getInitCopyOfServicesModelListFull();
 
                 @Override
-                public void onPreExecute() {}
+                public void onPreExecute() {
+                }
 
                 @Override
                 public void doInBackground() {
@@ -386,7 +392,8 @@ public class ServicesData {
         new MelvilleExecutor() {
 
             @Override
-            public void onPreExecute() {}
+            public void onPreExecute() {
+            }
 
             @Override
             public void doInBackground() {
@@ -437,7 +444,7 @@ public class ServicesData {
                                 + PathsUtil.APP_SCRIPTS_PATH
                                 + "/services"
                                 + "\n"
-                                + tmpStringBuilder.toString()
+                                + tmpStringBuilder
                                 + "\nEOF");
     }
 }

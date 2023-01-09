@@ -24,15 +24,14 @@ public class ThemedActivity extends AppCompatActivity {
     private static final HashMap<Activity, Resources.Theme> activities =
             new HashMap<Activity, Resources.Theme>();
     private static boolean dynamicColorsEnabled = false;
-    private static final int mTargetTheme = 0;
     private SharedPreferences prefs;
-
-    private static void setDynamicColorsEnabled(boolean b) {
-        dynamicColorsEnabled = b;
-    }
 
     public static boolean isDynamicColorsEnabled() {
         return dynamicColorsEnabled;
+    }
+
+    private static void setDynamicColorsEnabled(boolean b) {
+        dynamicColorsEnabled = b;
     }
 
     @Override
@@ -80,10 +79,8 @@ public class ThemedActivity extends AppCompatActivity {
                     isDynamicColorsEnabled() && DynamicColors.isDynamicColorAvailable();
             if (useDynamicColors) {
                 setTheme(R.style.ThemeM3_MaterialHunter);
-                // getTheme().applyStyle(R.style.ThemeM3_MaterialHunter, false);
             } else {
                 setTheme(R.style.Theme_MaterialHunter);
-                // getTheme().applyStyle(R.style.Theme_MaterialHunter, false);
             }
             return true;
         }

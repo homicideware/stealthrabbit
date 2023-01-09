@@ -23,7 +23,7 @@ public class ServicesSQL extends SQLiteOpenHelper {
     private static final String TAG = "ServicesSQL";
     private static final String TABLE_NAME = DATABASE_NAME;
     private static final String[][] ServicesData = {
-        {"1", "SSH", "service ssh start", "service ssh stop", "sshd", "0"}
+            {"1", "SSH", "service ssh start", "service ssh stop", "sshd", "0"}
     };
     private static final ArrayList<String> COLUMNS = new ArrayList<>();
     private static ServicesSQL instance;

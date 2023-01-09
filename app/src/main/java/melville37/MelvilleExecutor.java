@@ -35,7 +35,7 @@ public abstract class MelvilleExecutor {
         return running;
     }
 
-    public abstract void onPreExecute(); 
+    public abstract void onPreExecute();
 
     public abstract void doInBackground();
 

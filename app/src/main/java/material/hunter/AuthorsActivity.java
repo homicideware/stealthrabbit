@@ -13,6 +13,7 @@ import com.google.android.material.appbar.MaterialToolbar;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,11 +24,9 @@ import material.hunter.utils.PathsUtil;
 public class AuthorsActivity extends ThemedActivity {
 
     private static ActionBar actionBar;
-
-    private RecyclerView recycler;
     private final List<AuthorsModel> list = new ArrayList<AuthorsModel>();
-
     MaterialToolbar toolbar;
+    private RecyclerView recycler;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,7 +48,7 @@ public class AuthorsActivity extends ThemedActivity {
             if (assets == null || assets.length == 0) return;
 
             for (String asset : assets) {
-                reader = new BufferedReader(new InputStreamReader(assetManager.open(authorsDir + "/" + asset), "UTF-8"));
+                reader = new BufferedReader(new InputStreamReader(assetManager.open(authorsDir + "/" + asset), StandardCharsets.UTF_8));
 
                 int value;
                 while ((value = reader.read()) != -1) {

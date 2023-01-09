@@ -23,15 +23,14 @@ import melville37.MelvilleExecutor;
 
 public class CustomCommandsData {
 
+    public static boolean isDataInitiated = false;
+    private static CustomCommandsData instance;
+    private static final int RETURN_SUCCESS = 100;
+    private static final int RETURN_FAIL = 101;
     private final ArrayList<CustomCommandsModel> customCommandsModelArrayList = new ArrayList<>();
     private final MutableLiveData<List<CustomCommandsModel>> data = new MutableLiveData<>();
     private final List<CustomCommandsModel> copyOfCustomCommandsModelListFull = new ArrayList<>();
-    private static CustomCommandsData instance;
-    private static int RETURN_SUCCESS = 100;
-    private static int RETURN_FAIL = 101;
-
     public List<CustomCommandsModel> customCommandsModelListFull;
-    public static boolean isDataInitiated = false;
 
     public static synchronized CustomCommandsData getInstance() {
         if (instance == null) {
@@ -63,7 +62,8 @@ public class CustomCommandsData {
             boolean isChroot = false;
 
             @Override
-            public void onPreExecute() {}
+            public void onPreExecute() {
+            }
 
             @Override
             public void doInBackground() {
@@ -78,14 +78,14 @@ public class CustomCommandsData {
                                             try {
                                                 terminal.runCommand(
                                                         (model.get(position)
-                                                                        .getEnv()
-                                                                        .equals("android")
+                                                                .getEnv()
+                                                                .equals("android")
                                                                 ? command
                                                                 : PathsUtil.APP_SCRIPTS_PATH
-                                                                        + "/bootroot_exec \""
-                                                                        + command.replace(
-                                                                                "\"", "\\\"")
-                                                                        + "\""),
+                                                                + "/bootroot_exec \""
+                                                                + command.replace(
+                                                                "\"", "\\\"")
+                                                                + "\""),
                                                         false);
                                             } catch (ActivityNotFoundException
                                                     | PackageManager.NameNotFoundException e) {
@@ -168,7 +168,8 @@ public class CustomCommandsData {
         new MelvilleExecutor() {
 
             @Override
-            public void onPreExecute() {}
+            public void onPreExecute() {
+            }
 
             @Override
             public void doInBackground() {
@@ -200,7 +201,8 @@ public class CustomCommandsData {
         new MelvilleExecutor() {
 
             @Override
-            public void onPreExecute() {}
+            public void onPreExecute() {
+            }
 
             @Override
             public void doInBackground() {
@@ -239,7 +241,8 @@ public class CustomCommandsData {
         new MelvilleExecutor() {
 
             @Override
-            public void onPreExecute() {}
+            public void onPreExecute() {
+            }
 
             @Override
             public void doInBackground() {
@@ -274,7 +277,8 @@ public class CustomCommandsData {
             int _targetPositionIndex = targetPositionIndex;
 
             @Override
-            public void onPreExecute() {}
+            public void onPreExecute() {
+            }
 
             @Override
             public void doInBackground() {
@@ -318,7 +322,8 @@ public class CustomCommandsData {
                 List<CustomCommandsModel> model = getInitCopyOfCustomCommandsModelListFull();
 
                 @Override
-                public void onPreExecute() {}
+                public void onPreExecute() {
+                }
 
                 @Override
                 public void doInBackground() {
@@ -399,7 +404,7 @@ public class CustomCommandsData {
                                 + PathsUtil.APP_SCRIPTS_PATH
                                 + "/runonboot_services"
                                 + "\n"
-                                + tmpStringBuilder.toString()
+                                + tmpStringBuilder
                                 + "\nEOF");
     }
 }

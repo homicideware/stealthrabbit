@@ -12,7 +12,6 @@ public class HardwareProps {
             final Method get = sp.getMethod("get", String.class);
             value = (String) get.invoke(null, prop);
         } catch (Exception ignored) {
-
         }
         return value;
     }
@@ -20,13 +19,12 @@ public class HardwareProps {
     // setProp will be here!
 
     public static boolean deviceIsAB() {
-        if (getProp("ro.virtual_ab.enabled") == "true"
-                && getProp("ro.virtual_ab.retrofit") == "false") {
+        if (getProp("ro.virtual_ab.enabled").equals("true") && getProp("ro.virtual_ab.retrofit").equals("false")) {
             return true;
         }
 
         /** Checks if the device supports the conventional A/B partition */
-        if (!getProp("ro.boot.slot_suffix").isEmpty() || getProp("ro.build.ab_update") == "true") {
+        if (!getProp("ro.boot.slot_suffix").isEmpty() || getProp("ro.build.ab_update").equals("true")) {
             return false;
         }
 

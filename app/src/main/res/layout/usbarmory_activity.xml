@@ -3,64 +3,64 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
-    android:orientation="vertical" >
+    android:orientation="vertical">
 
     <include
         android:id="@+id/included"
+        layout="@layout/actionbar_layout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        layout="@layout/actionbar_layout" />
+        android:layout_height="wrap_content" />
 
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:scrollbars="none" >
+        android:scrollbars="none">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="vertical" >
+            android:orientation="vertical">
 
             <!-- USB interface switch -->
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical" >
+                android:orientation="vertical">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:background="@color/cardview_shadow_start_color"
-                    android:orientation="horizontal" >
+                    android:orientation="horizontal">
 
                     <TextView
                         style="@style/Widget.Mirivan.Subtitle"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="4dp"
-                        android:layout_marginEnd="16dp"
-                        android:layout_marginLeft="16dp"
-                        android:layout_marginRight="16dp"
                         android:layout_marginStart="16dp"
+                        android:layout_marginLeft="16dp"
                         android:layout_marginTop="4dp"
+                        android:layout_marginEnd="16dp"
+                        android:layout_marginRight="16dp"
+                        android:layout_marginBottom="4dp"
                         android:background="?attr/selectableItemBackgroundBorderless"
                         android:text="Gadget options"
                         android:textColor="@android:color/background_light"
-                        android:textSize="20sp" />
+                        android:textSize="20dp" />
                 </LinearLayout>
 
                 <LinearLayout
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
                     android:layout_margin="16dp"
-                    android:orientation="vertical" >
+                    android:orientation="vertical">
 
                     <com.google.android.material.textfield.TextInputLayout
                         style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:hint="Select target OS" >
+                        android:hint="Select target OS">
 
                         <AutoCompleteTextView
                             android:id="@+id/f_usbarmory_spr_targetplatform"
@@ -74,7 +74,7 @@
                         style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:hint="Functions" >
+                        android:hint="Functions">
 
                         <AutoCompleteTextView
                             android:id="@+id/f_usbarmory_spr_usbfunctions"
@@ -89,7 +89,7 @@
                         style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:hint="ADB" >
+                        android:hint="ADB">
 
                         <AutoCompleteTextView
                             android:id="@+id/f_usbarmory_spr_adb"
@@ -103,7 +103,7 @@
                         style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:hint="idVendor:" >
+                        android:hint="idVendor:">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/f_usbarmory_et_idvendor"
@@ -116,7 +116,7 @@
                         style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:hint="idProduct:" >
+                        android:hint="idProduct:">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/f_usbarmory_et_idproduct"
@@ -129,7 +129,7 @@
                         style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:hint="manufacturer:" >
+                        android:hint="manufacturer:">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/f_usbarmory_et_manufacturer"
@@ -142,7 +142,7 @@
                         style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:hint="product:" >
+                        android:hint="product:">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/f_usbarmory_et_product"
@@ -155,7 +155,7 @@
                         style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:hint="serialNumber:" >
+                        android:hint="serialNumber:">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/f_usbarmory_et_serialnumber"
@@ -182,27 +182,27 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
-                        android:orientation="horizontal" >
+                        android:orientation="horizontal">
 
                         <LinearLayout
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="0.8"
-                            android:orientation="vertical" >
+                            android:orientation="vertical">
 
                             <TextView
                                 style="@style/Widget.Mirivan.Title"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:text="Enabled functions:"
-                                android:textSize="16sp" />
+                                android:textSize="16dp" />
 
                             <TextView
                                 android:id="@+id/f_usbarmory_tv_current_usb_state"
                                 style="@style/Widget.Mirivan.Subtitle"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:textSize="14sp" />
+                                android:textSize="14dp" />
                         </LinearLayout>
 
                         <Button
@@ -223,28 +223,28 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical" >
+                android:orientation="vertical">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
                     android:background="@color/cardview_shadow_start_color"
-                    android:orientation="horizontal" >
+                    android:orientation="horizontal">
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="4dp"
-                        android:layout_marginEnd="16dp"
-                        android:layout_marginLeft="16dp"
-                        android:layout_marginRight="16dp"
                         android:layout_marginStart="16dp"
+                        android:layout_marginLeft="16dp"
                         android:layout_marginTop="4dp"
+                        android:layout_marginEnd="16dp"
+                        android:layout_marginRight="16dp"
+                        android:layout_marginBottom="4dp"
                         android:background="?attr/selectableItemBackgroundBorderless"
                         android:text="Image mounter"
                         android:textColor="@android:color/background_light"
-                        android:textSize="20sp" />
+                        android:textSize="20dp" />
                 </LinearLayout>
 
                 <TextView
@@ -260,7 +260,7 @@
                     android:layout_height="wrap_content"
                     android:layout_margin="16dp"
                     android:orientation="vertical"
-                    android:visibility="gone" >
+                    android:visibility="gone">
 
                     <TextView
                         style="@style/Widget.Mirivan.Title"
@@ -272,7 +272,7 @@
                     <com.google.android.material.textfield.TextInputLayout
                         style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content" >
+                        android:layout_height="wrap_content">
 
                         <AutoCompleteTextView
                             android:id="@+id/f_usbarmory_spr_img_files"
@@ -284,7 +284,7 @@
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal" >
+                        android:orientation="horizontal">
 
                         <Button
                             android:id="@+id/f_usbarmory_btn_mountImage"
@@ -309,8 +309,8 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="0.4"
-                            android:paddingBottom="5dp"
                             android:paddingTop="5dp"
+                            android:paddingBottom="5dp"
                             android:text="R/o" />
                     </LinearLayout>
 
@@ -318,20 +318,20 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
-                        android:orientation="horizontal" >
+                        android:orientation="horizontal">
 
                         <LinearLayout
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="0.8"
-                            android:orientation="vertical" >
+                            android:orientation="vertical">
 
                             <TextView
                                 style="@style/Widget.Mirivan.Title"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:text="Mounted:"
-                                android:textSize="16sp" />
+                                android:textSize="16dp" />
 
                             <TextView
                                 android:id="@+id/f_usbarmory_tv_mount_state"
@@ -339,7 +339,7 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:text="No image is mounted."
-                                android:textSize="14sp" />
+                                android:textSize="14dp" />
                         </LinearLayout>
 
                         <Button

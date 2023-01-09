@@ -59,6 +59,7 @@ public class CompatCheckService extends IntentService {
 
         final int status = new ShellExecuter().RunAsRootReturnValue(PathsUtil.APP_SCRIPTS_PATH + "/chrootmgr -c \"status\" -p " + PathsUtil.CHROOT_PATH());
 
+        // Remind mount
         if (RESULTCODE == -1) {
             if (status != 0) {
                 if (status == 3) {
@@ -70,11 +71,6 @@ public class CompatCheckService extends IntentService {
             } else {
                 MainActivity.setChrootInstalled(true);
             }
-        } else if (RESULTCODE == 0) {
-            MainActivity.setChrootInstalled(true);
-        } else {
-            // Remind mount
-            MainActivity.setChrootInstalled(false);
-        }
+        } else MainActivity.setChrootInstalled(RESULTCODE == 0);
     }
 }

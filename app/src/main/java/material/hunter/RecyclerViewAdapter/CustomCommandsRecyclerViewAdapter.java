@@ -33,10 +33,10 @@ import material.hunter.utils.PathsUtil;
 public class CustomCommandsRecyclerViewAdapter extends RecyclerView.Adapter<CustomCommandsRecyclerViewAdapter.ItemViewHolder> implements Filterable {
 
     private static final String TAG = "CustomCommandsRecycleView";
-    private Activity activity;
-    private Context context;
-    private List<CustomCommandsModel> customCommandsModelList;
-    private Filter CustomCommandsModelListFilter =
+    private final Activity activity;
+    private final Context context;
+    private final List<CustomCommandsModel> customCommandsModelList;
+    private final Filter CustomCommandsModelListFilter =
             new Filter() {
 
                 @Override
@@ -148,28 +148,28 @@ public class CustomCommandsRecyclerViewAdapter extends RecyclerView.Adapter<Cust
                                     .getCommand());
                     sendToSpinner.setSelection(
                             CustomCommandsData.getInstance()
-                                            .customCommandsModelListFull
-                                            .get(
-                                                    CustomCommandsData.getInstance()
-                                                            .customCommandsModelListFull
-                                                            .indexOf(
-                                                                    customCommandsModelList.get(
-                                                                            position)))
-                                            .getEnv()
-                                            .equals("android")
+                                    .customCommandsModelListFull
+                                    .get(
+                                            CustomCommandsData.getInstance()
+                                                    .customCommandsModelListFull
+                                                    .indexOf(
+                                                            customCommandsModelList.get(
+                                                                    position)))
+                                    .getEnv()
+                                    .equals("android")
                                     ? 0
                                     : 1);
                     execModeSpinner.setSelection(
                             CustomCommandsData.getInstance()
-                                            .customCommandsModelListFull
-                                            .get(
-                                                    CustomCommandsData.getInstance()
-                                                            .customCommandsModelListFull
-                                                            .indexOf(
-                                                                    customCommandsModelList.get(
-                                                                            position)))
-                                            .getMode()
-                                            .equals("interactive")
+                                    .customCommandsModelListFull
+                                    .get(
+                                            CustomCommandsData.getInstance()
+                                                    .customCommandsModelListFull
+                                                    .indexOf(
+                                                            customCommandsModelList.get(
+                                                                    position)))
+                                    .getMode()
+                                    .equals("interactive")
                                     ? 0
                                     : 1);
                     runOnBootSwitch.setChecked(
@@ -185,7 +185,8 @@ public class CustomCommandsRecyclerViewAdapter extends RecyclerView.Adapter<Cust
                     MaterialAlertDialogBuilder adbEdit = new MaterialAlertDialogBuilder(context);
                     adbEdit.setView(promptViewEdit);
                     adbEdit.setCancelable(true);
-                    adbEdit.setPositiveButton("OK", (dialog, which) -> {});
+                    adbEdit.setPositiveButton("OK", (dialog, which) -> {
+                    });
                     final AlertDialog adEdit = adbEdit.create();
                     adEdit.setOnShowListener(
                             dialog -> {
@@ -259,10 +260,10 @@ public class CustomCommandsRecyclerViewAdapter extends RecyclerView.Adapter<Cust
     }
 
     static class ItemViewHolder extends RecyclerView.ViewHolder {
-        private MaterialCardView card;
         private final TextView commandLabelTextView;
         private final TextView infoTextView;
         private final Button runButton;
+        private final MaterialCardView card;
 
         private ItemViewHolder(View view) {
             super(view);

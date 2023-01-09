@@ -25,7 +25,7 @@ public class CustomCommandsSQL extends SQLiteOpenHelper {
     private static final String TABLE_NAME = DATABASE_NAME;
     private static final ArrayList<String> COLUMNS = new ArrayList<>();
     private static final String[][] customcommandsData = {
-        {"1", "Whoami", "whoami", "chroot", "interactive", "0"}
+            {"1", "Whoami", "whoami", "chroot", "interactive", "0"}
     };
     private static CustomCommandsSQL instance;
 
@@ -81,7 +81,8 @@ public class CustomCommandsSQL extends SQLiteOpenHelper {
     }
 
     @Override
-    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {}
+    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+    }
 
     @SuppressLint("Range")
     public ArrayList<CustomCommandsModel> bindData(
@@ -321,7 +322,7 @@ public class CustomCommandsSQL extends SQLiteOpenHelper {
             return "db file not found.";
         }
         if (SQLiteDatabase.openDatabase(storedDBpath, null, SQLiteDatabase.OPEN_READONLY)
-                        .getVersion()
+                .getVersion()
                 > this.getReadableDatabase().getVersion()) {
             return "db cannot be restored.\n"
                     + "Reason: the db version of your backup db is larger than the current db"

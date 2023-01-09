@@ -21,7 +21,8 @@ public class USBArmoryUSBSwitchModel {
         this.serialnumber = serialnumber;
     }
 
-    public USBArmoryUSBSwitchModel() {}
+    public USBArmoryUSBSwitchModel() {
+    }
 
     public String getidVendor() {
         return idVendor;

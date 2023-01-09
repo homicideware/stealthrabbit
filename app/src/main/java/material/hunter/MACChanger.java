@@ -23,11 +23,9 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
-import java.nio.file.Path;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -161,17 +159,20 @@ public class MACChanger extends ThemedActivity {
                         }
 
                         @Override
-                        public void onNewLine(String line) {}
+                        public void onNewLine(String line) {
+                        }
 
                         @Override
                         public void onFinished(int code) {
                             if (code == 0) {
                                 new YetAnotherActiveShellExecuter() {
                                     @Override
-                                    public void onPrepare() {}
+                                    public void onPrepare() {
+                                    }
 
                                     @Override
-                                    public void onNewLine(String line) {}
+                                    public void onNewLine(String line) {
+                                    }
 
                                     @Override
                                     public void onFinished(int code) {
@@ -182,10 +183,12 @@ public class MACChanger extends ThemedActivity {
                                         }
                                         new YetAnotherActiveShellExecuter() {
                                             @Override
-                                            public void onPrepare() {}
+                                            public void onPrepare() {
+                                            }
 
                                             @Override
-                                            public void onNewLine(String line) {}
+                                            public void onNewLine(String line) {
+                                            }
 
                                             @Override
                                             public void onFinished(int code) {

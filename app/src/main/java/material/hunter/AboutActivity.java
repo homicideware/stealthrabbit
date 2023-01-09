@@ -14,14 +14,12 @@ import com.google.android.material.appbar.MaterialToolbar;
 public class AboutActivity extends ThemedActivity {
 
     private static ActionBar actionBar;
-
+    MaterialToolbar toolbar;
     private TextView app_name;
     private TextView author;
     private Button open_developers;
     private Button open_licenses;
     private Button open_github;
-
-    MaterialToolbar toolbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

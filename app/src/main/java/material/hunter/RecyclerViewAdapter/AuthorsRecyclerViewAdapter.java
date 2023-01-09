@@ -25,9 +25,9 @@ import material.hunter.models.AuthorsModel;
 public class AuthorsRecyclerViewAdapter
         extends RecyclerView.Adapter<AuthorsRecyclerViewAdapter.ViewHolder> {
 
-    private Activity activity;
-    private Context context;
-    private List<AuthorsModel> list;
+    private final Activity activity;
+    private final Context context;
+    private final List<AuthorsModel> list;
 
     public AuthorsRecyclerViewAdapter(
             Activity activity, Context context, List<AuthorsModel> list) {
@@ -55,9 +55,9 @@ public class AuthorsRecyclerViewAdapter
         holder.nickname.setText(model.getNickname());
         holder.nicknamedesc.setText(model.getNicknameDesc());
         holder.description.setText(
-            Html.fromHtml(
-                model.getDescription(),
-                Html.FROM_HTML_MODE_LEGACY));
+                Html.fromHtml(
+                        model.getDescription(),
+                        Html.FROM_HTML_MODE_LEGACY));
         holder.description.setMovementMethod(LinkMovementMethod.getInstance());
         String url = model.getUrl();
         if (!url.isEmpty()) {

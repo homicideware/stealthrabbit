@@ -4,6 +4,8 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -20,9 +22,10 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.SearchView;
-import androidx.lifecycle.ViewModelProvider;
+import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -32,22 +35,22 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import material.hunter.RecyclerViewAdapter.CustomCommandsRecyclerViewAdapter;
-import material.hunter.RecyclerViewAdapter.CustomCommandsRecyclerViewAdapterDeleteItems;
-import material.hunter.RecyclerViewData.CustomCommandsData;
-import material.hunter.SQL.CustomCommandsSQL;
-import material.hunter.models.CustomCommandsModel;
+import material.hunter.RecyclerViewAdapter.ServicesRecyclerViewAdapter;
+import material.hunter.RecyclerViewAdapter.ServicesRecyclerViewAdapterDeleteItems;
+import material.hunter.RecyclerViewData.ServicesData;
+import material.hunter.SQL.ServicesSQL;
+import material.hunter.models.ServicesModel;
 import material.hunter.utils.PathsUtil;
-import material.hunter.viewmodels.CustomCommandsViewModel;
+import material.hunter.viewmodels.ServicesViewModel;
 
-public class CustomCommands extends ThemedActivity {
+public class ServicesActivity extends ThemedActivity {
 
     public static View _view;
     private static int targetPositionId;
     MaterialToolbar toolbar;
     private Activity activity;
     private Context context;
-    private CustomCommandsRecyclerViewAdapter adapter;
+    private ServicesRecyclerViewAdapter adapter;
     private Button addButton;
     private Button deleteButton;
     private Button moveButton;
@@ -59,7 +62,7 @@ public class CustomCommands extends ThemedActivity {
         context = this;
         activity = this;
 
-        setContentView(R.layout.custom_commands_activity);
+        setContentView(R.layout.services_activity);
 
         _view = getWindow().getDecorView();
         View included = findViewById(R.id.included);
@@ -68,22 +71,33 @@ public class CustomCommands extends ThemedActivity {
         actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
 
-        CustomCommandsViewModel customCommandsViewModel =
-                new ViewModelProvider(this).get(CustomCommandsViewModel.class);
-        customCommandsViewModel.init(context);
-        customCommandsViewModel
-                .getLiveDataCustomCommandsModelList()
-                .observe(this, customCommandsModelList -> adapter.notifyDataSetChanged());
+        ServicesViewModel servicesViewModel =
+                ViewModelProviders.of(this).get(ServicesViewModel.class);
+        servicesViewModel.init(context);
+        servicesViewModel
+                .getLiveDataServicesModelList()
+                .observe(this, ServicesModelList -> adapter.notifyDataSetChanged());
 
         adapter =
-                new CustomCommandsRecyclerViewAdapter(
-                        activity,
-                        context,
-                        customCommandsViewModel.getLiveDataCustomCommandsModelList().getValue());
-        RecyclerView recyclerView = findViewById(R.id.f_customcommands_recyclerview);
-        recyclerView.setLayoutManager(
+                new ServicesRecyclerViewAdapter(
+                        context, servicesViewModel.getLiveDataServicesModelList().getValue());
+        RecyclerView recyclerViewServiceTitle =
+                findViewById(R.id.f_services_recyclerviewServiceTitle);
+        recyclerViewServiceTitle.setLayoutManager(
                 new LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false));
-        recyclerView.setAdapter(adapter);
+        recyclerViewServiceTitle.setAdapter(adapter);
+
+        addButton = findViewById(R.id.f_services_addItemButton);
+        deleteButton = findViewById(R.id.f_services_deleteItemButton);
+        moveButton = findViewById(R.id.f_services_moveItemButton);
+
+        SwipeRefreshLayout o = findViewById(R.id.f_services_scrollView);
+        o.setOnRefreshListener(
+                () -> {
+                    ServicesData.getInstance().refreshData();
+                    new Handler(Looper.getMainLooper())
+                            .postDelayed(() -> o.setRefreshing(false), 512);
+                });
 
         File sql_folder = new File(PathsUtil.APP_SD_SQLBACKUP_PATH);
         if (!sql_folder.exists()) {
@@ -99,10 +113,6 @@ public class CustomCommands extends ThemedActivity {
             }
         }
 
-        addButton = findViewById(R.id.f_customcommands_addItemButton);
-        deleteButton = findViewById(R.id.f_customcommands_deleteItemButton);
-        moveButton = findViewById(R.id.f_customcommands_moveItemButton);
-
         addItem();
         deleteItems();
         moveItems();
@@ -110,15 +120,15 @@ public class CustomCommands extends ThemedActivity {
 
     @Override
     public boolean onCreateOptionsMenu(@NonNull Menu menu) {
-        getMenuInflater().inflate(R.menu.custom_commands, menu);
-        final MenuItem searchItem = menu.findItem(R.id.f_customcommands_action_search);
+        getMenuInflater().inflate(R.menu.services, menu);
+        final MenuItem searchItem = menu.findItem(R.id.f_services_action_search);
         final SearchView searchView = (SearchView) searchItem.getActionView();
 
         searchView.setOnSearchClickListener(
-                v -> menu.setGroupVisible(R.id.f_customcommands_menu_group1, false));
+                v -> menu.setGroupVisible(R.id.f_services_menu_group1, false));
         searchView.setOnCloseListener(
                 () -> {
-                    menu.setGroupVisible(R.id.f_customcommands_menu_group1, true);
+                    menu.setGroupVisible(R.id.f_services_menu_group1, true);
                     return false;
                 });
         searchView.setOnQueryTextListener(
@@ -138,16 +148,15 @@ public class CustomCommands extends ThemedActivity {
     }
 
     @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+    public boolean onOptionsItemSelected(MenuItem item) {
         final LayoutInflater inflater =
                 (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         final View promptView = inflater.inflate(R.layout.input_dialog_view, null);
         final EditText storedpathEditText = promptView.findViewById(R.id.cdw_et);
 
         switch (item.getItemId()) {
-            case R.id.f_customcommands_menu_backupDB:
-                storedpathEditText.setText(
-                        PathsUtil.APP_SD_SQLBACKUP_PATH + "/FragmentCustomCommands");
+            case R.id.f_services_menu_backupDB:
+                storedpathEditText.setText(PathsUtil.APP_SD_SQLBACKUP_PATH + "/FragmentServices");
                 MaterialAlertDialogBuilder adbBackup = new MaterialAlertDialogBuilder(activity);
                 adbBackup.setTitle("Full path to where you want to save the database:");
                 adbBackup.setView(promptView);
@@ -162,10 +171,9 @@ public class CustomCommands extends ThemedActivity {
                             buttonOK.setOnClickListener(
                                     v -> {
                                         String returnedResult =
-                                                CustomCommandsData.getInstance()
+                                                ServicesData.getInstance()
                                                         .backupData(
-                                                                CustomCommandsSQL.getInstance(
-                                                                        context),
+                                                                ServicesSQL.getInstance(context),
                                                                 storedpathEditText
                                                                         .getText()
                                                                         .toString());
@@ -179,9 +187,10 @@ public class CustomCommands extends ThemedActivity {
                                                     false);
                                         } else {
                                             dialog.dismiss();
-                                            new MaterialAlertDialogBuilder(activity)
+                                            new MaterialAlertDialogBuilder(context)
                                                     .setTitle("Failed to backup the DB.")
                                                     .setMessage(returnedResult)
+                                                    .create()
                                                     .show();
                                         }
                                         dialog.dismiss();
@@ -189,9 +198,8 @@ public class CustomCommands extends ThemedActivity {
                         });
                 adBackup.show();
                 break;
-            case R.id.f_customcommands_menu_restoreDB:
-                storedpathEditText.setText(
-                        PathsUtil.APP_SD_SQLBACKUP_PATH + "/FragmentCustomCommands");
+            case R.id.f_services_menu_restoreDB:
+                storedpathEditText.setText(PathsUtil.APP_SD_SQLBACKUP_PATH + "/FragmentServices");
                 MaterialAlertDialogBuilder adbRestore = new MaterialAlertDialogBuilder(activity);
                 adbRestore.setTitle("Full path of the db file from where you want to restore:");
                 adbRestore.setView(promptView);
@@ -206,10 +214,9 @@ public class CustomCommands extends ThemedActivity {
                             buttonOK.setOnClickListener(
                                     v -> {
                                         String returnedResult =
-                                                CustomCommandsData.getInstance()
+                                                ServicesData.getInstance()
                                                         .restoreData(
-                                                                CustomCommandsSQL.getInstance(
-                                                                        context),
+                                                                ServicesSQL.getInstance(context),
                                                                 storedpathEditText
                                                                         .getText()
                                                                         .toString());
@@ -223,9 +230,10 @@ public class CustomCommands extends ThemedActivity {
                                                     false);
                                         } else {
                                             dialog.dismiss();
-                                            new MaterialAlertDialogBuilder(activity)
+                                            new MaterialAlertDialogBuilder(context)
                                                     .setTitle("Failed to restore the DB.")
                                                     .setMessage(returnedResult)
+                                                    .create()
                                                     .show();
                                         }
                                         dialog.dismiss();
@@ -233,50 +241,55 @@ public class CustomCommands extends ThemedActivity {
                         });
                 adRestore.show();
                 break;
-            case R.id.f_customcommands_menu_ResetToDefault:
-                CustomCommandsData.getInstance().resetData(CustomCommandsSQL.getInstance(context));
+            case R.id.f_services_menu_ResetToDefault:
+                ServicesData.getInstance().resetData(ServicesSQL.getInstance(context));
                 break;
         }
         return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    public void onStart() {
+        super.onStart();
+        ServicesData.getInstance().refreshData();
+    }
+
     private void addItem() {
         addButton.setOnClickListener(
                 v -> {
-                    List<CustomCommandsModel> customCommandsModelList =
-                            CustomCommandsData.getInstance().customCommandsModelListFull;
-                    if (customCommandsModelList == null) return;
+                    List<ServicesModel> servicesModelList =
+                            ServicesData.getInstance().servicesModelListFull;
+                    if (servicesModelList == null) return;
                     final LayoutInflater inflater =
                             (LayoutInflater)
                                     context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                    final View promptViewAdd =
-                            inflater.inflate(R.layout.custom_commands_dialog_add, null);
-                    final EditText commandLabelEditText =
-                            promptViewAdd.findViewById(R.id.f_customcommands_add_adb_et_label);
-                    final EditText commandEditText =
-                            promptViewAdd.findViewById(R.id.f_customcommands_add_adb_et_command);
-                    final Spinner sendToSpinner =
-                            promptViewAdd.findViewById(R.id.f_customcommands_add_adb_spr_sendto);
-                    final Spinner execModeSpinner =
-                            promptViewAdd.findViewById(R.id.f_customcommands_add_adb_spr_execmode);
-                    final SwitchMaterial runOnBootSwitch =
+                    final View promptViewAdd = inflater.inflate(R.layout.services_dialog_add, null);
+                    final EditText titleEditText =
+                            promptViewAdd.findViewById(R.id.f_services_add_adb_et_title);
+                    final EditText startCmdEditText =
+                            promptViewAdd.findViewById(R.id.f_services_add_adb_et_startcommand);
+                    final EditText stopCmdEditText =
+                            promptViewAdd.findViewById(R.id.f_services_add_adb_et_stopcommand);
+                    final EditText checkstatusCmdEditText =
                             promptViewAdd.findViewById(
-                                    R.id.f_customcommands_add_adb_switch_runonboot);
+                                    R.id.f_services_add_adb_et_checkstatuscommand);
+                    final SwitchMaterial runOnChrootStartSwitch =
+                            promptViewAdd.findViewById(R.id.f_services_add_adb_switch_runonboot);
                     final Spinner insertPositions =
-                            promptViewAdd.findViewById(R.id.f_customcommands_add_adb_spr_positions);
-                    final Spinner insertLabels =
-                            promptViewAdd.findViewById(R.id.f_customcommands_add_adb_spr_labels);
+                            promptViewAdd.findViewById(R.id.f_services_add_adb_spr_positions);
+                    final Spinner insertTitles =
+                            promptViewAdd.findViewById(R.id.f_services_add_adb_spr_titles);
 
-                    ArrayList<String> commandLabelArrayList = new ArrayList<>();
-                    for (CustomCommandsModel customCommandsModel : customCommandsModelList) {
-                        commandLabelArrayList.add(customCommandsModel.getLabel());
+                    ArrayList<String> serviceNameArrayList = new ArrayList<>();
+                    for (ServicesModel servicesModel : servicesModelList) {
+                        serviceNameArrayList.add(servicesModel.getServiceName());
                     }
 
                     ArrayAdapter<String> arrayAdapter =
                             new ArrayAdapter<>(
                                     context,
                                     android.R.layout.simple_spinner_item,
-                                    commandLabelArrayList);
+                                    serviceNameArrayList);
                     arrayAdapter.setDropDownViewResource(
                             android.R.layout.simple_spinner_dropdown_item);
 
@@ -288,17 +301,17 @@ public class CustomCommands extends ThemedActivity {
                                         AdapterView<?> parent, View view, int position, long id) {
                                     // if Insert to Top
                                     if (position == 0) {
-                                        insertLabels.setVisibility(View.INVISIBLE);
+                                        insertTitles.setVisibility(View.INVISIBLE);
                                         targetPositionId = 1;
                                         // if Insert to Bottom
                                     } else if (position == 1) {
-                                        insertLabels.setVisibility(View.INVISIBLE);
-                                        targetPositionId = customCommandsModelList.size() + 1;
+                                        insertTitles.setVisibility(View.INVISIBLE);
+                                        targetPositionId = servicesModelList.size() + 1;
                                         // if Insert Before
                                     } else if (position == 2) {
-                                        insertLabels.setVisibility(View.VISIBLE);
-                                        insertLabels.setAdapter(arrayAdapter);
-                                        insertLabels.setOnItemSelectedListener(
+                                        insertTitles.setVisibility(View.VISIBLE);
+                                        insertTitles.setAdapter(arrayAdapter);
+                                        insertTitles.setOnItemSelectedListener(
                                                 new AdapterView.OnItemSelectedListener() {
                                                     @Override
                                                     public void onItemSelected(
@@ -316,9 +329,9 @@ public class CustomCommands extends ThemedActivity {
                                                 });
                                         // if Insert After
                                     } else {
-                                        insertLabels.setVisibility(View.VISIBLE);
-                                        insertLabels.setAdapter(arrayAdapter);
-                                        insertLabels.setOnItemSelectedListener(
+                                        insertTitles.setVisibility(View.VISIBLE);
+                                        insertTitles.setAdapter(arrayAdapter);
+                                        insertTitles.setOnItemSelectedListener(
                                                 new AdapterView.OnItemSelectedListener() {
                                                     @Override
                                                     public void onItemSelected(
@@ -348,48 +361,60 @@ public class CustomCommands extends ThemedActivity {
                     final AlertDialog adAdd = adbAdd.create();
                     adAdd.setView(promptViewAdd);
                     adAdd.setCancelable(true);
-                    // If you want the dialog to stay open after clicking OK, you need to do it this
-                    // way...
                     adAdd.setOnShowListener(
                             dialog -> {
                                 final Button buttonAdd =
                                         adAdd.getButton(DialogInterface.BUTTON_POSITIVE);
                                 buttonAdd.setOnClickListener(
                                         v1 -> {
-                                            if (commandLabelEditText
-                                                    .getText()
-                                                    .toString()
-                                                    .isEmpty()) {
+                                            if (titleEditText.getText().toString().isEmpty()) {
                                                 PathsUtil.showMessage(
-                                                        context, "Label cannot be empty", false);
-                                            } else if (commandEditText
+                                                        context, "Title cannot be empty", false);
+                                            } else if (startCmdEditText
                                                     .getText()
                                                     .toString()
                                                     .isEmpty()) {
                                                 PathsUtil.showMessage(
                                                         context,
-                                                        "Command String cannot be empty",
+                                                        "Start Command cannot be empty",
+                                                        false);
+                                            } else if (stopCmdEditText
+                                                    .getText()
+                                                    .toString()
+                                                    .isEmpty()) {
+                                                PathsUtil.showMessage(
+                                                        context,
+                                                        "Stop Command cannot be empty",
+                                                        false);
+                                            } else if (checkstatusCmdEditText
+                                                    .getText()
+                                                    .toString()
+                                                    .isEmpty()) {
+                                                PathsUtil.showMessage(
+                                                        context,
+                                                        "Check Status Command cannot be empty",
                                                         false);
                                             } else {
                                                 ArrayList<String> dataArrayList = new ArrayList<>();
                                                 dataArrayList.add(
-                                                        commandLabelEditText.getText().toString());
+                                                        titleEditText.getText().toString());
                                                 dataArrayList.add(
-                                                        commandEditText.getText().toString());
+                                                        startCmdEditText.getText().toString());
                                                 dataArrayList.add(
-                                                        sendToSpinner.getSelectedItem().toString());
+                                                        stopCmdEditText.getText().toString());
                                                 dataArrayList.add(
-                                                        execModeSpinner
-                                                                .getSelectedItem()
+                                                        checkstatusCmdEditText
+                                                                .getText()
                                                                 .toString());
                                                 dataArrayList.add(
-                                                        runOnBootSwitch.isChecked() ? "1" : "0");
-                                                CustomCommandsData.getInstance()
+                                                        runOnChrootStartSwitch.isChecked()
+                                                                ? "1"
+                                                                : "0");
+                                                ServicesData.getInstance()
                                                         .addData(
                                                                 targetPositionId,
                                                                 dataArrayList,
-                                                                CustomCommandsSQL.getInstance(
-                                                                        context));
+                                                                ServicesSQL.getInstance(context));
                                                 adAdd.dismiss();
                                             }
                                         });
@@ -401,9 +426,9 @@ public class CustomCommands extends ThemedActivity {
     private void deleteItems() {
         deleteButton.setOnClickListener(
                 v -> {
-                    List<CustomCommandsModel> customCommandsModelList =
-                            CustomCommandsData.getInstance().customCommandsModelListFull;
-                    if (customCommandsModelList == null) return;
+                    List<ServicesModel> servicesModelList =
+                            ServicesData.getInstance().servicesModelListFull;
+                    if (servicesModelList == null) return;
                     final LayoutInflater inflater =
                             (LayoutInflater)
                                     context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -411,14 +436,13 @@ public class CustomCommands extends ThemedActivity {
                             inflater.inflate(R.layout.dialog_delete, null, false);
                     final RecyclerView recyclerViewDeleteItem =
                             promptViewDelete.findViewById(R.id.recyclerview);
-                    CustomCommandsRecyclerViewAdapterDeleteItems
-                            customCommandsRecyclerViewAdapterDeleteItems =
-                            new CustomCommandsRecyclerViewAdapterDeleteItems(
-                                    context, customCommandsModelList);
+                    ServicesRecyclerViewAdapterDeleteItems servicesRecyclerViewAdapterDeleteItems =
+                            new ServicesRecyclerViewAdapterDeleteItems(context, servicesModelList);
+
                     LinearLayoutManager linearLayoutManagerDelete =
                             new LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false);
                     recyclerViewDeleteItem.setLayoutManager(linearLayoutManagerDelete);
-                    recyclerViewDeleteItem.setAdapter(customCommandsRecyclerViewAdapterDeleteItems);
+                    recyclerViewDeleteItem.setAdapter(servicesRecyclerViewAdapterDeleteItems);
 
                     MaterialAlertDialogBuilder adbDelete = new MaterialAlertDialogBuilder(activity);
                     adbDelete.setNegativeButton("Cancel", (dialog, which) -> dialog.cancel());
@@ -428,6 +452,8 @@ public class CustomCommands extends ThemedActivity {
                     adDelete.setMessage("Select the service you want to remove: ");
                     adDelete.setView(promptViewDelete);
                     adDelete.setCancelable(true);
+                    // If you want the dialog to stay open after clicking OK, you need to do it this
+                    // way...
                     adDelete.setOnShowListener(
                             dialog -> {
                                 final Button buttonDelete =
@@ -456,12 +482,11 @@ public class CustomCommands extends ThemedActivity {
                                                 }
                                             }
                                             if (selectedPosition.size() != 0) {
-                                                CustomCommandsData.getInstance()
+                                                ServicesData.getInstance()
                                                         .deleteData(
                                                                 selectedPosition,
                                                                 selectedTargetIds,
-                                                                CustomCommandsSQL.getInstance(
-                                                                        context));
+                                                                ServicesSQL.getInstance(context));
                                                 PathsUtil.showSnack(
                                                         _view,
                                                         "Successfully deleted "
@@ -482,9 +507,9 @@ public class CustomCommands extends ThemedActivity {
     private void moveItems() {
         moveButton.setOnClickListener(
                 v -> {
-                    List<CustomCommandsModel> customCommandsModelList =
-                            CustomCommandsData.getInstance().customCommandsModelListFull;
-                    if (customCommandsModelList == null) return;
+                    List<ServicesModel> servicesModelList =
+                            ServicesData.getInstance().servicesModelListFull;
+                    if (servicesModelList == null) return;
                     final LayoutInflater inflater =
                             (LayoutInflater)
                                     context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -494,16 +519,16 @@ public class CustomCommands extends ThemedActivity {
                     final Spinner titlesAfter = promptViewMove.findViewById(R.id.move_titlesafter);
                     final Spinner actions = promptViewMove.findViewById(R.id.move_actions);
 
-                    ArrayList<String> commandLabelArrayList = new ArrayList<>();
-                    for (CustomCommandsModel customCommandsModel : customCommandsModelList) {
-                        commandLabelArrayList.add(customCommandsModel.getLabel());
+                    ArrayList<String> serviceNameArrayList = new ArrayList<>();
+                    for (ServicesModel servicesModel : servicesModelList) {
+                        serviceNameArrayList.add(servicesModel.getServiceName());
                     }
 
                     ArrayAdapter<String> arrayAdapter =
                             new ArrayAdapter<>(
                                     context,
                                     android.R.layout.simple_spinner_item,
-                                    commandLabelArrayList);
+                                    serviceNameArrayList);
                     arrayAdapter.setDropDownViewResource(
                             android.R.layout.simple_spinner_dropdown_item);
                     titlesBefore.setAdapter(arrayAdapter);
@@ -542,12 +567,11 @@ public class CustomCommands extends ThemedActivity {
                                             } else {
                                                 if (actions.getSelectedItemPosition() == 1)
                                                     targetPositionIndex += 1;
-                                                CustomCommandsData.getInstance()
+                                                ServicesData.getInstance()
                                                         .moveData(
                                                                 originalPositionIndex,
                                                                 targetPositionIndex,
-                                                                CustomCommandsSQL.getInstance(
-                                                                        context));
+                                                                ServicesSQL.getInstance(context));
                                                 PathsUtil.showSnack(
                                                         _view, "Successfully moved item.", false);
                                                 adMove.dismiss();
