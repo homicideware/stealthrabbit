@@ -160,8 +160,8 @@ public class ServicesActivity extends ThemedActivity {
                 MaterialAlertDialogBuilder adbBackup = new MaterialAlertDialogBuilder(activity);
                 adbBackup.setTitle("Full path to where you want to save the database:");
                 adbBackup.setView(promptView);
-                adbBackup.setNegativeButton("Cancel", (dialog, which) -> dialog.cancel());
-                adbBackup.setPositiveButton("OK", (dialog, which) -> {
+                adbBackup.setNegativeButton(android.R.string.cancel, (dialog, which) -> dialog.cancel());
+                adbBackup.setPositiveButton(android.R.string.ok, (dialog, which) -> {
                 });
                 final AlertDialog adBackup = adbBackup.create();
                 adBackup.setOnShowListener(
@@ -203,8 +203,8 @@ public class ServicesActivity extends ThemedActivity {
                 MaterialAlertDialogBuilder adbRestore = new MaterialAlertDialogBuilder(activity);
                 adbRestore.setTitle("Full path of the db file from where you want to restore:");
                 adbRestore.setView(promptView);
-                adbRestore.setNegativeButton("Cancel", (dialog, which) -> dialog.cancel());
-                adbRestore.setPositiveButton("OK", (dialog, which) -> {
+                adbRestore.setNegativeButton(android.R.string.cancel, (dialog, which) -> dialog.cancel());
+                adbRestore.setPositiveButton(android.R.string.ok, (dialog, which) -> {
                 });
                 final AlertDialog adRestore = adbRestore.create();
                 adRestore.setOnShowListener(
@@ -356,7 +356,7 @@ public class ServicesActivity extends ThemedActivity {
                             });
 
                     MaterialAlertDialogBuilder adbAdd = new MaterialAlertDialogBuilder(activity);
-                    adbAdd.setPositiveButton("OK", (dialog, which) -> {
+                    adbAdd.setPositiveButton(android.R.string.ok, (dialog, which) -> {
                     });
                     final AlertDialog adAdd = adbAdd.create();
                     adAdd.setView(promptViewAdd);
@@ -445,11 +445,10 @@ public class ServicesActivity extends ThemedActivity {
                     recyclerViewDeleteItem.setAdapter(servicesRecyclerViewAdapterDeleteItems);
 
                     MaterialAlertDialogBuilder adbDelete = new MaterialAlertDialogBuilder(activity);
-                    adbDelete.setNegativeButton("Cancel", (dialog, which) -> dialog.cancel());
+                    adbDelete.setNegativeButton(android.R.string.cancel, (dialog, which) -> dialog.cancel());
                     adbDelete.setPositiveButton("Delete", (dialog, which) -> {
                     });
                     final AlertDialog adDelete = adbDelete.create();
-                    adDelete.setMessage("Select the service you want to remove: ");
                     adDelete.setView(promptViewDelete);
                     adDelete.setCancelable(true);
                     // If you want the dialog to stay open after clicking OK, you need to do it this
@@ -515,8 +514,8 @@ public class ServicesActivity extends ThemedActivity {
                                     context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
                     final View promptViewMove = inflater.inflate(R.layout.dialog_move, null, false);
                     final Spinner titlesBefore =
-                            promptViewMove.findViewById(R.id.move_titlesbefore);
-                    final Spinner titlesAfter = promptViewMove.findViewById(R.id.move_titlesafter);
+                            promptViewMove.findViewById(R.id.move_target);
+                    final Spinner titlesAfter = promptViewMove.findViewById(R.id.move_targetTo);
                     final Spinner actions = promptViewMove.findViewById(R.id.move_actions);
 
                     ArrayList<String> serviceNameArrayList = new ArrayList<>();
@@ -535,7 +534,7 @@ public class ServicesActivity extends ThemedActivity {
                     titlesAfter.setAdapter(arrayAdapter);
 
                     MaterialAlertDialogBuilder adbMove = new MaterialAlertDialogBuilder(activity);
-                    adbMove.setNegativeButton("Cancel", (dialog, which) -> dialog.cancel());
+                    adbMove.setNegativeButton(android.R.string.cancel, (dialog, which) -> dialog.cancel());
                     adbMove.setPositiveButton("Move", (dialog, which) -> {
                     });
                     final AlertDialog adMove = adbMove.create();
@@ -565,8 +564,8 @@ public class ServicesActivity extends ThemedActivity {
                                                                 + " position, nothing to be moved.",
                                                         false);
                                             } else {
-                                                if (actions.getSelectedItemPosition() == 1)
-                                                    targetPositionIndex += 1;
+                                                /*if (actions.getSelectedItemPosition() == 1)
+                                                    targetPositionIndex += 1;*/
                                                 ServicesData.getInstance()
                                                         .moveData(
                                                                 originalPositionIndex,

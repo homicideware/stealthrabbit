@@ -61,7 +61,7 @@ do_unmount() {
         echo "[+] /data partition is unmounted."
     fi
 
-    FS=(dev/pts dev/shm dev proc sys system)
+    FS=(dev/pts dev/shm dev proc sys system lib/modules)
     for i in "${FS[@]}"; do
         if $BUSYBOX mountpoint -q $MNT/$i; then
             if $BUSYBOX umount -l "$MNT/$i" || $BUSYBOX umount -f "$MNT/$i"; then

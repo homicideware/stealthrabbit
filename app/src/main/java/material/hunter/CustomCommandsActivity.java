@@ -1,8 +1,11 @@
 package material.hunter;
 
 import android.app.Activity;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -58,6 +61,8 @@ public class CustomCommandsActivity extends ThemedActivity {
         super.onCreate(savedInstanceState);
         context = this;
         activity = this;
+
+        registerNotificationChannel();
 
         setContentView(R.layout.custom_commands_activity);
 
@@ -151,8 +156,8 @@ public class CustomCommandsActivity extends ThemedActivity {
                 MaterialAlertDialogBuilder adbBackup = new MaterialAlertDialogBuilder(activity);
                 adbBackup.setTitle("Full path to where you want to save the database:");
                 adbBackup.setView(promptView);
-                adbBackup.setNegativeButton("Cancel", (dialog, which) -> dialog.cancel());
-                adbBackup.setPositiveButton("OK", (dialog, which) -> {
+                adbBackup.setNegativeButton(android.R.string.cancel, (dialog, which) -> dialog.cancel());
+                adbBackup.setPositiveButton(android.R.string.ok, (dialog, which) -> {
                 });
                 final AlertDialog adBackup = adbBackup.create();
                 adBackup.setOnShowListener(
@@ -195,8 +200,8 @@ public class CustomCommandsActivity extends ThemedActivity {
                 MaterialAlertDialogBuilder adbRestore = new MaterialAlertDialogBuilder(activity);
                 adbRestore.setTitle("Full path of the db file from where you want to restore:");
                 adbRestore.setView(promptView);
-                adbRestore.setNegativeButton("Cancel", (dialog, which) -> dialog.cancel());
-                adbRestore.setPositiveButton("OK", (dialog, which) -> {
+                adbRestore.setNegativeButton(android.R.string.cancel, (dialog, which) -> dialog.cancel());
+                adbRestore.setPositiveButton(android.R.string.ok, (dialog, which) -> {
                 });
                 final AlertDialog adRestore = adbRestore.create();
                 adRestore.setOnShowListener(
@@ -343,7 +348,7 @@ public class CustomCommandsActivity extends ThemedActivity {
                             });
 
                     MaterialAlertDialogBuilder adbAdd = new MaterialAlertDialogBuilder(activity);
-                    adbAdd.setPositiveButton("OK", (dialog, which) -> {
+                    adbAdd.setPositiveButton(android.R.string.ok, (dialog, which) -> {
                     });
                     final AlertDialog adAdd = adbAdd.create();
                     adAdd.setView(promptViewAdd);
@@ -421,11 +426,10 @@ public class CustomCommandsActivity extends ThemedActivity {
                     recyclerViewDeleteItem.setAdapter(customCommandsRecyclerViewAdapterDeleteItems);
 
                     MaterialAlertDialogBuilder adbDelete = new MaterialAlertDialogBuilder(activity);
-                    adbDelete.setNegativeButton("Cancel", (dialog, which) -> dialog.cancel());
+                    adbDelete.setNegativeButton(android.R.string.cancel, (dialog, which) -> dialog.cancel());
                     adbDelete.setPositiveButton("Delete", (dialog, which) -> {
                     });
                     final AlertDialog adDelete = adbDelete.create();
-                    adDelete.setMessage("Select the service you want to remove: ");
                     adDelete.setView(promptViewDelete);
                     adDelete.setCancelable(true);
                     adDelete.setOnShowListener(
@@ -489,10 +493,9 @@ public class CustomCommandsActivity extends ThemedActivity {
                             (LayoutInflater)
                                     context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
                     final View promptViewMove = inflater.inflate(R.layout.dialog_move, null, false);
-                    final Spinner titlesBefore =
-                            promptViewMove.findViewById(R.id.move_titlesbefore);
-                    final Spinner titlesAfter = promptViewMove.findViewById(R.id.move_titlesafter);
-                    final Spinner actions = promptViewMove.findViewById(R.id.move_actions);
+                    final Spinner moveTarget = promptViewMove.findViewById(R.id.move_target);
+                    final Spinner moveActions = promptViewMove.findViewById(R.id.move_actions);
+                    final Spinner moveTargetTo = promptViewMove.findViewById(R.id.move_targetTo);
 
                     ArrayList<String> commandLabelArrayList = new ArrayList<>();
                     for (CustomCommandsModel customCommandsModel : customCommandsModelList) {
@@ -506,11 +509,11 @@ public class CustomCommandsActivity extends ThemedActivity {
                                     commandLabelArrayList);
                     arrayAdapter.setDropDownViewResource(
                             android.R.layout.simple_spinner_dropdown_item);
-                    titlesBefore.setAdapter(arrayAdapter);
-                    titlesAfter.setAdapter(arrayAdapter);
+                    moveTarget.setAdapter(arrayAdapter);
+                    moveTargetTo.setAdapter(arrayAdapter);
 
                     MaterialAlertDialogBuilder adbMove = new MaterialAlertDialogBuilder(activity);
-                    adbMove.setNegativeButton("Cancel", (dialog, which) -> dialog.cancel());
+                    adbMove.setNegativeButton(android.R.string.cancel, (dialog, which) -> dialog.cancel());
                     adbMove.setPositiveButton("Move", (dialog, which) -> {
                     });
                     final AlertDialog adMove = adbMove.create();
@@ -523,14 +526,14 @@ public class CustomCommandsActivity extends ThemedActivity {
                                 buttonMove.setOnClickListener(
                                         v1 -> {
                                             int originalPositionIndex =
-                                                    titlesBefore.getSelectedItemPosition();
+                                                    moveTarget.getSelectedItemPosition();
                                             int targetPositionIndex =
-                                                    titlesAfter.getSelectedItemPosition();
+                                                    moveTargetTo.getSelectedItemPosition();
                                             if (originalPositionIndex == targetPositionIndex
-                                                    || (actions.getSelectedItemPosition() == 0
+                                                    || (moveActions.getSelectedItemPosition() == 0
                                                     && targetPositionIndex
                                                     == (originalPositionIndex + 1))
-                                                    || (actions.getSelectedItemPosition() == 1
+                                                    || (moveActions.getSelectedItemPosition() == 1
                                                     && targetPositionIndex
                                                     == (originalPositionIndex
                                                     - 1))) {
@@ -540,8 +543,8 @@ public class CustomCommandsActivity extends ThemedActivity {
                                                                 + " position, nothing to be moved.",
                                                         false);
                                             } else {
-                                                if (actions.getSelectedItemPosition() == 1)
-                                                    targetPositionIndex += 1;
+                                                /*if (moveActions.getSelectedItemPosition() == 1)
+                                                    targetPositionIndex += 1;*/
                                                 CustomCommandsData.getInstance()
                                                         .moveData(
                                                                 originalPositionIndex,
@@ -556,5 +559,17 @@ public class CustomCommandsActivity extends ThemedActivity {
                             });
                     adMove.show();
                 });
+    }
+
+    private void registerNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationChannel serviceChannel =
+                    new NotificationChannel(
+                            "base",
+                            "Base notifications",
+                            NotificationManager.IMPORTANCE_HIGH);
+            NotificationManager manager = context.getSystemService(NotificationManager.class);
+            manager.createNotificationChannel(serviceChannel);
+        }
     }
 }

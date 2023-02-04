@@ -44,11 +44,12 @@ public class MenuFragment extends Fragment {
     private TerminalUtil terminalUtil;
 
     public static void compatVerified(boolean is) {
-        ArrayList<View> views = new ArrayList<View>();
+        ArrayList<View> views = new ArrayList<>();
         // views.add(view);
         views.add(terminal);
         views.add(custom_commands);
         views.add(services);
+        views.add(macchanger);
         for (int i = 0; i < views.size(); i++) {
             View view = views.get(i);
             view.setEnabled(is);
@@ -86,7 +87,8 @@ public class MenuFragment extends Fragment {
             adb.setTitle("Menu");
             adb.setMessage(
                     "When the chroot isn't running, some elements that interact with it are hidden.");
-            adb.setPositiveButton("Ok", (di, i) -> {
+            adb.setPositiveButton("Open Manager", (di, i) -> MainActivity.openPage("manager"));
+            adb.setNegativeButton(android.R.string.cancel, (di, i) -> {
             });
             adb.show();
         });
@@ -94,18 +96,18 @@ public class MenuFragment extends Fragment {
         usbarmory.setOnClickListener(v -> {
             MaterialAlertDialogBuilder adb = new MaterialAlertDialogBuilder(context);
             adb.setTitle("USB Armory");
-            if (MainActivity.getKernelBase() < 3.11f) {
+            if (MainActivity.isSelinuxEnforcing()) {
                 adb.setMessage(
-                        "Your kernel version less than 3.11, ConfigFS isn't supported.");
+                        "Selinux is enforcing, MaterialHunter cannot fully verify that your device is compatible with the functionality of this item.");
             } else if (!new File("/config/usb_gadget").exists()) {
                 adb.setMessage(
-                        "Not supported by the kernel. The error can be caused by selinux.");
+                        "Not supported by the kernel.");
             } else {
                 Intent intent = new Intent(context, USBArmoryActivity.class);
                 startActivity(intent);
                 return;
             }
-            adb.setPositiveButton("Ok", (di, i) -> {
+            adb.setPositiveButton(android.R.string.ok, (di, i) -> {
             });
             adb.show();
         });
@@ -120,7 +122,7 @@ public class MenuFragment extends Fragment {
                     adb.setMessage("We recommend creating a shortcut on your desktop to quickly launch the Terminal.");
                     adb.setPositiveButton("Create", (di, i) -> createShortcut());
                     adb.setNeutralButton("Open in app", (di, i) -> runTerminalInChroot());
-                    adb.setNegativeButton("Cancel", (di, i) -> {
+                    adb.setNegativeButton(android.R.string.cancel, (di, i) -> {
                     });
                     adb.show();
                 }

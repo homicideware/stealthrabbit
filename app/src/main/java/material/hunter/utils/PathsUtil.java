@@ -12,6 +12,8 @@ import android.widget.Toast;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
 
 public class PathsUtil {
 
@@ -41,12 +43,12 @@ public class PathsUtil {
         APP_INITD_PATH = APP_PATH + "/etc/init.d";
         APP_SCRIPTS_PATH = APP_PATH + "/scripts";
         APP_SCRIPTS_BIN_PATH = APP_SCRIPTS_PATH + "/bin";
-        SD_PATH = getSdcardPath();
+        SD_PATH = Environment.getExternalStorageDirectory().toString();
         APP_SD_PATH = SD_PATH + "/MaterialHunter";
         APP_SD_SQLBACKUP_PATH = APP_SD_PATH + "/Databases";
         APP_SD_FILES_IMG_PATH = APP_SD_PATH + "/Images";
         CHROOT_SUDO = "/usr/bin/sudo";
-        BUSYBOX = getBusyboxPath();
+        BUSYBOX = getBusyboxPath() != null ? getBusyboxPath().getValue() : "";
         MAGISK_DB_PATH = "/data/adb/magisk.db";
     }
 
@@ -72,19 +74,18 @@ public class PathsUtil {
         return SYSTEM_PATH() + "/" + ARCH_FOLDER();
     }
 
-    private static String getSdcardPath() {
-        return Environment.getExternalStorageDirectory().toString();
-    }
-
-    public static String getBusyboxPath() {
-        String[] BB_PATHS = {"/system/xbin/busybox", "/system/bin/busybox"};
-        for (String BB_PATH : BB_PATHS) {
-            File busybox = new File(BB_PATH);
-            if (busybox.exists()) {
-                return BB_PATH;
+    public static Map.Entry<String, String> getBusyboxPath() {
+        HashMap<String, String> busybox = new HashMap<>();
+        busybox.put("Magisk", "/data/adb/magisk/busybox");
+        busybox.put("xbin", "/system/xbin/busybox");
+        busybox.put("bin", "/system/bin/busybox");
+        for (Map.Entry<String, String> entry : busybox.entrySet()) {
+            File file = new File(entry.getValue());
+            if (file.exists()) {
+                return entry;
             }
         }
-        return "";
+        return null;
     }
 
     public static float dpToPx(float dp) {

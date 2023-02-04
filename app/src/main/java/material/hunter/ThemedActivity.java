@@ -30,14 +30,10 @@ public class ThemedActivity extends AppCompatActivity {
         return dynamicColorsEnabled;
     }
 
-    private static void setDynamicColorsEnabled(boolean b) {
-        dynamicColorsEnabled = b;
-    }
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         prefs = getSharedPreferences("material.hunter", Context.MODE_PRIVATE);
-        setDynamicColorsEnabled(prefs.getBoolean("enable_monet", false));
+        dynamicColorsEnabled = prefs.getBoolean("enable_monet", true);
         apply(this);
         if (prefs.getBoolean("show_wallpaper", false)) {
             getWindow()

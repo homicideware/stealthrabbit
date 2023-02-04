@@ -11,15 +11,8 @@
 Chroot Manager app with [Material You Design](https://m3.material.io/)
 
 # Supporting
-- Android 7-13
+- Android 7-13 (13 partially now)
 
 # Requires
-- Termux
+- Termux/NetHunter Terminal
 - Magisk SU
-
-# Instructions
-- Download and install app
-- Grant all permissions (including root)
-- Navigate to Menu > Manager > Install > Download > Enter a direct link to choot traball > Wait
-- Reboot your device
-- Profit!

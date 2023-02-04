@@ -13,6 +13,6 @@ public class Checkers {
     }
 
     public static boolean isBusyboxInstalled() {
-        return !PathsUtil.getBusyboxPath().isEmpty();
+        return PathsUtil.getBusyboxPath() != null;
     }
 }

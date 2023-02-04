@@ -36,7 +36,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import material.hunter.utils.Checkers;
-import material.hunter.utils.NotificationsUtil;
 import material.hunter.utils.PathsUtil;
 import material.hunter.utils.ShellExecuter;
 import material.hunter.utils.TerminalUtil;
@@ -48,6 +47,8 @@ public class MainActivity extends ThemedActivity {
     private static BottomNavigationView bn;
     private static boolean chroot_installed = false;
     private static float kernel_base = 1.0f;
+    private static boolean busybox_installed = false;
+    private static boolean selinux_enforcing = false;
     private final ShellExecuter exe = new ShellExecuter();
     MaterialToolbar toolbar;
     HomeFragment _home;
@@ -93,6 +94,36 @@ public class MainActivity extends ThemedActivity {
         actionBar.setSubtitle(status);
     }
 
+    public static void setBusyboxInstalled(boolean _busybox_installed) {
+        busybox_installed = _busybox_installed;
+    }
+
+    public static boolean isBusyboxInstalled() {
+        return busybox_installed;
+    }
+
+    public static void setSelinuxEnforcing(boolean _selinux_enforcing) {
+        selinux_enforcing = _selinux_enforcing;
+    }
+
+    public static boolean isSelinuxEnforcing() {
+        return selinux_enforcing;
+    }
+
+    public static void openPage(String pageName) {
+        switch (pageName) {
+            case "home":
+                bn.setSelectedItemId(R.id.home);
+                break;
+            case "manager":
+                bn.setSelectedItemId(R.id.manager);
+                break;
+            case "menu":
+                bn.setSelectedItemId(R.id.menu);
+                break;
+        }
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -111,7 +142,8 @@ public class MainActivity extends ThemedActivity {
 
         // Setup utils
         PathsUtil.getInstance(context);
-        NotificationsUtil.getInstance(context);
+        busybox_installed = PathsUtil.getBusyboxPath() != null;
+        selinux_enforcing = Checkers.isEnforcing();
 
         // Setup rootView content
         setRootView();
@@ -286,9 +318,6 @@ public class MainActivity extends ThemedActivity {
                 return;
             }
         }
-
-        // Fetch the busybox path again after the busybox_nh is copied.
-        PathsUtil.BUSYBOX = PathsUtil.getBusyboxPath();
 
         // Setup the default SharePreference value.
         if (prefs.getString("chroot_backup_path", null) == null) {

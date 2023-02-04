@@ -20,7 +20,9 @@ export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:$PATH
 ## Define busybox path
 BUSYBOX=`which busybox | head -n1`
 if [ -z $BUSYBOX ]; then
-    if [ -x "/system/xbin/busybox" ]; then
+    if [ -x "/data/adb/magisk/busybox" ]; then
+        BUSYBOX="/data/adb/magisk/busybox"
+    elif [ -x "/system/xbin/busybox" ]; then
         BUSYBOX="/system/xbin/busybox"
     elif [ -x "/system/bin/busybox" ]; then
         BUSYBOX="/system/bin/busybox"
@@ -31,11 +33,12 @@ fi
 mount_sdcard=`cat /data/data/material.hunter/shared_prefs/material.hunter.xml | sed -n 's/.*<boolean name="mount_sdcard" value="\(.*\)" \/>/\1/p'`
 mount_system=`cat /data/data/material.hunter/shared_prefs/material.hunter.xml | sed -n 's/.*<boolean name="mount_system" value="\(.*\)" \/>/\1/p'`
 mount_data=`cat /data/data/material.hunter/shared_prefs/material.hunter.xml | sed -n 's/.*<boolean name="mount_data" value="\(.*\)" \/>/\1/p'`
+mount_modules=`cat /data/data/material.hunter/shared_prefs/material.hunter.xml | sed -n 's/.*<boolean name="mount_modules" value="\(.*\)" \/>/\1/p'`
 
 ## Define MNT (full path to target chroot)
 MNT="$CHROOT_SYSTEM_PATH/$directory"
 
 HOSTNAME=`cat /data/data/material.hunter/shared_prefs/material.hunter.xml | grep "\"hostname\"" | sed "s/^.*\"hostname\">\(.*\)<\/string>/\1/g"`
 if [ -z $HOSTNAME ]; then
-    HOSTNAME="android"
+    HOSTNAME="mh"
 fi

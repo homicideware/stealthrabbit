@@ -139,7 +139,7 @@ public class ManagerFragment extends Fragment {
                 edit.setView(view_edit);
                 edit.setPositiveButton("Apply", (dialogInterface, i) -> {
                 });
-                edit.setNegativeButton("Cancel", (dialogInterface2, i2) -> {
+                edit.setNegativeButton(android.R.string.cancel, (dialogInterface2, i2) -> {
                 });
                 final AlertDialog editAd = edit.create();
                 editAd.setOnShowListener(dialog -> {
@@ -168,7 +168,7 @@ public class ManagerFragment extends Fragment {
                 change_system_path.setView(view_change_system_path);
                 change_system_path.setPositiveButton("Apply", (dialogInterface, i) -> {
                 });
-                change_system_path.setNegativeButton("Cancel", (dialogInterface, i) -> {
+                change_system_path.setNegativeButton(android.R.string.cancel, (dialogInterface, i) -> {
                 });
                 final AlertDialog ad1 = change_system_path.create();
                 ad1.setOnShowListener(dialog -> {
@@ -192,17 +192,19 @@ public class ManagerFragment extends Fragment {
                 SwitchMaterial sdcard = view_security_settings.findViewById(R.id.mount_sdcard);
                 SwitchMaterial system = view_security_settings.findViewById(R.id.mount_system);
                 SwitchMaterial data = view_security_settings.findViewById(R.id.mount_data);
+                SwitchMaterial modules = view_security_settings.findViewById(R.id.mount_modules);
                 TextInputEditText hostname = view_security_settings.findViewById(R.id.hostname);
 
                 sdcard.setChecked(sharedPreferences.getBoolean("mount_sdcard", false));
                 system.setChecked(sharedPreferences.getBoolean("mount_system", false));
                 data.setChecked(sharedPreferences.getBoolean("mount_data", false));
-                hostname.setText(sharedPreferences.getString("hostname", "android"));
+                modules.setChecked(sharedPreferences.getBoolean("mount_modules", false));
+                hostname.setText(sharedPreferences.getString("hostname", "mh"));
 
                 security_settings.setView(view_security_settings);
                 security_settings.setPositiveButton("Apply", (dialogInterface, i) -> {
                 });
-                security_settings.setNegativeButton("Cancel", (dialogInterface, i) -> {
+                security_settings.setNegativeButton(android.R.string.cancel, (dialogInterface, i) -> {
                 });
                 final AlertDialog ad2 = security_settings.create();
                 ad2.setOnShowListener(dialog -> {
@@ -215,6 +217,7 @@ public class ManagerFragment extends Fragment {
                             sharedPreferences.edit().putBoolean("mount_sdcard", sdcard.isChecked()).apply();
                             sharedPreferences.edit().putBoolean("mount_system", system.isChecked()).apply();
                             sharedPreferences.edit().putBoolean("mount_data", data.isChecked()).apply();
+                            sharedPreferences.edit().putBoolean("mount_modules", modules.isChecked()).apply();
                             sharedPreferences.edit().putString("hostname", _hostname).apply();
                             ad2.dismiss();
                             compatCheck();
@@ -233,7 +236,7 @@ public class ManagerFragment extends Fragment {
                 rename_chroot_folder.setView(view_rename_chroot_folder);
                 rename_chroot_folder.setPositiveButton("Apply", (dialogInterface, i) -> {
                 });
-                rename_chroot_folder.setNegativeButton("Cancel", (dialogInterface, i) -> {
+                rename_chroot_folder.setNegativeButton(android.R.string.cancel, (dialogInterface, i) -> {
                 });
                 final AlertDialog ad3 = rename_chroot_folder.create();
                 ad3.setOnShowListener(dialog -> {
@@ -306,8 +309,8 @@ public class ManagerFragment extends Fragment {
 
     private void setInstallButton() {
         installChrootButton.setOnClickListener(view -> {
-            if (Checkers.isBusyboxInstalled()) {
-                MaterialAlertDialogBuilder adb = new MaterialAlertDialogBuilder(context);
+            MaterialAlertDialogBuilder adb = new MaterialAlertDialogBuilder(context);
+            if (MainActivity.isBusyboxInstalled()) {
                 View rootView = getLayoutInflater().inflate(R.layout.manager_dialog_install, null);
                 Button db = rootView.findViewById(R.id.downloadButton);
                 Button r = rootView.findViewById(R.id.repositoryButton);
@@ -323,7 +326,7 @@ public class ManagerFragment extends Fragment {
                     adb1.setView(promtDownloadView);
                     adb1.setPositiveButton("Setup", (dialogInterface, i) -> {
                     });
-                    adb1.setNegativeButton("Cancel", (dialogInterface, i) -> {
+                    adb1.setNegativeButton(android.R.string.cancel, (dialogInterface, i) -> {
                     });
                     final AlertDialog adb1Ad = adb1.create();
                     adb1Ad.setOnShowListener(dialog -> {
@@ -462,7 +465,7 @@ public class ManagerFragment extends Fragment {
                     adb2.setView(repov);
                     adb2.setPositiveButton("Download", (dialogInterface, i) -> {
                     });
-                    adb2.setNegativeButton("Cancel", (dialogInterface, i) -> {
+                    adb2.setNegativeButton(android.R.string.cancel, (dialogInterface, i) -> {
                     });
                     final AlertDialog adb2Ad = adb2.create();
                     adb2Ad.setOnShowListener(dialog -> {
@@ -582,7 +585,7 @@ public class ManagerFragment extends Fragment {
                     adb3.setView(rootViewR);
                     adb3.setPositiveButton("Restore", (dialogInterface, i) -> {
                     });
-                    adb3.setNegativeButton("Cancel", (dialogInterface, i) -> {
+                    adb3.setNegativeButton(android.R.string.cancel, (dialogInterface, i) -> {
                     });
                     final AlertDialog adb3Ad = adb3.create();
                     adb3Ad.setOnShowListener(dialog -> {
@@ -631,7 +634,6 @@ public class ManagerFragment extends Fragment {
                 });
                 ad.show();
             } else {
-                MaterialAlertDialogBuilder adb = new MaterialAlertDialogBuilder(context);
                 @SuppressLint("InflateParams") View dialogView = getLayoutInflater().inflate(R.layout.manager_dialog_install_busybox, null);
                 TextView message = dialogView.findViewById(R.id.message);
                 message.setText(Html.fromHtml("Busybox isn't installed, chroot installation cannot be done, please install <a href=\"https://github.com/zgfg/BuiltIn-BusyBox\">busybox</a>. You can use <a href=\"https://github.com/Fox2Code/FoxMagiskModuleManager\">Fox's MMM</a> if you wish.", Html.FROM_HTML_MODE_LEGACY));
@@ -690,7 +692,7 @@ public class ManagerFragment extends Fragment {
                             + "/chrootmgr -c \"remove "
                             + PathsUtil.CHROOT_PATH()
                             + "\"", resultViewerLoggerTextView));
-            adb.setNegativeButton("Cancel", (dialogInterface, i) -> {
+            adb.setNegativeButton(android.R.string.cancel, (dialogInterface, i) -> {
             });
             adb.show();
         });

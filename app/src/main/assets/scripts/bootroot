@@ -55,6 +55,9 @@ check_mount(){
     if [ $mount_data == "true" ]; then
         FS[${#FS[@]}]=data
     fi
+    if [ $mount_modules == "true" ]; then
+        FS[${#FS[@]}]=lib/modules
+    fi
     for i in "${FS[@]}"; do
         if [ "$(grep $MNT/$i /proc/mounts)" ]; then
             echo "[+] $i partition is mounted."
@@ -136,6 +139,15 @@ do_mount() {
             # [ -d $MNT/data ] && rm -rf $MNT/data
             [ ! -d $MNT/data ] && mkdir -p $MNT/data
             $BUSYBOX mount -o bind /data $MNT/data && echo "[+] mounted /data"
+        fi
+    fi
+
+    ######### SET MODULES ########
+    if [ $mount_modules == "true" ]; then
+        if [ ! "$($BUSYBOX mountpoint $MNT/lib/modules 2> /dev/null | grep 'is a')" ]; then
+            [ -d $MNT/lib/modules ] && rm -rf $MNT/lib/modules
+            [ ! -d $MNT/lib/modules ] && mkdir -p $MNT/lib/modules
+            [ -d /lib/modules ] && $BUSYBOX mount -o bind /lib/modules $MNT/lib/modules && echo "[+] mounted modules" && echo "[!] to make changes in the modules directory from chroot, it is worth assigning the ability to read and write to it (do remount in chroot environment)" || echo "[-] failed to mount modules, directory /lib/modules not found."
         fi
     fi
 

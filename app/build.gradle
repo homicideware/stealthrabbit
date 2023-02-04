@@ -2,8 +2,8 @@ plugins {
     id 'com.android.application'
 }
 
-def globalVersionCode = 41
-def globalVersionName = "4.1"
+def globalVersionCode = 42
+def globalVersionName = "4.2"
 
 android {
     compileSdk 33
@@ -11,7 +11,7 @@ android {
     defaultConfig {
         applicationId "material.hunter"
         minSdk 24
-        resConfigs "en"
+        resConfigs 'en'
         targetSdk 33
         versionCode globalVersionCode
         versionName globalVersionName
@@ -36,6 +36,7 @@ android {
         sourceCompatibility JavaVersion.VERSION_11
         targetCompatibility JavaVersion.VERSION_11
     }
+    namespace 'material.hunter'
 }
 
 repositories {

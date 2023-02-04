@@ -49,6 +49,15 @@
                 android:textSize="16dp"
                 app:useMaterialThemeColors="false" />
 
+            <com.google.android.material.switchmaterial.SwitchMaterial
+                android:id="@+id/mount_modules"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="4dp"
+                android:text="Mount /lib/modules"
+                android:textSize="16dp"
+                app:useMaterialThemeColors="false" />
+
             <TextView
                 style="@style/Widget.Mirivan.Title"
                 android:layout_width="wrap_content"

@@ -534,8 +534,8 @@ public class USBArmoryActivity extends ThemedActivity {
                 MaterialAlertDialogBuilder adbBackup = new MaterialAlertDialogBuilder(activity);
                 adbBackup.setTitle("Full path to where you want to save the database:");
                 adbBackup.setView(promptView);
-                adbBackup.setNegativeButton("Cancel", (dialog, which) -> dialog.cancel());
-                adbBackup.setPositiveButton("OK", (dialog, which) -> {
+                adbBackup.setNegativeButton(android.R.string.cancel, (dialog, which) -> dialog.cancel());
+                adbBackup.setPositiveButton(android.R.string.ok, (dialog, which) -> {
                 });
                 final AlertDialog adBackup = adbBackup.create();
                 adBackup.setOnShowListener(dialog -> {
@@ -569,8 +569,8 @@ public class USBArmoryActivity extends ThemedActivity {
                 MaterialAlertDialogBuilder adbRestore = new MaterialAlertDialogBuilder(activity);
                 adbRestore.setTitle("Full path of the db file from where you want to restore:");
                 adbRestore.setView(promptView);
-                adbRestore.setNegativeButton("Cancel", (dialog, which) -> dialog.cancel());
-                adbRestore.setPositiveButton("OK", (dialog, which) -> {
+                adbRestore.setNegativeButton(android.R.string.cancel, (dialog, which) -> dialog.cancel());
+                adbRestore.setPositiveButton(android.R.string.ok, (dialog, which) -> {
                 });
                 final AlertDialog adRestore = adbRestore.create();
                 adRestore.setOnShowListener(dialog -> {

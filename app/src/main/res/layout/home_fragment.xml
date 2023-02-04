@@ -144,7 +144,6 @@
                     android:layout_height="42dp"
                     android:clickable="true"
                     android:focusable="true"
-                    android:foreground="@color/mh_imageview_ripple"
                     android:padding="5dp"
                     android:src="@drawable/download"
                     android:visibility="gone" />

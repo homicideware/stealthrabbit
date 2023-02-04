@@ -187,13 +187,12 @@ public class HomeFragment extends Fragment {
 
             sb.append("Model: ").append(Build.BRAND).append(" ").append(Build.MODEL).append(" (").append(HardwareProps.getProp("ro.build.product")).append(")\n");
             sb.append("OS Version: Android ").append(Build.VERSION.RELEASE).append(", SDK ").append(Build.VERSION.SDK_INT).append("\n");
+            sb.append(PathsUtil.getBusyboxPath() != null ? "Busybox from: " + PathsUtil.getBusyboxPath().getKey() + "\n" : "");
 
             String CPU = matchString("^Hardware.*: (.*)", exe.RunAsRootOutput("cat /proc/cpuinfo | grep \"Hardware\""), 1);
-            if (!CPU.isEmpty())
-                sb.append("CPU: ").append(CPU).append("\n");
+            sb.append(!CPU.isEmpty() ? "CPU: " + CPU + "\n" : "");
 
             String kernel_version = matchString("^([0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3})", exe.RunAsRootOutput("uname -r"), 1);
-
             sb.append("Kernel version: ").append(kernel_version).append("\n\n");
 
             sb.append("System-as-root: ").append(exe.RunAsRootOutput("grep ' / ' /proc/mounts | grep -qv 'rootfs' || grep -q ' /system_root ' /proc/mounts && echo true || echo false")).append("\n");
@@ -221,13 +220,12 @@ public class HomeFragment extends Fragment {
             selinux_enforcing = Checkers.isEnforcing();
             selinux_now = selinux_enforcing ? "enforcing" : "permissive";
 
-            new Handler(Looper.getMainLooper()).post(() -> {
-                selinux_status.setText("Selinux status: " + selinux_now + ". Click to change it.");
-            });
+            new Handler(Looper.getMainLooper()).post(() -> selinux_status.setText("Selinux status: " + selinux_now + ". Click to change it."));
         });
         selinux_card.setOnClickListener(v -> executor.execute(() -> {
             exe.RunAsRoot("setenforce " + (selinux_enforcing ? "0" : "1"));
             selinux_enforcing = !selinux_enforcing;
+            MainActivity.setSelinuxEnforcing(selinux_enforcing);
             selinux_now = selinux_enforcing ? "enforcing" : "permissive";
 
             new Handler(Looper.getMainLooper()).post(() -> {

@@ -120,7 +120,7 @@ public class SettingsActivity extends ThemedActivity {
         });
 
         SwitchMaterial enable_monet = findViewById(R.id.settings_enable_monet);
-        enable_monet.setChecked(prefs.getBoolean("enable_monet", false));
+        enable_monet.setChecked(prefs.getBoolean("enable_monet", true));
 
         enable_monet.setEnabled(DynamicColors.isDynamicColorAvailable());
 

@@ -1,21 +1,30 @@
 package material.hunter.RecyclerViewData;
 
 import android.app.Activity;
+import android.app.Notification;
+import android.app.PendingIntent;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Handler;
 import android.os.Looper;
 
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
 import androidx.lifecycle.MutableLiveData;
+
+import com.airbnb.lottie.utils.Utils;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import material.hunter.MainActivity;
+import material.hunter.R;
 import material.hunter.SQL.CustomCommandsSQL;
 import material.hunter.models.CustomCommandsModel;
-import material.hunter.utils.NotificationsUtil;
+import material.hunter.utils.NotificationsUtils;
 import material.hunter.utils.PathsUtil;
 import material.hunter.utils.ShellExecuter;
 import material.hunter.utils.TerminalUtil;
@@ -83,9 +92,7 @@ public class CustomCommandsData {
                                                                 ? command
                                                                 : PathsUtil.APP_SCRIPTS_PATH
                                                                 + "/bootroot_exec \""
-                                                                + command.replace(
-                                                                "\"", "\\\"")
-                                                                + "\""),
+                                                                + command + "\""),
                                                         false);
                                             } catch (ActivityNotFoundException
                                                     | PackageManager.NameNotFoundException e) {
@@ -95,41 +102,55 @@ public class CustomCommandsData {
                                             }
                                         });
                     } else {
-                        NotificationsUtil.showNotification(
-                                "Custom Commands",
-                                "Command "
-                                        + "is being run in background and in "
-                                        + model.get(position).getEnv()
-                                        + " environment.",
-                                "Command "
-                                        + model.get(position).getCommand()
-                                        + " "
-                                        + "is being run in background and in "
-                                        + model.get(position).getEnv()
-                                        + " environment.",
-                                true,
-                                1001);
+                        NotificationManagerCompat notificationManagerCompat =
+                                NotificationManagerCompat.from(context);
+                        Intent appIntent = new Intent(context, MainActivity.class);
+                        PendingIntent pendingIntent =
+                                PendingIntent.getActivity(context, 0, appIntent, NotificationsUtils.setPendingIntentFlag());
+
+                        Notification notification =
+                                new NotificationCompat.Builder(context, "base")
+                                        .setAutoCancel(false)
+                                        .setSmallIcon(R.drawable.ic_stat_ic_nh_notificaiton)
+                                        .setOnlyAlertOnce(true)
+                                        .setStyle(
+                                                new NotificationCompat.BigTextStyle().bigText(
+                                                        "Command "
+                                                                + model.get(position).getCommand()
+                                                                + " "
+                                                                + "is being run in background and in "
+                                                                + model.get(position).getEnv()
+                                                                + " environment."
+                                                ))
+                                        .setContentTitle(
+                                                "Custom Commands"
+                                        )
+                                        .setContentText(
+                                                "Command "
+                                                        + "is being run in background and in "
+                                                        + model.get(position).getEnv()
+                                                        + " environment."
+                                        )
+                                        .setPriority(NotificationCompat.PRIORITY_HIGH)
+                                        .setContentIntent(pendingIntent)
+                                        .build();
+                        notificationManagerCompat.notify(1001, notification);
                         if (model.get(position).getEnv().equals("android")) {
                             isChroot = false;
                             returnValue =
                                     new ShellExecuter()
                                             .RunAsRootReturnValue(model.get(position).getCommand());
-                            if (returnValue == 0) {
-                                returnValue = RETURN_SUCCESS;
-                            } else {
-                                returnValue = RETURN_FAIL;
-                            }
                         } else {
                             isChroot = true;
                             returnValue =
                                     new ShellExecuter()
                                             .RunAsChrootReturnValue(
                                                     model.get(position).getCommand());
-                            if (returnValue == 0) {
-                                returnValue = RETURN_SUCCESS;
-                            } else {
-                                returnValue = RETURN_FAIL;
-                            }
+                        }
+                        if (returnValue == 0) {
+                            returnValue = RETURN_SUCCESS;
+                        } else {
+                            returnValue = RETURN_FAIL;
                         }
                     }
                 }
@@ -142,20 +163,39 @@ public class CustomCommandsData {
                 getCustomCommandsModels().getValue().addAll(model);
                 getCustomCommandsModels().postValue(getCustomCommandsModels().getValue());
                 if (returnValue != 0) {
-                    NotificationsUtil.showNotification(
-                            "Custom Commands",
-                            "Return " + (returnValue == RETURN_SUCCESS ? "success" : "error") + ".",
-                            "Return "
-                                    + (returnValue == RETURN_SUCCESS ? "success" : "error")
-                                    + ". "
-                                    + "Command "
-                                    + model.get(position).getCommand()
-                                    + " "
-                                    + "has been executed in "
-                                    + (isChroot ? "chroot" : "android")
-                                    + " environment.",
-                            true,
-                            1001);
+                    NotificationManagerCompat notificationManagerCompat =
+                            NotificationManagerCompat.from(context);
+                    Intent appIntent = new Intent(context, MainActivity.class);
+                    PendingIntent pendingIntent =
+                            PendingIntent.getActivity(context, 0, appIntent, NotificationsUtils.setPendingIntentFlag());
+
+                    Notification notification =
+                            new NotificationCompat.Builder(context, "base")
+                                    .setAutoCancel(false)
+                                    .setSmallIcon(R.drawable.ic_stat_ic_nh_notificaiton)
+                                    .setOnlyAlertOnce(true)
+                                    .setStyle(
+                                            new NotificationCompat.BigTextStyle().bigText(
+                                                    "Return "
+                                                            + (returnValue == RETURN_SUCCESS ? "success" : "error")
+                                                            + ". "
+                                                            + "Command "
+                                                            + model.get(position).getCommand()
+                                                            + " "
+                                                            + "has been executed in "
+                                                            + (isChroot ? "chroot" : "android")
+                                                            + " environment."
+                                            ))
+                                    .setContentTitle(
+                                            "Custom Commands"
+                                    )
+                                    .setContentText(
+                                            "Return " + (returnValue == RETURN_SUCCESS ? "success" : "error") + "."
+                                    )
+                                    .setPriority(NotificationCompat.PRIORITY_HIGH)
+                                    .setContentIntent(pendingIntent)
+                                    .build();
+                    notificationManagerCompat.notify(1001, notification);
                 }
             }
         }.run();

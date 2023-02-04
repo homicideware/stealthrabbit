@@ -9,6 +9,8 @@ import android.widget.CheckBox;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.checkbox.MaterialCheckBox;
+
 import java.util.List;
 
 import material.hunter.R;
@@ -46,7 +48,7 @@ public class ServicesRecyclerViewAdapterDeleteItems
     }
 
     static class ItemViewHolder extends RecyclerView.ViewHolder {
-        private final CheckBox itemCheckBox;
+        private final MaterialCheckBox itemCheckBox;
 
         private ItemViewHolder(View view) {
             super(view);

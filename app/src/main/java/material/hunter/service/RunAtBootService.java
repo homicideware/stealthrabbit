@@ -21,13 +21,11 @@ import material.hunter.utils.ShellExecuter;
 
 public class RunAtBootService extends JobIntentService {
 
-    static final int SERVICE_JOB_ID = 1;
-    private static final String TAG = "MaterialHunter: Startup";
-    private NotificationCompat.Builder builder;
     private Context context;
+    private NotificationCompat.Builder notification;
 
     public static void enqueueWork(Context context, Intent work) {
-        enqueueWork(context, RunAtBootService.class, SERVICE_JOB_ID, work);
+        enqueueWork(context, RunAtBootService.class, 1, work);
     }
 
     @Override
@@ -39,28 +37,24 @@ public class RunAtBootService extends JobIntentService {
     }
 
     private void doNotification(String contents) {
-        if (builder == null) {
-            builder = new NotificationCompat.Builder(context, "boot_channel");
-        }
-        builder.setStyle(new NotificationCompat.BigTextStyle().bigText(contents))
-                .setContentTitle(RunAtBootService.TAG)
+        notification = new NotificationCompat.Builder(context, "base")
+                .setStyle(new NotificationCompat.BigTextStyle().bigText(contents))
+                .setContentTitle("MaterialHunter: Startup")
                 .setSmallIcon(R.drawable.ic_stat_ic_nh_notificaiton)
                 .setOnlyAlertOnce(true)
                 .setAutoCancel(true);
         NotificationManager notificationManager =
                 (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
 
-        if (notificationManager != null) {
-            notificationManager.notify(999, builder.build());
-        }
+        notificationManager.notify(999, notification.build());
     }
 
     @Override
     protected void onHandleWork(@NonNull Intent intent) {
-        onHandleIntent(intent);
+        onHandleIntent();
     }
 
-    protected void onHandleIntent(@NonNull Intent intent) {
+    protected void onHandleIntent() {
         SharedPreferences prefs = getSharedPreferences("material.hunter", Context.MODE_PRIVATE);
         if (prefs.getBoolean("run_on_boot_enabled", true)) {
             // 1. Check root and chroot status -> 2. Run materialhunter init.d files. -> 3. Push
@@ -84,7 +78,7 @@ public class RunAtBootService extends JobIntentService {
                 hashMap.put("CHROOT", isOK);
             }
 
-            String resultMsg = "Boot completed.\nEveryting is fine and chroot has been started.";
+            String resultMsg = "Boot completed.\nEverything is fine and chroot has been started.";
             for (Map.Entry<String, String> entry : hashMap.entrySet()) {
                 if (!entry.getValue().equals(isOK)) {
                     resultMsg = "Something wrong.";
@@ -111,8 +105,8 @@ public class RunAtBootService extends JobIntentService {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationChannel serviceChannel =
                     new NotificationChannel(
-                            "boot_channel",
-                            "MaterialHunter: Boot Check Service",
+                            "base",
+                            "Base notifications",
                             NotificationManager.IMPORTANCE_HIGH);
 
             NotificationManager notificationManager = getSystemService(NotificationManager.class);

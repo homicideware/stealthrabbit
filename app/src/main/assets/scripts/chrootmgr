@@ -123,8 +123,11 @@ if [ ! $# -eq 0 ]; then
                         if [ $mount_data == "true" ]; then
                             FS[${#FS[@]}]=data
                         fi
+                        if [ $mount_modules == "true" ]; then
+                            FS[${#FS[@]}]=lib/modules
+                        fi
                         for i in "${FS[@]}"; do
-                            if [ "$($BUSYBOX grep $MNT/$i /proc/mounts)" ]; then
+                            if $BUSYBOX mountpoint -q $MNT/$i; then
                                 echo "[+] $i was mounted already."
                                 continue
                             else

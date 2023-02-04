@@ -185,7 +185,7 @@ public class CustomCommandsRecyclerViewAdapter extends RecyclerView.Adapter<Cust
                     MaterialAlertDialogBuilder adbEdit = new MaterialAlertDialogBuilder(context);
                     adbEdit.setView(promptViewEdit);
                     adbEdit.setCancelable(true);
-                    adbEdit.setPositiveButton("OK", (dialog, which) -> {
+                    adbEdit.setPositiveButton(android.R.string.ok, (dialog, which) -> {
                     });
                     final AlertDialog adEdit = adbEdit.create();
                     adEdit.setOnShowListener(

@@ -100,7 +100,7 @@ public class TerminalUtil {
             Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
             context.startActivity(intent);
         });
-        adb.setNegativeButton("Ok", (di, i) -> {
+        adb.setNegativeButton(android.R.string.ok, (di, i) -> {
         });
         adb.show();
     }
@@ -121,7 +121,7 @@ public class TerminalUtil {
                         requestTerminalPermissions();
                     }
                 });
-        adb.setNegativeButton("Ok", (di, i) -> {
+        adb.setNegativeButton(android.R.string.ok, (di, i) -> {
         });
         adb.show();
     }
@@ -172,7 +172,7 @@ public class TerminalUtil {
                                             Uri.parse("https://f-droid.org/ru/packages/com.termux/"));
                             context.startActivity(intent);
                         });
-                adb.setNegativeButton("Cancel", (di, i) -> {
+                adb.setNegativeButton(android.R.string.cancel, (di, i) -> {
                 });
                 adb.show();
             }
@@ -197,7 +197,7 @@ public class TerminalUtil {
                             (di, i) -> {
                                 exe.RunAsRoot(TERMUX_SET_EXTERNAL_APPS_TRUE_CMD);
                             });
-                    adb.setNegativeButton("Cancel", (di, i) -> {
+                    adb.setNegativeButton(android.R.string.cancel, (di, i) -> {
                     });
                     adb.show();
                 });

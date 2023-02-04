@@ -171,7 +171,7 @@ public class ServicesRecyclerViewAdapter extends RecyclerView.Adapter<ServicesRe
                     MaterialAlertDialogBuilder adbEdit = new MaterialAlertDialogBuilder(context);
                     adbEdit.setView(promptViewEdit);
                     adbEdit.setCancelable(true);
-                    adbEdit.setPositiveButton("OK", (dialog, which) -> {
+                    adbEdit.setPositiveButton(android.R.string.ok, (dialog, which) -> {
                     });
                     final AlertDialog adEdit = adbEdit.create();
                     adEdit.setOnShowListener(
