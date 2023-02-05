@@ -1,5 +1,6 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
@@ -28,6 +29,7 @@
                 android:id="@+id/warn_text"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
                 android:gravity="center"
                 android:padding="5dp"
                 android:text="MAC addresses are unique identifiers on networks, they only need to be unique, they can be changed on most network hardware."
@@ -39,7 +41,7 @@
                 style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="16dp"
                 app:startIconDrawable="@drawable/ic_renew">
 
                 <AutoCompleteTextView
@@ -65,11 +67,32 @@
                     android:id="@+id/macaddress"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:digits="ABCDEFabcdef1234567890"
                     android:hint="MAC address (01:23:45:AB:CD:EF):"
                     android:importantForAutofill="no"
                     android:inputType="textNoSuggestions"
                     android:maxLength="17"
                     android:singleLine="true" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/permanent_layout"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                app:endIconDrawable="@drawable/ic_done"
+                app:endIconMode="custom"
+                app:startIconDrawable="@drawable/ic_renew">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/permanent"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Permanent MAC address:"
+                    android:editable="false"
+                    android:singleLine="true"
+                    tools:ignore="Deprecated" />
             </com.google.android.material.textfield.TextInputLayout>
         </LinearLayout>
     </ScrollView>

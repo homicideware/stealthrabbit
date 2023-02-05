@@ -20,6 +20,8 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import material.hunter.BuildConfig;
+
 public class TerminalUtil {
 
     public static final String TERMINAL_TYPE_TERMUX = "Termux";
@@ -32,7 +34,7 @@ public class TerminalUtil {
                     " echo \"allow-external-apps=true\" >> /data/data/com.termux/files/home/.termux/termux.properties; else sed -i -r" +
                     " s/\"^#?allow-external-apps=.*\"/\"allow-external-apps=true\"/g" +
                     " /data/data/com.termux/files/home/.termux/termux.properties; fi";
-    private static final ShellExecuter exe = new ShellExecuter();
+    private static final ShellUtils exe = new ShellUtils();
     private static ExecutorService executor;
     private static SharedPreferences prefs;
     private final Activity activity;
@@ -42,7 +44,7 @@ public class TerminalUtil {
         this.activity = activity;
         this.context = context;
         executor = Executors.newSingleThreadExecutor();
-        prefs = context.getSharedPreferences("material.hunter", Context.MODE_PRIVATE);
+        prefs = context.getSharedPreferences(BuildConfig.APPLICATION_ID, Context.MODE_PRIVATE);
     }
 
     public String getTerminalType() {

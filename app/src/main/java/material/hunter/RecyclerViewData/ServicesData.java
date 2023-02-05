@@ -14,7 +14,7 @@ import material.hunter.SQL.ServicesSQL;
 import material.hunter.ServicesActivity;
 import material.hunter.models.ServicesModel;
 import material.hunter.utils.PathsUtil;
-import material.hunter.utils.ShellExecuter;
+import material.hunter.utils.ShellUtils;
 import melville37.MelvilleExecutor;
 
 public class ServicesData {
@@ -61,7 +61,7 @@ public class ServicesData {
                     for (int i = 0; i < model.size(); i++) {
                         model.get(i)
                                 .setStatus(
-                                        new ShellExecuter()
+                                        new ShellUtils()
                                                 .RunAsRootReturnValue(
                                                         PathsUtil.BUSYBOX
                                                                 + " ps | grep -v"
@@ -100,7 +100,7 @@ public class ServicesData {
                 if (model != null) {
                     model.get(position)
                             .setStatus(
-                                    new ShellExecuter()
+                                    new ShellUtils()
                                             .RunAsChrootReturnValue(
                                                     model.get(position)
                                                             .getCommandforStartService())
@@ -143,7 +143,7 @@ public class ServicesData {
                 if (model != null) {
                     model.get(position)
                             .setStatus(
-                                    new ShellExecuter()
+                                    new ShellUtils()
                                             .RunAsChrootReturnValue(
                                                     model.get(position)
                                                             .getCommandforStopService())
@@ -438,7 +438,7 @@ public class ServicesData {
                         .append("\n");
             }
         }
-        new ShellExecuter()
+        new ShellUtils()
                 .RunAsRootOutput(
                         "cat << 'EOF' > "
                                 + PathsUtil.APP_SCRIPTS_PATH

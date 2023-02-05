@@ -63,7 +63,7 @@ public class MenuFragment extends Fragment {
         super.onCreate(savedInstanceState);
         activity = getActivity();
         context = getContext();
-        prefs = context.getSharedPreferences("material.hunter", Context.MODE_PRIVATE);
+        prefs = context.getSharedPreferences(BuildConfig.APPLICATION_ID, Context.MODE_PRIVATE);
     }
 
     @Override

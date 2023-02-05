@@ -15,6 +15,8 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
+import material.hunter.BuildConfig;
+
 public class PathsUtil {
 
     public static String APP_PATH;
@@ -37,7 +39,7 @@ public class PathsUtil {
 
     private PathsUtil(Context context) {
         PathsUtil.context = context;
-        prefs = context.getSharedPreferences("material.hunter", Context.MODE_PRIVATE);
+        prefs = context.getSharedPreferences(BuildConfig.APPLICATION_ID, Context.MODE_PRIVATE);
         APP_PATH = context.getFilesDir().getPath();
         APP_DATABASE_PATH = APP_PATH.replace("/files", "/databases");
         APP_INITD_PATH = APP_PATH + "/etc/init.d";

@@ -2,42 +2,41 @@ package material.hunter.service;
 
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Build;
+import android.os.IBinder;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.app.JobIntentService;
 import androidx.core.app.NotificationCompat;
 
 import java.util.HashMap;
 import java.util.Map;
 
+import material.hunter.BuildConfig;
 import material.hunter.R;
 import material.hunter.utils.Checkers;
 import material.hunter.utils.PathsUtil;
-import material.hunter.utils.ShellExecuter;
+import material.hunter.utils.ShellUtils;
 
-public class RunAtBootService extends JobIntentService {
+public class RunAtBootService extends Service {
 
     private Context context;
-    private NotificationCompat.Builder notification;
-
-    public static void enqueueWork(Context context, Intent work) {
-        enqueueWork(context, RunAtBootService.class, 1, work);
-    }
 
     @Override
     public void onCreate() {
         super.onCreate();
-        context = getApplicationContext();
+        context = this;
         PathsUtil.getInstance(context);
         createNotificationChannel();
     }
 
     private void doNotification(String contents) {
-        notification = new NotificationCompat.Builder(context, "base")
+        NotificationCompat.Builder notification = new NotificationCompat.Builder(context, "base")
                 .setStyle(new NotificationCompat.BigTextStyle().bigText(contents))
                 .setContentTitle("MaterialHunter: Startup")
                 .setSmallIcon(R.drawable.ic_stat_ic_nh_notificaiton)
@@ -50,15 +49,9 @@ public class RunAtBootService extends JobIntentService {
     }
 
     @Override
-    protected void onHandleWork(@NonNull Intent intent) {
-        onHandleIntent();
-    }
-
-    protected void onHandleIntent() {
-        SharedPreferences prefs = getSharedPreferences("material.hunter", Context.MODE_PRIVATE);
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        SharedPreferences prefs = getSharedPreferences(BuildConfig.APPLICATION_ID, Context.MODE_PRIVATE);
         if (prefs.getBoolean("run_on_boot_enabled", true)) {
-            // 1. Check root and chroot status -> 2. Run materialhunter init.d files. -> 3. Push
-            // notifications.
             String isOK = "ok.";
             doNotification("Doing boot checks...");
 
@@ -70,7 +63,7 @@ public class RunAtBootService extends JobIntentService {
                 hashMap.put("ROOT", isOK);
             }
 
-            ShellExecuter exe = new ShellExecuter();
+            ShellUtils exe = new ShellUtils();
 
             exe.RunAsRootOutput(PathsUtil.BUSYBOX + " run-parts " + PathsUtil.APP_INITD_PATH);
             if (exe.RunAsRootReturnValue(PathsUtil.APP_SCRIPTS_PATH + "/chrootmgr -c \"status\"")
@@ -94,11 +87,18 @@ public class RunAtBootService extends JobIntentService {
                             + "\n"
                             + resultMsg);
         }
+        return START_NOT_STICKY;
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
+    }
+
+    @Nullable
+    @Override
+    public IBinder onBind(Intent intent) {
+        return null;
     }
 
     private void createNotificationChannel() {

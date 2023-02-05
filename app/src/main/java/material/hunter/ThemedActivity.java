@@ -24,7 +24,6 @@ public class ThemedActivity extends AppCompatActivity {
     private static final HashMap<Activity, Resources.Theme> activities =
             new HashMap<Activity, Resources.Theme>();
     private static boolean dynamicColorsEnabled = false;
-    private SharedPreferences prefs;
 
     public static boolean isDynamicColorsEnabled() {
         return dynamicColorsEnabled;
@@ -32,7 +31,7 @@ public class ThemedActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        prefs = getSharedPreferences("material.hunter", Context.MODE_PRIVATE);
+        SharedPreferences prefs = getSharedPreferences(BuildConfig.APPLICATION_ID, Context.MODE_PRIVATE);
         dynamicColorsEnabled = prefs.getBoolean("enable_monet", true);
         apply(this);
         if (prefs.getBoolean("show_wallpaper", false)) {

@@ -26,7 +26,7 @@ import material.hunter.SQL.CustomCommandsSQL;
 import material.hunter.models.CustomCommandsModel;
 import material.hunter.utils.NotificationsUtils;
 import material.hunter.utils.PathsUtil;
-import material.hunter.utils.ShellExecuter;
+import material.hunter.utils.ShellUtils;
 import material.hunter.utils.TerminalUtil;
 import melville37.MelvilleExecutor;
 
@@ -138,12 +138,12 @@ public class CustomCommandsData {
                         if (model.get(position).getEnv().equals("android")) {
                             isChroot = false;
                             returnValue =
-                                    new ShellExecuter()
+                                    new ShellUtils()
                                             .RunAsRootReturnValue(model.get(position).getCommand());
                         } else {
                             isChroot = true;
                             returnValue =
-                                    new ShellExecuter()
+                                    new ShellUtils()
                                             .RunAsChrootReturnValue(
                                                     model.get(position).getCommand());
                         }
@@ -438,7 +438,7 @@ public class CustomCommandsData {
                         .append("\n");
             }
         }
-        new ShellExecuter()
+        new ShellUtils()
                 .RunAsRootOutput(
                         "cat << 'EOF' > "
                                 + PathsUtil.APP_SCRIPTS_PATH

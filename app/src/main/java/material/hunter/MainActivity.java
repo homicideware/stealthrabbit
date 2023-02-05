@@ -37,7 +37,7 @@ import java.io.OutputStream;
 
 import material.hunter.utils.Checkers;
 import material.hunter.utils.PathsUtil;
-import material.hunter.utils.ShellExecuter;
+import material.hunter.utils.ShellUtils;
 import material.hunter.utils.TerminalUtil;
 
 public class MainActivity extends ThemedActivity {
@@ -49,7 +49,7 @@ public class MainActivity extends ThemedActivity {
     private static float kernel_base = 1.0f;
     private static boolean busybox_installed = false;
     private static boolean selinux_enforcing = false;
-    private final ShellExecuter exe = new ShellExecuter();
+    private final ShellUtils exe = new ShellUtils();
     MaterialToolbar toolbar;
     HomeFragment _home;
     ManagerFragment _manager;
@@ -127,7 +127,7 @@ public class MainActivity extends ThemedActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        prefs = getSharedPreferences("material.hunter", Context.MODE_PRIVATE);
+        prefs = getSharedPreferences(BuildConfig.APPLICATION_ID, Context.MODE_PRIVATE);
         final int theme = prefs.getInt("theme", 0);
         if (theme == 0) {
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);

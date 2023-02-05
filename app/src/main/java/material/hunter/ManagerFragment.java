@@ -44,12 +44,10 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import material.hunter.service.CompatCheckService;
-import material.hunter.utils.ActiveShellExecuter;
-import material.hunter.utils.Checkers;
 import material.hunter.utils.DownloadChroot;
 import material.hunter.utils.MHRepo;
 import material.hunter.utils.PathsUtil;
-import material.hunter.utils.ShellExecuter;
+import material.hunter.utils.ShellUtils;
 import melville37.contract.JSON;
 
 public class ManagerFragment extends Fragment {
@@ -60,7 +58,7 @@ public class ManagerFragment extends Fragment {
     private static final int IS_UNMOUNTED = 1;
     private static final int NEED_TO_INSTALL = 2;
     private static final int CHROOT_CORRUPTED = 3;
-    private final ShellExecuter exe = new ShellExecuter();
+    private final ShellUtils exe = new ShellUtils();
     private ExecutorService executor;
     private TextView resultViewerLoggerTextView;
     private Button mountChrootButton;
@@ -78,7 +76,7 @@ public class ManagerFragment extends Fragment {
         activity = getActivity();
         context = getContext();
         executor = Executors.newSingleThreadExecutor();
-        sharedPreferences = context.getSharedPreferences("material.hunter", Context.MODE_PRIVATE);
+        sharedPreferences = context.getSharedPreferences(BuildConfig.APPLICATION_ID, Context.MODE_PRIVATE);
     }
 
     @Override
@@ -260,7 +258,7 @@ public class ManagerFragment extends Fragment {
     }
 
     private void setStartButton() {
-        mountChrootButton.setOnClickListener(view -> new ActiveShellExecuter(context) {
+        mountChrootButton.setOnClickListener(view -> new ShellUtils.ActiveShellExecuter(sharedPreferences.getBoolean("print_timestamp", false)) {
             @Override
             public void onPrepare() {
                 setAllButtonEnable(false);
@@ -284,7 +282,7 @@ public class ManagerFragment extends Fragment {
     }
 
     private void setStopButton() {
-        unmountChrootButton.setOnClickListener(view -> new ActiveShellExecuter(context) {
+        unmountChrootButton.setOnClickListener(view -> new ShellUtils.ActiveShellExecuter(sharedPreferences.getBoolean("print_timestamp", false)) {
             @Override
             public void onPrepare() {
                 setAllButtonEnable(false);
@@ -349,7 +347,7 @@ public class ManagerFragment extends Fragment {
                             String filename = chroot_url.substring(chroot_url.lastIndexOf('/') + 1);
                             File chroot = new File(PathsUtil.APP_PATH + "/" + filename);
 
-                            new DownloadChroot(context) {
+                            new DownloadChroot(sharedPreferences.getBoolean("print_timestamp", false)) {
 
                                 @Override
                                 public void onPrepare() {
@@ -376,7 +374,7 @@ public class ManagerFragment extends Fragment {
                                 public void onFinished(int resultCode) {
                                     setAllButtonEnable(true);
                                     if (resultCode == 0) {
-                                        new ActiveShellExecuter(context) {
+                                        new ShellUtils.ActiveShellExecuter(sharedPreferences.getBoolean("print_timestamp", false)) {
 
                                             @Override
                                             public void onPrepare() {
@@ -509,7 +507,7 @@ public class ManagerFragment extends Fragment {
                             String filename = chroot_url.substring(chroot_url.lastIndexOf('/') + 1);
                             File chroot = new File(PathsUtil.APP_PATH + "/" + filename);
 
-                            new DownloadChroot(context) {
+                            new DownloadChroot(sharedPreferences.getBoolean("print_timestamp", false)) {
 
                                 @Override
                                 public void onPrepare() {
@@ -537,7 +535,7 @@ public class ManagerFragment extends Fragment {
                                 public void onFinished(int resultCode) {
                                     setAllButtonEnable(true);
                                     if (resultCode == 0) {
-                                        new ActiveShellExecuter(context) {
+                                        new ShellUtils.ActiveShellExecuter(sharedPreferences.getBoolean("print_timestamp", false)) {
 
                                             @Override
                                             public void onPrepare() {
@@ -596,7 +594,7 @@ public class ManagerFragment extends Fragment {
                                     .putString("chroot_restore_path", et.getText().toString())
                                     .apply();
 
-                            new ActiveShellExecuter(context) {
+                            new ShellUtils.ActiveShellExecuter(sharedPreferences.getBoolean("print_timestamp", false)) {
 
                                 @Override
                                 public void onPrepare() {
@@ -663,7 +661,7 @@ public class ManagerFragment extends Fragment {
                             + "\n• installed packages"
                             + "\n• environment settings"
                             + "\n• other data");
-            adb.setPositiveButton("I'm sure.", (dialogInterface, i) -> new ActiveShellExecuter(context) {
+            adb.setPositiveButton("I'm sure.", (dialogInterface, i) -> new ShellUtils.ActiveShellExecuter(sharedPreferences.getBoolean("print_timestamp", false)) {
                 @Override
                 public void onPrepare() {
                     disableToolbarMenu(true);
@@ -706,40 +704,38 @@ public class ManagerFragment extends Fragment {
             path.setText(
                     sharedPreferences.getString("chroot_backup_path", ""));
             adb.setView(v);
-            adb.setPositiveButton("Do", (dialogInterface, i) -> {
-                new ActiveShellExecuter(context) {
-                    @Override
-                    public void onPrepare() {
-                        sharedPreferences.edit().putString("chroot_backup_path", path.getText().toString()).apply();
-                        disableToolbarMenu(true);
-                        setAllButtonEnable(false);
-                        progressbar.show();
-                        progressbar.setIndeterminate(true);
-                    }
+            adb.setPositiveButton("Do", (dialogInterface, i) -> new ShellUtils.ActiveShellExecuter(sharedPreferences.getBoolean("print_timestamp", false)) {
+                @Override
+                public void onPrepare() {
+                    sharedPreferences.edit().putString("chroot_backup_path", path.getText().toString()).apply();
+                    disableToolbarMenu(true);
+                    setAllButtonEnable(false);
+                    progressbar.show();
+                    progressbar.setIndeterminate(true);
+                }
 
-                    @Override
-                    public void onNewLine(String line) {
-                        MainActivity.addBadgeNumberForItem(R.id.manager);
-                    }
+                @Override
+                public void onNewLine(String line) {
+                    MainActivity.addBadgeNumberForItem(R.id.manager);
+                }
 
-                    @Override
-                    public void onFinished(int code) {
-                        disableToolbarMenu(false);
-                        setAllButtonEnable(true);
-                        progressbar.hide();
-                        progressbar.setIndeterminate(true);
-                    }
-                }.exec(
-                        PathsUtil.APP_SCRIPTS_PATH
-                                + "/chrootmgr -c \"backup "
-                                + PathsUtil.CHROOT_PATH() + " " + path.getText().toString() + "\"", resultViewerLoggerTextView);
-            });
+                @Override
+                public void onFinished(int code) {
+                    disableToolbarMenu(false);
+                    setAllButtonEnable(true);
+                    progressbar.hide();
+                    progressbar.setIndeterminate(true);
+                }
+            }.exec(
+                    PathsUtil.APP_SCRIPTS_PATH
+                            + "/chrootmgr -c \"backup "
+                            + PathsUtil.CHROOT_PATH() + " " + path.getText().toString() + "\"", resultViewerLoggerTextView));
             adb.show();
         });
     }
 
     private void showBanner() {
-        new ActiveShellExecuter(context) {
+        new ShellUtils.ActiveShellExecuter(sharedPreferences.getBoolean("print_timestamp", false)) {
             @Override
             public void onPrepare() {
             }
@@ -755,7 +751,7 @@ public class ManagerFragment extends Fragment {
     }
 
     private void compatCheck() {
-        new ActiveShellExecuter(context) {
+        new ShellUtils.ActiveShellExecuter(sharedPreferences.getBoolean("print_timestamp", false)) {
             @Override
             public void onPrepare() {
                 disableToolbarMenu(true);
@@ -772,7 +768,7 @@ public class ManagerFragment extends Fragment {
                 setButtonVisibility(code);
                 setMountStatsTextView(code);
                 setAllButtonEnable(true);
-                context.startService(new Intent(context, CompatCheckService.class).putExtra("RESULTCODE", code));
+                context.startService(new Intent(context, CompatCheckService.class).putExtra("ResultCode", code));
             }
         }.exec(
                 PathsUtil.APP_SCRIPTS_PATH

@@ -43,7 +43,7 @@ import java.util.regex.Pattern;
 
 import material.hunter.utils.Checkers;
 import material.hunter.utils.PathsUtil;
-import material.hunter.utils.ShellExecuter;
+import material.hunter.utils.ShellUtils;
 import melville37.contract.JSON;
 import melville37.contract.Web;
 
@@ -51,7 +51,7 @@ public class HomeFragment extends Fragment {
 
     private Activity activity;
     private Context context;
-    private final ShellExecuter exe = new ShellExecuter();
+    private final ShellUtils exe = new ShellUtils();
     private ExecutorService executor;
     private SharedPreferences prefs;
     private int rotationAngle = 0;
@@ -80,7 +80,7 @@ public class HomeFragment extends Fragment {
         context = getContext();
         activity = getActivity();
         executor = Executors.newSingleThreadExecutor();
-        prefs = activity.getSharedPreferences("material.hunter", Context.MODE_PRIVATE);
+        prefs = activity.getSharedPreferences(BuildConfig.APPLICATION_ID, Context.MODE_PRIVATE);
     }
 
     @Override
@@ -160,18 +160,16 @@ public class HomeFragment extends Fragment {
                 // nothing to do
             } else {
                 if (!prefs.getBoolean("hide_magisk_notification", false)) {
-                    new Handler(Looper.getMainLooper()).post(() -> {
-                        magisk.setVisibility(View.VISIBLE);
-                    });
+                    new Handler(Looper.getMainLooper()).post(() -> magisk.setVisibility(View.VISIBLE));
                 }
             }
         });
         magisk.setOnClickListener(v -> {
             if (exe.RunAsRootReturnValue("[ -f " + PathsUtil.MAGISK_DB_PATH + " ]") == 0) {
-                if (exe.RunAsRootOutput(PathsUtil.APP_SCRIPTS_BIN_PATH + "/sqlite3 " + PathsUtil.MAGISK_DB_PATH + " \"SELECT * from policies\" | grep material.hunter").startsWith("material.hunter")) {
-                    exe.RunAsRootOutput(PathsUtil.APP_SCRIPTS_BIN_PATH + "/sqlite3 " + PathsUtil.MAGISK_DB_PATH + " \"UPDATE policies SET logging='0',notification='0' WHERE package_name='material.hunter';\"");
+                if (exe.RunAsRootOutput(PathsUtil.APP_SCRIPTS_BIN_PATH + "/sqlite3 " + PathsUtil.MAGISK_DB_PATH + " \"SELECT * from policies\" | grep " + BuildConfig.APPLICATION_ID).startsWith(BuildConfig.APPLICATION_ID)) {
+                    exe.RunAsRootOutput(PathsUtil.APP_SCRIPTS_BIN_PATH + "/sqlite3 " + PathsUtil.MAGISK_DB_PATH + " \"UPDATE policies SET logging='0',notification='0' WHERE package_name='" + BuildConfig.APPLICATION_ID + "';\"");
                 } else {
-                    exe.RunAsRootOutput(PathsUtil.APP_SCRIPTS_BIN_PATH + "/sqlite3 " + PathsUtil.MAGISK_DB_PATH + " \"UPDATE policies SET logging='0',notification='0' WHERE uid='$(stat -c %u /data/data/material.hunter)';\"");
+                    exe.RunAsRootOutput(PathsUtil.APP_SCRIPTS_BIN_PATH + "/sqlite3 " + PathsUtil.MAGISK_DB_PATH + " \"UPDATE policies SET logging='0',notification='0' WHERE uid='$(stat -c %u /data/data/" + BuildConfig.APPLICATION_ID + ")';\"");
                 }
             }
             magisk.setVisibility(View.GONE);
@@ -289,7 +287,7 @@ public class HomeFragment extends Fragment {
         return result;
     }
 
-    public String matchString(String regex, String string, int group) {
+    private String matchString(String regex, String string, int group) {
         final Pattern pattern = Pattern.compile(regex, Pattern.MULTILINE);
         final Matcher matcher = pattern.matcher(string);
         while (matcher.find())
@@ -297,7 +295,7 @@ public class HomeFragment extends Fragment {
         return "";
     }
 
-    public String matchString(String regex, String string, String defaultValue, int group) {
+    private String matchString(String regex, String string, String defaultValue, int group) {
         final Pattern pattern = Pattern.compile(regex, Pattern.MULTILINE);
         final Matcher matcher = pattern.matcher(string);
         while (matcher.find())

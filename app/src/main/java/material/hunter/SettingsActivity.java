@@ -34,7 +34,7 @@ public class SettingsActivity extends ThemedActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        prefs = getSharedPreferences("material.hunter", Context.MODE_PRIVATE);
+        prefs = getSharedPreferences(BuildConfig.APPLICATION_ID, Context.MODE_PRIVATE);
 
         activity = this;
 
@@ -86,8 +86,8 @@ public class SettingsActivity extends ThemedActivity {
         });
 
         SwitchMaterial show_timestamp = findViewById(R.id.settings_show_timestamp);
-        show_timestamp.setChecked(prefs.getBoolean("show_timestamp", false));
-        show_timestamp.setOnCheckedChangeListener((v, b) -> prefs.edit().putBoolean("show_timestamp", b).apply());
+        show_timestamp.setChecked(prefs.getBoolean("print_timestamp", false));
+        show_timestamp.setOnCheckedChangeListener((v, b) -> prefs.edit().putBoolean("print_timestamp", b).apply());
 
         SwitchMaterial hide_magisk_notification =
                 findViewById(R.id.settings_hide_magisk_notification);

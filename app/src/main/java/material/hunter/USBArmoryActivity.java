@@ -41,12 +41,12 @@ import java.util.concurrent.Executors;
 import material.hunter.SQL.USBArmorySQL;
 import material.hunter.models.USBArmoryUSBSwitchModel;
 import material.hunter.utils.PathsUtil;
-import material.hunter.utils.ShellExecuter;
+import material.hunter.utils.ShellUtils;
 
 public class USBArmoryActivity extends ThemedActivity {
 
     private static boolean is_init_exists = false;
-    private final ShellExecuter exe = new ShellExecuter();
+    private final ShellUtils exe = new ShellUtils();
     private final EditText[] usbSwitchInfoEditTextGroup = new TextInputEditText[5];
     MaterialToolbar toolbar;
     private Activity activity;

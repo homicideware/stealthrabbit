@@ -1,7 +1,5 @@
 package material.hunter.utils;
 
-import android.content.Context;
-import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Handler;
@@ -28,22 +26,20 @@ import material.hunter.BuildConfig;
 
 public abstract class DownloadChroot {
 
-    private final Context context;
     private final ExecutorService executor;
-    private final SimpleDateFormat timeStamp = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
+    private final SimpleDateFormat timestamp = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
     private TextView logger;
-    private SharedPreferences prefs;
+    private boolean printTimestamp = false;
     private int mResultCode = 0;
 
-    public DownloadChroot(Context context) {
-        this.context = context;
+    public DownloadChroot(boolean printTimestamp) {
         this.executor = Executors.newSingleThreadExecutor();
+        this.printTimestamp = printTimestamp;
     }
 
-    private void start(String link, File out) {
+    public void exec(String link, File out, TextView logger) {
+        this.logger = logger;
         onPrepare();
-        prefs = context.getSharedPreferences(
-                "material.hunter", Context.MODE_PRIVATE);
         executor.execute(() -> {
             try {
                 postLine("[!] The download has been started. Please wait...");
@@ -55,7 +51,7 @@ public abstract class DownloadChroot {
                         "User-Agent",
                         "Mozilla/5.0 (Linux; Android " + Build.VERSION.RELEASE + "; " + Build.DEVICE + ")" +
                                 " AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.131 Mobile Safari/537.36"
-                                + " MaterialHunter/" + BuildConfig.VERSION_CODE);
+                                + " MaterialHunter/" + BuildConfig.VERSION_NAME);
                 int lengthOfFile = connection.getContentLength();
                 connection.setConnectTimeout(10000);
                 connection.setReadTimeout(10000);
@@ -87,8 +83,8 @@ public abstract class DownloadChroot {
     private void postLine(String line) {
         new Handler(Looper.getMainLooper()).post(() -> {
             Spannable timestamp =
-                    prefs.getBoolean("show_timestamp", false)
-                            ? new SpannableString(timeStamp.format(new Date()) + " > ")
+                    printTimestamp
+                            ? new SpannableString(this.timestamp.format(new Date()) + " > ")
                             : new SpannableString("");
             Spannable tempText = new SpannableString(line + "\n");
             if (line.startsWith("[!]"))
@@ -104,11 +100,6 @@ public abstract class DownloadChroot {
             logger.append(tempText);
             onNewLine(line);
         });
-    }
-
-    public void exec(String link, File out, TextView logger) {
-        this.logger = logger;
-        start(link, out);
     }
 
     public abstract void onPrepare();

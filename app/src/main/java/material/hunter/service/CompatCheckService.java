@@ -9,12 +9,11 @@ import androidx.annotation.Nullable;
 
 import material.hunter.MainActivity;
 import material.hunter.utils.PathsUtil;
-import material.hunter.utils.ShellExecuter;
+import material.hunter.utils.ShellUtils;
 
 public class CompatCheckService extends IntentService {
 
-    private int RESULTCODE = -1;
-    private SharedPreferences prefs;
+    private int ResultCode = -1;
 
     public CompatCheckService() {
         super("CompatCheckService");
@@ -28,39 +27,14 @@ public class CompatCheckService extends IntentService {
 
     @Override
     protected void onHandleIntent(@Nullable Intent intent) {
-        // if no resultCode passed by ChrootManagerFragment, then set RESULTCODE to -1;
+        // if no resultCode passed by ChrootManagerFragment, then set ResultCode to -1;
         if (intent != null) {
-            RESULTCODE = intent.getIntExtra("RESULTCODE", -1);
+            ResultCode = intent.getIntExtra("ResultCode", -1);
         }
-        checkCompat();
-    }
 
-    @Override
-    public void onCreate() {
-        super.onCreate();
-        prefs = getApplicationContext().getSharedPreferences("material.hunter", MODE_PRIVATE);
-    }
+        final int status = new ShellUtils().RunAsRootReturnValue(PathsUtil.APP_SCRIPTS_PATH + "/chrootmgr -c \"status\" -p " + PathsUtil.CHROOT_PATH());
 
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-    }
-
-    @Override
-    public void onTaskRemoved(Intent rootIntent) {
-        super.onTaskRemoved(rootIntent);
-    }
-
-    private void checkCompat() {
-        /*
-            Uses for checking chroot status and
-            reporting results to app
-        */
-
-        final int status = new ShellExecuter().RunAsRootReturnValue(PathsUtil.APP_SCRIPTS_PATH + "/chrootmgr -c \"status\" -p " + PathsUtil.CHROOT_PATH());
-
-        // Remind mount
-        if (RESULTCODE == -1) {
+        if (ResultCode == -1) {
             if (status != 0) {
                 if (status == 3) {
                     // Chroot corrupted
@@ -71,6 +45,21 @@ public class CompatCheckService extends IntentService {
             } else {
                 MainActivity.setChrootInstalled(true);
             }
-        } else MainActivity.setChrootInstalled(RESULTCODE == 0);
+        } else MainActivity.setChrootInstalled(ResultCode == 0);
+    }
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+    }
+
+    @Override
+    public void onTaskRemoved(Intent rootIntent) {
+        super.onTaskRemoved(rootIntent);
     }
 }

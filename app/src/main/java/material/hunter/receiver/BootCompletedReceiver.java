@@ -13,10 +13,8 @@ public class BootCompletedReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         if (intent.getAction() != null) {
             if (Intent.ACTION_BOOT_COMPLETED.equals(intent.getAction())) {
-                ComponentName component =
-                        new ComponentName(
-                                context.getPackageName(), RunAtBootService.class.getName());
-                RunAtBootService.enqueueWork(context, (intent.setComponent(component)));
+                Intent service = new Intent(context, RunAtBootService.class);
+                context.startService(service);
             }
         }
     }
