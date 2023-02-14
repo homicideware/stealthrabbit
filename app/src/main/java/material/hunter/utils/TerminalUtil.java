@@ -28,11 +28,11 @@ public class TerminalUtil {
     public static final String TERMINAL_TYPE_NETHUNTER = "NetHunter Terminal";
     public static final String TERMUX_CHECK_EXTERNAL_APPS_IS_TRUE_CMD =
             "grep \"allow-external-apps\" /data/data/com.termux/files/home/.termux/termux.properties |"
-                    + " sed -n \"s/^allow-external-apps=\\(.*\\)/\\1/p\"";
+                    + " sed -n \"s/^allow-external-apps=  \\(.*\\)/\\1/p\"";
     public static final String TERMUX_SET_EXTERNAL_APPS_TRUE_CMD =
-            "if [[ ! $(grep \"allow-external-apps=\" /data/data/com.termux/files/home/.termux/termux.properties) ]]; then" +
+            "if [[ ! $(grep \"allow-external-apps = \" /data/data/com.termux/files/home/.termux/termux.properties) ]]; then" +
                     " echo \"allow-external-apps=true\" >> /data/data/com.termux/files/home/.termux/termux.properties; else sed -i -r" +
-                    " s/\"^#?allow-external-apps=.*\"/\"allow-external-apps=true\"/g" +
+                    " s/\"^# ?allow-external-apps = .*\"/\"allow-external-apps = true\"/g" +
                     " /data/data/com.termux/files/home/.termux/termux.properties; fi";
     private static final ShellUtils exe = new ShellUtils();
     private static ExecutorService executor;
