@@ -4,11 +4,11 @@
 </p>
 
 <p align="center">
-  <a href="https://t.me/kali_nh"><img src="https://img.shields.io/badge/Telegram-Group-blue.svg"></a>
+  <a href="https://materialhunterapp.t.me/"><img src="https://img.shields.io/badge/Telegram-Channel-blue.svg"></a>
   <img src="https://img.shields.io/github/repo-size/mirivan/material_hunter">
 </p>
 
-Chroot Manager app with [Material You Design](https://m3.material.io/)
+Remastered Kali NetHunter app with [Material You Design](https://m3.material.io/)
 
 # Supporting
 - Android 7-13 (13 partially now)
