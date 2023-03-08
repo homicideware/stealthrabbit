@@ -4,14 +4,17 @@
 </p>
 
 <p align="center">
-  <a href="https://t.me/kali_nh"><img src="https://img.shields.io/badge/Telegram-Group-blue.svg"></a>
-  <img src="https://img.shields.io/github/repo-size/mirivan/material_hunter">
+  <a href="https://materialhunterapp.t.me/"><img src="https://img.shields.io/badge/Channel-%2326A5E4?style=for-the-badge&logo=telegram"></a>
+  <img src="https://img.shields.io/github/repo-size/mirivan/material_hunter?style=for-the-badge">
+</p>
+<p align="center">
+  <img alt="GitHub release (latest by date and asset)" src="https://img.shields.io/github/downloads/mirivan/dev-root-project/latest/app-release.apk?style=for-the-badge">
 </p>
 
-Chroot Manager app with [Material You Design](https://m3.material.io/)
+Remastered Kali NetHunter app with [Material You Design](https://m3.material.io/)
 
 # Supporting
-- Android 7-13 (13 partially now)
+- Android 7-12 (Also 13 partially)
 
 # Requires
 - Termux/NetHunter Terminal
