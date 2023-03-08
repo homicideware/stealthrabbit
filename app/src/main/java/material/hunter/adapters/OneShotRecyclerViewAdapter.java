@@ -58,8 +58,10 @@ public class OneShotRecyclerViewAdapter
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         OneShotItem oneShotItem = oneShotItems.get(position);
-        holder.name.setText(oneShotItem.getESSID() + " (" + oneShotItem.getBSSID() + ")");
-        holder.name.setSelected(true);
+        holder.ssid.setText(oneShotItem.getESSID());
+        holder.ssid.setSelected(true);
+        holder.bssid.setText(oneShotItem.getBSSID());
+        holder.bssid.setSelected(true);
         holder.additionalInfo.setText(
                 oneShotItem.getSecurity()
                         + ", "
@@ -316,13 +318,15 @@ public class OneShotRecyclerViewAdapter
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
 
-        public TextView name;
+        public TextView ssid;
+        public TextView bssid;
         public TextView additionalInfo;
         public ImageView openAttackDialog;
 
         public ViewHolder(View v) {
             super(v);
-            name = v.findViewById(R.id.name);
+            ssid = v.findViewById(R.id.ssid);
+            bssid = v.findViewById(R.id.bssid);
             additionalInfo = v.findViewById(R.id.additional_info);
             openAttackDialog = v.findViewById(R.id.open_attack_dialog);
         }

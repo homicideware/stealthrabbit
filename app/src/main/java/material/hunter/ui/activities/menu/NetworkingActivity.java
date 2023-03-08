@@ -175,7 +175,7 @@ public class NetworkingActivity extends ThemedActivity {
                         terminalUtil.runCommand(
                                 PathsUtil.APP_SCRIPTS_PATH +
                                         "/bootroot_exec 'apt update && apt install build-essential gcc git libglib2.0-dev libsystemd-dev libbluetooth-dev make -y " +
-                                        "&& cd ~ && mkdir -p bluebinder && cd bluebinder " +
+                                        "&& cd ~ && rm -rf bluebinder && mkdir -p bluebinder && cd bluebinder " +
                                         "&& git clone https://github.com/TMayfine/libglibutil --depth 1 " +
                                         "&& git clone https://github.com/TMayfine/libgbinder --depth 1 " +
                                         "&& git clone https://github.com/TMayfine/bluebinder --depth 1 " +

@@ -14,11 +14,13 @@ public class App extends Application {
     public void onCreate() {
         super.onCreate();
         SharedPreferences prefs = getSharedPreferences(BuildConfig.APPLICATION_ID, Context.MODE_PRIVATE);
-        int theme = prefs.getInt("theme", 0);
+        int theme = prefs.getInt("theme", 2);
         AppCompatDelegate.setDefaultNightMode(
-                theme == 2
-                        ? theme - 3
-                        : theme
+                theme == 0
+                        ? AppCompatDelegate.MODE_NIGHT_YES
+                        : theme == 1
+                                ? AppCompatDelegate.MODE_NIGHT_NO
+                                : AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
         );
         boolean useDynamicColors = prefs.getBoolean("enable_monet", true);
         if (useDynamicColors) {

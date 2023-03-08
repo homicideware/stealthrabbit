@@ -110,7 +110,7 @@ public class SettingsActivity extends ThemedActivity {
 
         theme = findViewById(R.id.settings_theme);
         String[] themes = getResources().getStringArray(R.array.themes);
-        theme.setText("Theme: " + themes[prefs.getInt("theme", 0)]);
+        theme.setText("Theme: " + themes[prefs.getInt("theme", 2)]);
 
         Button change_theme = findViewById(R.id.settings_change_theme);
         change_theme.setOnClickListener(v -> new MaterialAlertDialogBuilder(this)

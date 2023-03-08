@@ -220,7 +220,10 @@ public class OneShotActivity extends ThemedActivity {
     private void scan() {
         String mInterface = prefs.getString("macchanger_interface", "");
         if (mInterface.isEmpty()) {
-            onDestroy();
+            try {
+                timer.cancel();
+            } catch (IllegalStateException ignored) {
+            }
             new MaterialAlertDialogBuilder(this)
                     .setTitle("OneShot")
                     .setMessage("No interface selected, open Networking and select network interface, then you can return here.")
