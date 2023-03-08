@@ -6,8 +6,10 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
@@ -26,12 +28,15 @@ import com.google.android.material.textfield.TextInputLayout;
 
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
 import java.util.concurrent.ExecutorService;
@@ -144,16 +149,18 @@ public class NmapActivity extends ThemedActivity {
         });
 
         saveReport.setOnClickListener(v -> {
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd-HH-mm", Locale.getDefault());
             sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
             String utcDate = sdf.format(new Date());
-            File report = new File(PathsUtil.APP_SD_PATH + "/Nmap/report_" + utcDate);
+            File report = new File(PathsUtil.APP_SD_PATH + "/Nmap/report_" + utcDate + ".log");
             try {
                 BufferedWriter writer = new BufferedWriter(new FileWriter(report));
                 writer.write(getNmapReport());
                 writer.close();
-            } catch (IOException e) {
-                PathsUtil.showSnack(_view, "Error writing: " + report, true);
+                PathsUtil.showSnack(_view, "Report saved to Nmap folder in internal storage.", true);
+            }
+            catch (IOException e) {
+                PathsUtil.showSnack(_view, "Error writing report: " + e.getMessage(), true);
             }
         });
     }
@@ -272,7 +279,8 @@ public class NmapActivity extends ThemedActivity {
 
     private String getNmapReport() {
         String report = nmapReport.getText().toString();
-        return report.substring(0, report.length() - 24);
+        report = report.substring(report.indexOf("\n") + 1);
+        return report.substring(0, report.length() - 25);
     }
 
     private void loadArguments() {

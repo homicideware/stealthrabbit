@@ -89,13 +89,13 @@ public abstract class DownloadChroot {
             Spannable tempText = new SpannableString(line + "\n");
             if (line.startsWith("[!]"))
                 tempText.setSpan(
-                        new ForegroundColorSpan(Color.parseColor("#08FBFF")), 0, tempText.length(), 0);
+                        new ForegroundColorSpan(Color.parseColor("#08FBFF")), 0, 3/*tempText.length()*/, 0);
             else if (line.startsWith("[+]"))
                 tempText.setSpan(
-                        new ForegroundColorSpan(Color.parseColor("#00DC00")), 0, tempText.length(), 0);
+                        new ForegroundColorSpan(Color.parseColor("#00DC00")), 0, 3/*tempText.length()*/, 0);
             else if (line.startsWith("[-]"))
                 tempText.setSpan(
-                        new ForegroundColorSpan(Color.parseColor("#D81B60")), 0, tempText.length(), 0);
+                        new ForegroundColorSpan(Color.parseColor("#D81B60")), 0, 3/*tempText.length()*/, 0);
             logger.append(timestamp);
             logger.append(tempText);
             onNewLine(line);

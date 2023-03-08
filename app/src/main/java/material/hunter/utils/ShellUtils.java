@@ -278,13 +278,13 @@ public class ShellUtils {
                             tempText.setSpan(
                                     new ForegroundColorSpan(Color.parseColor("#08FBFF")),
                                     0,
-                                    tempText.length(),
+                                    3, //tempText.length(),
                                     0);
                         else if (line.startsWith("[+]"))
                             tempText.setSpan(
                                     new ForegroundColorSpan(Color.parseColor("#00DC00")),
                                     0,
-                                    tempText.length(),
+                                    3, //tempText.length(),
                                     0);
                         else if (line.startsWith("[-]")
                                 || line.contains("do not")
@@ -292,7 +292,7 @@ public class ShellUtils {
                             tempText.setSpan(
                                     new ForegroundColorSpan(Color.parseColor("#D81B60")),
                                     0,
-                                    tempText.length(),
+                                    3, //tempText.length(),
                                     0);
                         new Handler(Looper.getMainLooper()).post(() -> {
                             onNewLine(newLine + "\n");
