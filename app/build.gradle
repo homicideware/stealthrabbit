@@ -2,8 +2,8 @@ plugins {
     id 'com.android.application'
 }
 
-def globalVersionCode = 43
-def globalVersionName = "4.3"
+def globalVersionCode = 50
+def globalVersionName = "5.0"
 
 android {
     compileSdk 33
@@ -32,6 +32,9 @@ android {
             buildConfigField("String", "AUTHOR", "\"${System.env.USERNAME}\"")
         }
     }
+    buildFeatures {
+        viewBinding true
+    }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_11
         targetCompatibility JavaVersion.VERSION_11
@@ -48,6 +51,6 @@ dependencies {
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
     implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
     implementation 'com.google.guava:guava:31.1-jre'
-    implementation 'com.airbnb.android:lottie:5.2.0'
-    implementation 'com.google.android.material:material:1.7.0'
+    implementation 'com.airbnb.android:lottie:6.0.0'
+    implementation 'com.google.android.material:material:1.9.0-alpha02'
 }

@@ -22,6 +22,11 @@ if [ ! -x "$MNT/$CHROOT_EXEC" ]; then
     exit 2
 fi
 
+if [ -z "$@" ]; then
+    echo "[-] Usage: $0 [command]"
+    exit 2
+fi
+
 # Unset Android/Termux variables for stability
 unset ANDROID_ART_ROOT
 unset ANDROID_DATA
@@ -30,5 +35,4 @@ unset LD_PRELOAD
 unset PREFIX
 unset TMPDIR
 
-# TODO: исправить вызов
 $BUSYBOX chroot $MNT $CHROOT_EXEC -E PATH=$PATH su -c "$@"

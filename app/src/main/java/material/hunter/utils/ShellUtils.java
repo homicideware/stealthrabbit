@@ -29,24 +29,7 @@ public class ShellUtils {
 
     }
 
-    public void RunAsRoot(String command) {
-        try {
-            Process process = Runtime.getRuntime().exec("su -mm");
-            DataOutputStream os = new DataOutputStream(process.getOutputStream());
-            os.writeBytes(command + '\n');
-            os.writeBytes("exit\n");
-            os.flush();
-            try {
-                process.waitFor();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void RunAsRoot(String[] command) {
+    public void executeCommandAsRoot(String... command) {
         try {
             Process process = Runtime.getRuntime().exec("su -mm");
             DataOutputStream os = new DataOutputStream(process.getOutputStream());
@@ -65,7 +48,41 @@ public class ShellUtils {
         }
     }
 
-    public String RunAsRootOutput(String command) {
+    public String executeCommandWithOutput(String command) {
+        StringBuilder output = new StringBuilder();
+        String line;
+        try {
+            Process process = Runtime.getRuntime().exec("sh");
+            OutputStream stdin = process.getOutputStream();
+            InputStream stderr = process.getErrorStream();
+            InputStream stdout = process.getInputStream();
+            stdin.write((command + '\n').getBytes());
+            stdin.write(("exit\n").getBytes());
+            stdin.flush();
+            stdin.close();
+
+            BufferedReader br = new BufferedReader(new InputStreamReader(stdout));
+            while ((line = br.readLine()) != null) {
+                output.append(line).append('\n');
+            }
+            if (output.length() > 0)
+                output = new StringBuilder(output.substring(0, output.length() - 1));
+            br.close();
+            br = new BufferedReader(new InputStreamReader(stderr));
+            while ((line = br.readLine()) != null) {
+            }
+            br.close();
+            process.waitFor();
+            process.destroy();
+        } catch (IOException e) {
+            Log.d(TAG, "An IOException was caught: " + e.getMessage());
+        } catch (InterruptedException ex) {
+            Log.d(TAG, "An InterruptedException was caught: " + ex.getMessage());
+        }
+        return output.toString();
+    }
+
+    public String executeCommandAsRootWithOutput(String command) {
         StringBuilder output = new StringBuilder();
         String line;
         try {
@@ -99,7 +116,7 @@ public class ShellUtils {
         return output.toString();
     }
 
-    public int RunAsRootReturnValue(String command) {
+    public int executeCommandAsRootWithReturnCode(String command) {
         int resultCode = 0;
         try {
             Process process = Runtime.getRuntime().exec("su -mm");
@@ -119,7 +136,36 @@ public class ShellUtils {
         return resultCode;
     }
 
-    public String RunAsChrootOutput(String command) {
+    public void executeCommandAsChroot(String... command) {
+        try {
+            Process process = Runtime.getRuntime().exec("su -mm");
+            DataOutputStream os = new DataOutputStream(process.getOutputStream());
+            os.writeBytes(
+                    PathsUtil.BUSYBOX
+                            + " chroot "
+                            + PathsUtil.CHROOT_PATH()
+                            + " "
+                            + PathsUtil.CHROOT_SUDO
+                            + " -E PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:$PATH"
+                            + " su"
+                            + '\n');
+            for (String tempCommand : command) {
+                os.writeBytes(tempCommand + '\n');
+            }
+            os.writeBytes("exit\n");
+            os.writeBytes("exit\n");
+            os.flush();
+            try {
+                process.waitFor();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public String executeCommandAsChrootWithOutput(String command) {
         StringBuilder output = new StringBuilder();
         String line;
         try {
@@ -138,6 +184,7 @@ public class ShellUtils {
                             + '\n')
                             .getBytes());
             stdin.write((command + '\n').getBytes());
+            stdin.write(("exit\n").getBytes());
             stdin.write(("exit\n").getBytes());
             stdin.flush();
             stdin.close();
@@ -163,7 +210,7 @@ public class ShellUtils {
         return output.toString();
     }
 
-    public int RunAsChrootReturnValue(String command) {
+    public int executeCommandAsChrootWithReturnCode(String command) {
         int resultCode = 0;
         try {
             Process process = Runtime.getRuntime().exec("su -mm");
@@ -180,6 +227,7 @@ public class ShellUtils {
                             .getBytes());
             stdin.write((command + '\n').getBytes());
             stdin.write(("exit\n").getBytes());
+            stdin.write(("exit\n").getBytes());
             stdin.flush();
             stdin.close();
             process.waitFor();
@@ -193,14 +241,14 @@ public class ShellUtils {
         return resultCode;
     }
 
-    public abstract static class ActiveShellExecuter {
+    public abstract static class ActiveShellExecutor {
 
         private final ExecutorService executor;
         private final SimpleDateFormat timestamp = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
-        private boolean printTimestamp = false;
+        private final boolean printTimestamp;
         private int endCode = 0;
 
-        public ActiveShellExecuter(boolean printTimestamp) {
+        public ActiveShellExecutor(boolean printTimestamp) {
             this.executor = Executors.newSingleThreadExecutor();
             this.printTimestamp = printTimestamp;
         }
@@ -271,17 +319,18 @@ public class ShellUtils {
         public abstract void onFinished(int code);
     }
 
-    public abstract static class YetAnotherActiveShellExecuter {
+    public abstract static class YetAnotherActiveShellExecutor {
 
         private final ExecutorService executor;
         private int endCode = 0;
         private boolean chroot = false;
+        private Process process;
 
-        public YetAnotherActiveShellExecuter() {
+        public YetAnotherActiveShellExecutor() {
             this.executor = Executors.newSingleThreadExecutor();
         }
 
-        public YetAnotherActiveShellExecuter(boolean chroot) {
+        public YetAnotherActiveShellExecutor(boolean chroot) {
             this.executor = Executors.newSingleThreadExecutor();
             this.chroot = chroot;
         }
@@ -289,10 +338,10 @@ public class ShellUtils {
         public void exec(String command) {
             onPrepare();
             executor.execute(() -> {
-                String line;
                 try {
-                    Process process = Runtime.getRuntime().exec("su -mm");
+                    process = Runtime.getRuntime().exec("su -mm");
                     OutputStream stdin = process.getOutputStream();
+                    InputStream stderr = process.getErrorStream();
                     InputStream stdout = process.getInputStream();
                     if (chroot) {
                         stdin.write((PathsUtil.BUSYBOX + " chroot " + PathsUtil.CHROOT_PATH() + " " + PathsUtil.CHROOT_SUDO + " -E PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:$PATH su\n").getBytes());
@@ -305,12 +354,30 @@ public class ShellUtils {
                     }
                     stdin.flush();
                     stdin.close();
-                    BufferedReader br = new BufferedReader(new InputStreamReader(stdout));
-                    while ((line = br.readLine()) != null) {
-                        final String newLine = line;
-                        new Handler(Looper.getMainLooper()).post(() -> onNewLine(newLine));
-                    }
-                    br.close();
+                    new Thread(() -> {
+                        String line;
+                        BufferedReader br = new BufferedReader(new InputStreamReader(stdout));
+                        try {
+                            while ((line = br.readLine()) != null) {
+                                final String finalLine = line;
+                                new Handler(Looper.getMainLooper()).post(() -> onNewLine(finalLine));
+                            }
+                            br.close();
+                        } catch (IOException ignored) {
+                        }
+                    }).start();
+                    new Thread(() -> {
+                        String line;
+                        BufferedReader br = new BufferedReader(new InputStreamReader(stderr));
+                        try {
+                            while ((line = br.readLine()) != null) {
+                                final String finalLine = line;
+                                new Handler(Looper.getMainLooper()).post(() -> onNewErrorLine(finalLine));
+                            }
+                            br.close();
+                        } catch (IOException ignored) {
+                        }
+                    }).start();
                     process.waitFor();
                     process.destroy();
                     endCode = process.exitValue();
@@ -320,9 +387,15 @@ public class ShellUtils {
             });
         }
 
+        public Process getProcess() {
+            return process;
+        }
+
         public abstract void onPrepare();
 
         public abstract void onNewLine(String line);
+
+        public abstract void onNewErrorLine(String line);
 
         public abstract void onFinished(int code);
     }

@@ -13,23 +13,22 @@
 
     <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_marginStart="12dp"
-        android:layout_marginEnd="12dp"
-        android:layout_weight="1"
-        android:paddingBottom="12dp"
+        android:layout_height="wrap_content"
         android:scrollbars="none">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:paddingLeft="24dp"
+            android:paddingTop="12dp"
+            android:paddingRight="24dp"
+            android:paddingBottom="12dp">
 
             <TextView
                 android:id="@+id/warn_text"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
                 android:gravity="center"
                 android:padding="5dp"
                 android:text="MAC addresses are unique identifiers on networks, they only need to be unique, they can be changed on most network hardware."
@@ -37,7 +36,7 @@
                 android:textStyle="bold" />
 
             <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/iface_layout"
+                android:id="@+id/interfaces_layout"
                 style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -45,7 +44,7 @@
                 app:startIconDrawable="@drawable/ic_renew">
 
                 <AutoCompleteTextView
-                    android:id="@+id/iface"
+                    android:id="@+id/interfaces"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="Interface:"
@@ -89,12 +88,21 @@
                     android:id="@+id/permanent"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Permanent MAC address:"
                     android:editable="false"
+                    android:hint="Permanent MAC address:"
                     android:singleLine="true"
+                    android:text="00:00:00:00:00:00"
                     tools:ignore="Deprecated" />
             </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/networking"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:text="Networking"
+                app:icon="@drawable/ic_wifi"
+                app:iconGravity="textStart" />
         </LinearLayout>
     </ScrollView>
-
 </LinearLayout>

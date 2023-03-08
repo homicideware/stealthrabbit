@@ -5,15 +5,11 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
-import melville37.contract.JSON;
+import material.hunter.utils.contract.JSON;
 
 public class MHRepo {
 
     private static JSONObject mRepo = null;
-
-    public static JSONObject getRepo() {
-        return mRepo;
-    }
 
     public static boolean setRepo(JSONObject repo) {
         if (isValid(repo)) {
@@ -25,7 +21,7 @@ public class MHRepo {
     }
 
     public static boolean isValid(JSONObject repo) {
-        ArrayList<String> keys = JSON.getKeys(repo);
+        ArrayList<String> keys = new JSON().getKeys(repo);
         for (int i = 0; i < keys.size(); i++) {
             try {
                 String obj = repo.getString(keys.get(i));
@@ -43,7 +39,7 @@ public class MHRepo {
     public static ArrayList<String> getMainKeys() {
         ArrayList<String> mainKeys = new ArrayList<String>();
         try {
-            for (String key : JSON.getKeys(mRepo)) {
+            for (String key : new JSON().getKeys(mRepo)) {
                 String jsonData = mRepo.getString(key);
                 JSONObject jsonObj = new JSONObject(jsonData);
                 String name = jsonObj.getString("name");

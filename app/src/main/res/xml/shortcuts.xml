@@ -2,41 +2,32 @@
 
     <shortcut
         android:enabled="true"
-        android:icon="@drawable/shortcut_home"
-        android:shortcutId="home"
-        android:shortcutLongLabel="@string/home"
-        android:shortcutShortLabel="@string/home">
+        android:icon="@drawable/shortcut_home">
 
         <intent
             android:action="android.intent.action.VIEW"
             android:data="home"
-            android:targetClass="material.hunter.MainActivity"
+            android:targetClass="material.hunter.ui.activities.MainActivity"
             android:targetPackage="material.hunter" />
     </shortcut>
     <shortcut
         android:enabled="true"
-        android:icon="@drawable/shortcut_manager"
-        android:shortcutId="manager"
-        android:shortcutLongLabel="@string/manager"
-        android:shortcutShortLabel="@string/manager">
+        android:icon="@drawable/shortcut_manager">
 
         <intent
             android:action="android.intent.action.VIEW"
             android:data="manager"
-            android:targetClass="material.hunter.MainActivity"
+            android:targetClass="material.hunter.ui.activities.MainActivity"
             android:targetPackage="material.hunter" />
     </shortcut>
     <shortcut
         android:enabled="true"
-        android:icon="@drawable/shortcut_menu"
-        android:shortcutId="menu"
-        android:shortcutLongLabel="@string/menu"
-        android:shortcutShortLabel="@string/menu">
+        android:icon="@drawable/shortcut_menu">
 
         <intent
             android:action="android.intent.action.VIEW"
             android:data="menu"
-            android:targetClass="material.hunter.MainActivity"
+            android:targetClass="material.hunter.ui.activities.MainActivity"
             android:targetPackage="material.hunter" />
     </shortcut>
 

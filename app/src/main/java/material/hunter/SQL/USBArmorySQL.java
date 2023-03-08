@@ -15,7 +15,7 @@ import java.io.FileOutputStream;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 
-import material.hunter.models.USBArmoryUSBSwitchModel;
+import material.hunter.models.USBArmorySwitchModel;
 
 public class USBArmorySQL extends SQLiteOpenHelper {
 
@@ -133,9 +133,9 @@ public class USBArmorySQL extends SQLiteOpenHelper {
     }
 
     @SuppressLint("Range")
-    public USBArmoryUSBSwitchModel getUSBSwitchColumnData(
+    public USBArmorySwitchModel getUSBSwitchColumnData(
             String targetOSName, String functionName) {
-        USBArmoryUSBSwitchModel usbArmoryUSBSwitchModel = new USBArmoryUSBSwitchModel();
+        USBArmorySwitchModel USBArmorySwitchModel = new USBArmorySwitchModel();
         SQLiteDatabase db = this.getWritableDatabase();
         Cursor cursor =
                 db.rawQuery(
@@ -153,19 +153,19 @@ public class USBArmorySQL extends SQLiteOpenHelper {
                                 + "';",
                         null);
         if (cursor.moveToFirst()) {
-            usbArmoryUSBSwitchModel.setidVendor(
+            USBArmorySwitchModel.setIdVendor(
                     cursor.getString(cursor.getColumnIndex(COLUMNS_USBSWITCH.get(2))));
-            usbArmoryUSBSwitchModel.setidProduct(
+            USBArmorySwitchModel.setIdProduct(
                     cursor.getString(cursor.getColumnIndex(COLUMNS_USBSWITCH.get(3))));
-            usbArmoryUSBSwitchModel.setmanufacturer(
+            USBArmorySwitchModel.setManufacturer(
                     cursor.getString(cursor.getColumnIndex(COLUMNS_USBSWITCH.get(4))));
-            usbArmoryUSBSwitchModel.setproduct(
+            USBArmorySwitchModel.setProduct(
                     cursor.getString(cursor.getColumnIndex(COLUMNS_USBSWITCH.get(5))));
-            usbArmoryUSBSwitchModel.setserialnumber(
+            USBArmorySwitchModel.setSerialNumber(
                     cursor.getString(cursor.getColumnIndex(COLUMNS_USBSWITCH.get(6))));
         }
         cursor.close();
-        return usbArmoryUSBSwitchModel;
+        return USBArmorySwitchModel;
     }
 
     public boolean setUSBSwitchColumnData(

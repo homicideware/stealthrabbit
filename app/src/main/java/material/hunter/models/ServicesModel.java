@@ -3,23 +3,23 @@ package material.hunter.models;
 public class ServicesModel {
 
     private String ServiceName;
-    private String CommandforStartService;
-    private String CommandforStopService;
-    private String CommandforCheckServiceStatus;
+    private String CommandForStartingService;
+    private String CommandForStoppingService;
+    private String CommandForCheckingService;
     private String RunOnChrootStart;
     private String Status;
 
     public ServicesModel(
             String ServiceName,
-            String CommandforStartService,
-            String CommandforStopService,
-            String CommandforCheckServiceStatus,
+            String CommandForStartingService,
+            String CommandForStoppingService,
+            String CommandForCheckingService,
             String RunOnChrootStart,
             String Status) {
         this.ServiceName = ServiceName;
-        this.CommandforStartService = CommandforStartService;
-        this.CommandforStopService = CommandforStopService;
-        this.CommandforCheckServiceStatus = CommandforCheckServiceStatus;
+        this.CommandForStartingService = CommandForStartingService;
+        this.CommandForStoppingService = CommandForStoppingService;
+        this.CommandForCheckingService = CommandForCheckingService;
         this.RunOnChrootStart = RunOnChrootStart;
         this.Status = Status;
     }
@@ -32,28 +32,28 @@ public class ServicesModel {
         this.ServiceName = ServiceName;
     }
 
-    public String getCommandforStartService() {
-        return CommandforStartService;
+    public String getCommandForStartingService() {
+        return CommandForStartingService;
     }
 
-    public void setCommandforStartService(String CommandforStartService) {
-        this.CommandforStartService = CommandforStartService;
+    public void setCommandForStartingService(String CommandForStartingService) {
+        this.CommandForStartingService = CommandForStartingService;
     }
 
-    public String getCommandforStopService() {
-        return CommandforStopService;
+    public String getCommandForStoppingService() {
+        return CommandForStoppingService;
     }
 
-    public void setCommandforStopService(String CommandforStopService) {
-        this.CommandforStopService = CommandforStopService;
+    public void setCommandForStoppingService(String CommandForStoppingService) {
+        this.CommandForStoppingService = CommandForStoppingService;
     }
 
-    public String getCommandforCheckServiceStatus() {
-        return CommandforCheckServiceStatus;
+    public String getCommandForCheckingService() {
+        return CommandForCheckingService;
     }
 
-    public void setCommandforCheckServiceStatus(String CommandforCheckServiceStatus) {
-        this.CommandforCheckServiceStatus = CommandforCheckServiceStatus;
+    public void setCommandForCheckingService(String CommandforCheckServiceStatus) {
+        this.CommandForCheckingService = CommandforCheckServiceStatus;
     }
 
     public String getRunOnChrootStart() {

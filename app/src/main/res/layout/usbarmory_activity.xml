@@ -18,7 +18,7 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:orientation="vertical">
 
             <!-- USB interface switch -->
@@ -44,7 +44,6 @@
                         android:layout_marginEnd="16dp"
                         android:layout_marginRight="16dp"
                         android:layout_marginBottom="4dp"
-                        android:background="?attr/selectableItemBackgroundBorderless"
                         android:text="Gadget options"
                         android:textColor="@android:color/background_light"
                         android:textSize="20dp" />
@@ -241,7 +240,6 @@
                         android:layout_marginEnd="16dp"
                         android:layout_marginRight="16dp"
                         android:layout_marginBottom="4dp"
-                        android:background="?attr/selectableItemBackgroundBorderless"
                         android:text="Image mounter"
                         android:textColor="@android:color/background_light"
                         android:textSize="20dp" />

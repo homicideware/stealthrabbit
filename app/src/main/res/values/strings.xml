@@ -58,4 +58,15 @@
     <string name="update">Update</string>
     <string name="mh_repository">https://raw.githubusercontent.com/Mirivan/dev-root-project/main/.materialrepo</string>
 
+    <string-array name="themes">
+        <item>Dark</item>
+        <item>Light</item>
+        <item>Follow system</item>
+    </string-array>
+
+    <string-array name="terminal_types">
+        <item>Termux</item>
+        <item>NetHunter Terminal</item>
+    </string-array>
+
 </resources>

@@ -1,6 +1,12 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <queries>
+        <package android:name="com.termux" />
+        <package android:name="com.offsec.nhterm" />
+    </queries>
+
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.INTERNET" />
@@ -13,9 +19,6 @@
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
-    <uses-permission
-        android:name="android.permission.QUERY_ALL_PACKAGES"
-        tools:ignore="QueryAllPackagesPermission" />
     <uses-permission
         android:name="android.permission.MANAGE_EXTERNAL_STORAGE"
         tools:ignore="ScopedStorage" />
@@ -31,6 +34,7 @@
         android:xlargeScreens="true" />
 
     <application
+        android:name=".App"
         android:allowBackup="false"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -41,7 +45,7 @@
         android:usesCleartextTraffic="true"
         android:windowSoftInputMode="adjustResize">
         <activity
-            android:name=".MainActivity"
+            android:name=".ui.activities.MainActivity"
             android:configChanges="orientation|screenSize"
             android:exported="true"
             android:label="@string/app_name"
@@ -61,7 +65,7 @@
                 android:resource="@xml/shortcuts" />
         </activity>
         <activity
-            android:name=".TerminalRunActivity"
+            android:name=".ui.activities.TerminalRunActivity"
             android:excludeFromRecents="true"
             android:exported="true"
             android:icon="@mipmap/ic_mh_termux"
@@ -74,7 +78,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".AboutActivity"
+            android:name=".ui.activities.AboutActivity"
             android:exported="true"
             android:label="About">
             <intent-filter android:label="About">
@@ -85,7 +89,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".AuthorsActivity"
+            android:name=".ui.activities.AuthorsActivity"
             android:exported="true"
             android:label="Authors">
             <intent-filter android:label="Authors">
@@ -96,7 +100,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".LicensesActivity"
+            android:name=".ui.activities.LicensesActivity"
             android:exported="true"
             android:label="Licenses">
             <intent-filter android:label="Licenses">
@@ -107,7 +111,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".SettingsActivity"
+            android:name=".ui.activities.SettingsActivity"
             android:autoRemoveFromRecents="true"
             android:configChanges="orientation|keyboardHidden|screenSize|keyboard"
             android:exported="true"
@@ -124,7 +128,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".USBArmoryActivity"
+            android:name=".ui.activities.menu.USBArmoryActivity"
             android:configChanges="orientation|keyboardHidden|screenSize|keyboard"
             android:exported="true"
             android:label="USB Armory"
@@ -138,7 +142,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".CustomCommandsActivity"
+            android:name=".ui.activities.menu.CustomCommandsActivity"
             android:configChanges="orientation|keyboardHidden|screenSize|keyboard"
             android:exported="true"
             android:label="Custom Commands"
@@ -152,7 +156,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".ServicesActivity"
+            android:name=".ui.activities.menu.ServicesActivity"
             android:configChanges="orientation|keyboardHidden|screenSize|keyboard"
             android:exported="true"
             android:label="Services"
@@ -166,7 +170,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".MACChanger"
+            android:name=".ui.activities.menu.MACChangerActivity"
             android:configChanges="orientation|keyboardHidden|screenSize|keyboard"
             android:exported="true"
             android:label="MAC Changer"
@@ -179,9 +183,60 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".ui.activities.menu.NetworkingActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize|keyboard"
+            android:exported="true"
+            android:label="Networking"
+            android:launchMode="singleTop"
+            android:theme="@style/Theme.MaterialHunter">
+            <intent-filter android:label="Networking">
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            <intent-filter>
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".ui.activities.menu.Nmap.NmapActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize|keyboard"
+            android:exported="true"
+            android:label="Nmap"
+            android:launchMode="singleTop"
+            android:theme="@style/Theme.MaterialHunter">
+            <intent-filter android:label="Nmap">
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            <intent-filter>
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".ui.activities.menu.OneShot.OneShotActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize|keyboard"
+            android:exported="true"
+            android:label="OneShot"
+            android:launchMode="singleTop"
+            android:theme="@style/Theme.MaterialHunter">
+            <intent-filter android:label="OneShot">
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            <intent-filter>
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+        <service
+            android:name=".services.BluetoothD"
+            android:exported="false" />
+        <service
+            android:name=".services.RunAtBootService"
+            android:enabled="true"
+            android:exported="false"
+            android:permission="android.permission.BIND_JOB_SERVICE" />
 
         <receiver
-            android:name=".receiver.BootCompletedReceiver"
+            android:name=".receivers.BootCompletedReceiver"
             android:enabled="true"
             android:exported="true">
             <intent-filter>
@@ -195,15 +250,5 @@
                 <action android:name="android.intent.action.ACTION_SHUTDOWN" />
             </intent-filter>
         </receiver>
-
-        <service
-            android:name=".service.CompatCheckService"
-            android:enabled="true"
-            android:exported="false" />
-        <service
-            android:name=".service.RunAtBootService"
-            android:enabled="true"
-            android:exported="false"
-            android:permission="android.permission.BIND_JOB_SERVICE" />
     </application>
 </manifest>

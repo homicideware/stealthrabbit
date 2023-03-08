@@ -28,8 +28,8 @@ public abstract class DownloadChroot {
 
     private final ExecutorService executor;
     private final SimpleDateFormat timestamp = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
+    private final boolean printTimestamp;
     private TextView logger;
-    private boolean printTimestamp = false;
     private int mResultCode = 0;
 
     public DownloadChroot(boolean printTimestamp) {

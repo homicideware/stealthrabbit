@@ -1,25 +1,24 @@
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="24dp"
     android:height="24dp"
+    android:tint="?attr/colorControlNormal"
     android:viewportWidth="24"
-    android:viewportHeight="24"
-    android:tint="?attr/colorControlNormal">
+    android:viewportHeight="24">
     <!--
         Updated notification icon compliant with system icons guidelines
         https://material.io/design/iconography/system-icons.html
     -->
 
     <group>
-        <clip-path
-            android:pathData="M0,0h24v24h-24z"/>
+        <clip-path android:pathData="M0,0h24v24h-24z" />
 
         <path
-            android:pathData="M5,4H2L8,12L2,20H5L11,12L5,4Z"
-            android:fillColor="@android:color/white" />
+            android:fillColor="@android:color/white"
+            android:pathData="M5,4H2L8,12L2,20H5L11,12L5,4Z" />
 
         <path
-            android:pathData="M13,18H22V20H13V18Z"
-            android:fillColor="@android:color/white"/>
+            android:fillColor="@android:color/white"
+            android:pathData="M13,18H22V20H13V18Z" />
 
     </group>
 </vector>

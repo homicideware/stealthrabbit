@@ -3,18 +3,27 @@
 
     <item
         android:id="@+id/clear_logger"
-        android:icon="@drawable/delete_sweep"
+        android:icon="@drawable/ic_clear"
+        android:title="Clear logger"
         app:showAsAction="always" />
 
     <item
         android:id="@+id/update_chroot_status"
         android:icon="@drawable/update"
-        app:showAsAction="always" />
+        android:title="Update status"
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/settings"
+        android:icon="@drawable/ic_settings"
+        android:title="Settings"
+        app:showAsAction="ifRoom" />
 
     <item
         android:id="@+id/edit_chroot_folder"
         android:icon="@drawable/snippet_folder"
-        app:showAsAction="always" />
+        android:title="Edit chroot folder"
+        app:showAsAction="ifRoom" />
 
     <item
         android:id="@+id/change_system_path"

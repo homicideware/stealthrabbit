@@ -85,6 +85,8 @@ public class PathsUtil {
             File file = new File(entry.getValue());
             if (file.exists()) {
                 return entry;
+            } else if (new ShellUtils().executeCommandAsRootWithReturnCode("[ -f " + file + " ]") == 0) {
+                return entry;
             }
         }
         return null;

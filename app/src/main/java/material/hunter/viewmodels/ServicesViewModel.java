@@ -8,8 +8,8 @@ import androidx.lifecycle.ViewModel;
 
 import java.util.List;
 
-import material.hunter.RecyclerViewData.ServicesData;
 import material.hunter.models.ServicesModel;
+import material.hunter.viewdata.ServicesData;
 
 public class ServicesViewModel extends ViewModel {
 

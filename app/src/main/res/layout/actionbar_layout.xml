@@ -1,4 +1,5 @@
 <com.google.android.material.appbar.AppBarLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/appbar"
     style="@style/Widget.Mirivan.AppBar"
     android:layout_width="match_parent"
@@ -7,6 +8,8 @@
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/toolbar"
         style="@style/Widget.Mirivan.Toolbar"
-        android:layout_width="match_parent" />
+        android:layout_width="match_parent"
+        app:subtitleCentered="true"
+        app:titleCentered="true" />
 
 </com.google.android.material.appbar.AppBarLayout>

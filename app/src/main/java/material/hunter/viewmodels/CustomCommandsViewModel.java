@@ -8,8 +8,8 @@ import androidx.lifecycle.ViewModel;
 
 import java.util.List;
 
-import material.hunter.RecyclerViewData.CustomCommandsData;
 import material.hunter.models.CustomCommandsModel;
+import material.hunter.viewdata.CustomCommandsData;
 
 public class CustomCommandsViewModel extends ViewModel {
 

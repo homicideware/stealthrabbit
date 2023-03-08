@@ -38,7 +38,7 @@ while getopts "p:c:" OPTS; do
     case $OPTS in
         p) MNT=$OPTARG;;
         c) COMMAND=$OPTARG;;
-        *) f_chroot_usage;exit 1;;
+        *) f_chroot_usage; exit 1;;
     esac
 done
 
@@ -112,7 +112,7 @@ if [ ! $# -eq 0 ]; then
                             fi
                             return 3
                         fi
-                        ISALLREADY=0
+                        IsAllReady=0
                         FS=(proc sys dev dev/pts)
                         if [ $mount_sdcard == "true" ]; then
                             FS[${#FS[@]}]=sdcard
@@ -132,11 +132,11 @@ if [ ! $# -eq 0 ]; then
                                 continue
                             else
                                 echo "[-] $i isn't yet mounted."
-                                ISALLREADY=1
+                                IsAllReady=1
                             fi
                         done
 
-                        if [ $ISALLREADY -eq 0 ]; then
+                        if [ $IsAllReady -eq 0 ]; then
                             echo "[+] Chroot environment has been set and started."
                             echo "[!] You may click [Stop] to shutdown the chroot environment."
                             return 0
@@ -179,7 +179,7 @@ if [ ! $# -eq 0 ]; then
                         echo "[!] Chroot is already unmounted."
                     fi
                     echo "[!] Creating chroot backup from \"$TARGET_DIR\" to \"$2\"."
-                    echo "[$] Please don't kill the app during this proccess. MaterialHunter doesn't support background support for processes of this type, as it takes up an impressive amount of RAM."
+                    echo "[$] Please don't kill the app during this process. MaterialHunter doesn't support background support for processes of this type, as it takes up an impressive amount of RAM."
                     cd $1/../ || exit
                     if echo $2 | $BUSYBOX grep -q ".tar.[gx]z$"; then
                         if echo $2 | $BUSYBOX grep -q ".tar.xz$"; then
@@ -231,7 +231,7 @@ if [ ! $# -eq 0 ]; then
                         fi
                     done
                     echo "[!] Chroot occupies the space of the internal storage of your device, make sure that there is enough space to install the tar image, just to make sure it won't break your system."
-                    echo "[$] Please don't kill the app during this proccess. MaterialHunter doesn't support background support for processes of this type, as it takes up an impressive amount of RAM."
+                    echo "[$] Please don't kill the app during this process. MaterialHunter doesn't support background support for processes of this type, as it takes up an impressive amount of RAM."
                     echo "[!] Installing from \"$TARGET_TARBALL_PATH\""
                     echo "[!] It may take a while, please be patient until it is finished extracting..."
 
@@ -314,5 +314,5 @@ if [ ! $# -eq 0 ]; then
             ;;
     esac
 else
-    echo "[-] No args passed to chrootmgr."
+    echo "[-] No args passed."
 fi

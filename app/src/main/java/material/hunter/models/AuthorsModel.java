@@ -3,14 +3,16 @@ package material.hunter.models;
 public class AuthorsModel {
 
     private final String nickname;
-    private final String nicknamedesc;
-    private final String url;
+    private final String name;
+    private final String github;
+    private final String telegram;
     private final String description;
 
-    public AuthorsModel(String nickname, String nicknamedesc, String url, String description) {
+    public AuthorsModel(String nickname, String name, String github, String telegram, String description) {
         this.nickname = nickname;
-        this.nicknamedesc = nicknamedesc;
-        this.url = url;
+        this.name = name;
+        this.github = github;
+        this.telegram = telegram;
         this.description = description;
     }
 
@@ -19,11 +21,15 @@ public class AuthorsModel {
     }
 
     public String getNicknameDesc() {
-        return nicknamedesc;
+        return name;
     }
 
-    public String getUrl() {
-        return url;
+    public String getGithub() {
+        return github;
+    }
+
+    public String getTelegram() {
+        return telegram;
     }
 
     public String getDescription() {

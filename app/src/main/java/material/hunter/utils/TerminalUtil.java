@@ -1,6 +1,7 @@
 package material.hunter.utils;
 
 import android.app.Activity;
+import android.app.BackgroundServiceStartNotAllowedException;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
@@ -9,9 +10,9 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ServiceInfo;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
-import android.view.LayoutInflater;
 
 import androidx.core.app.ActivityCompat;
 
@@ -28,17 +29,22 @@ public class TerminalUtil {
     public static final String TERMINAL_TYPE_NETHUNTER = "NetHunter Terminal";
     public static final String TERMUX_CHECK_EXTERNAL_APPS_IS_TRUE_CMD =
             "grep \"allow-external-apps\" /data/data/com.termux/files/home/.termux/termux.properties |"
-                    + " sed -n \"s/^allow-external-apps=\\(.*\\)/\\1/p\"";
+                    + " sed -n \"s/^allow-external-apps = \\(.*\\)/\\1/p\"";
     public static final String TERMUX_SET_EXTERNAL_APPS_TRUE_CMD =
-            "if [[ ! $(grep \"allow-external-apps=\" /data/data/com.termux/files/home/.termux/termux.properties) ]]; then" +
-                    " echo \"allow-external-apps=true\" >> /data/data/com.termux/files/home/.termux/termux.properties; else sed -i -r" +
-                    " s/\"^#?allow-external-apps=.*\"/\"allow-external-apps=true\"/g" +
+            "if [[ ! $(grep \"allow-external-apps\" /data/data/com.termux/files/home/.termux/termux.properties) ]]; then" +
+                    " echo \"allow-external-apps = true\" >> /data/data/com.termux/files/home/.termux/termux.properties; else sed -i -r" +
+                    " s/\"^# ?allow-external-apps = .*\"/\"allow-external-apps = true\"/g" +
                     " /data/data/com.termux/files/home/.termux/termux.properties; fi";
     private static final ShellUtils exe = new ShellUtils();
     private static ExecutorService executor;
     private static SharedPreferences prefs;
     private final Activity activity;
     private final Context context;
+
+    private final String[] PERMISSIONS = {
+            "com.termux.permission.RUN_COMMAND",
+            "com.offsec.nhterm.permission.RUN_SCRIPT_SU"
+    };
 
     public TerminalUtil(Activity activity, Context context) {
         this.activity = activity;
@@ -64,10 +70,18 @@ public class TerminalUtil {
             intent.putExtra("com.termux.RUN_COMMAND_WORKDIR", "/data/data/com.termux/files/home");
             intent.putExtra("com.termux.RUN_COMMAND_BACKGROUND", in_background);
             intent.putExtra("com.termux.RUN_COMMAND_SESSION_ACTION", "0");
-            context.startService(intent);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                try {
+                    context.startService(intent);
+                } catch (BackgroundServiceStartNotAllowedException e) {
+                    termuxServiceIsNotRunning();
+                }
+            } else {
+                context.startService(intent);
+            }
         } else if (terminalType.equals(TERMINAL_TYPE_NETHUNTER)) {
             if (in_background) {
-                executor.execute(() -> exe.RunAsRoot(command));
+                executor.execute(() -> exe.executeCommandAsRoot(command));
             } else {
                 Intent intent = new Intent("com.offsec.nhterm.RUN_SCRIPT_SU");
                 intent.addCategory(Intent.CATEGORY_DEFAULT);
@@ -87,9 +101,8 @@ public class TerminalUtil {
                         : TERMINAL_TYPE_TERMUX
                         + " isn't installed, please install it from F-Droid.";
         String button =
-                "Open"
-                        + (terminalType.equals(TERMINAL_TYPE_NETHUNTER)
-                        ? "NetHunter Store"
+                (terminalType.equals(TERMINAL_TYPE_NETHUNTER)
+                        ? "NHStore"
                         : "F-Droid");
         String url =
                 terminalType.equals(TERMINAL_TYPE_NETHUNTER)
@@ -109,10 +122,6 @@ public class TerminalUtil {
 
     public void showPermissionDeniedDialog() {
         String terminalType = getTerminalType();
-        String[] PERMISSIONS = {
-                "com.termux.permission.RUN_COMMAND",
-                "com.offsec.nhterm.permission.RUN_SCRIPT_SU"
-        };
         MaterialAlertDialogBuilder adb = new MaterialAlertDialogBuilder(context);
         adb.setTitle("Terminal");
         adb.setMessage("Permission denied for starting " + terminalType + ".");
@@ -120,7 +129,7 @@ public class TerminalUtil {
                 "Request permission",
                 (di, i) -> {
                     if (!hasPermissions(PERMISSIONS)) {
-                        requestTerminalPermissions();
+                        requestPermissions(PERMISSIONS);
                     }
                 });
         adb.setNegativeButton(android.R.string.ok, (di, i) -> {
@@ -128,15 +137,18 @@ public class TerminalUtil {
         adb.show();
     }
 
-    public void requestTerminalPermissions() {
-        requestPermissions(
-                "com.termux.permission.RUN_COMMAND",
-                "com.offsec.nhterm.permission.RUN_SCRIPT_SU");
-    }
-
     public boolean isTermuxInstalled() {
         try {
             context.getPackageManager().getPackageInfo("com.termux", 0);
+            return true;
+        } catch (PackageManager.NameNotFoundException e) {
+            return false;
+        }
+    }
+
+    public boolean isNetHunterTerminalInstalled() {
+        try {
+            context.getPackageManager().getPackageInfo("com.offsec.nhterm", 0);
             return true;
         } catch (PackageManager.NameNotFoundException e) {
             return false;
@@ -166,7 +178,7 @@ public class TerminalUtil {
                         "Termux run command API isn't yet supported. Please install latest Termux"
                                 + " version from F-Droid.");
                 adb.setPositiveButton(
-                        "Open F-Droid",
+                        "F-Droid",
                         (di, i) -> {
                             Intent intent =
                                     new Intent(
@@ -183,11 +195,10 @@ public class TerminalUtil {
 
     public void termuxApiExternalAppsRequired() {
         executor.execute(() -> {
-            if (!exe.RunAsRootOutput(TERMUX_CHECK_EXTERNAL_APPS_IS_TRUE_CMD).equals("true")) {
+            if (!exe.executeCommandAsRootWithOutput(TERMUX_CHECK_EXTERNAL_APPS_IS_TRUE_CMD).equals("true")) {
                 new Handler(Looper.getMainLooper()).post(() -> {
                     MaterialAlertDialogBuilder adb = new MaterialAlertDialogBuilder(context);
-                    LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                    adb.setTitle("Termux API required external apps prop in true");
+                    adb.setTitle("Terminal");
                     adb.setMessage(
                             "To run commands inside Termux, you need to set"
                                     + " the prop to the appropriate value so that"
@@ -196,15 +207,25 @@ public class TerminalUtil {
                                     + " MaterialHunter.");
                     adb.setPositiveButton(
                             "Set prop",
-                            (di, i) -> {
-                                exe.RunAsRoot(TERMUX_SET_EXTERNAL_APPS_TRUE_CMD);
-                            });
+                            (di, i) -> exe.executeCommandAsRoot(TERMUX_SET_EXTERNAL_APPS_TRUE_CMD));
                     adb.setNegativeButton(android.R.string.cancel, (di, i) -> {
                     });
                     adb.show();
                 });
             }
         });
+    }
+
+    private void termuxServiceIsNotRunning() {
+        MaterialAlertDialogBuilder adb = new MaterialAlertDialogBuilder(context);
+        adb.setTitle("Terminal");
+        adb.setMessage(
+                "Termux service isn't running. Allow Termux to work in the background and run it, thus you will allow it to work in the background and wait for commands from other applications, after opening it can be immediately closed through a notification.");
+        adb.setPositiveButton(
+                android.R.string.ok,
+                (di, i) -> {
+                });
+        adb.show();
     }
 
     private boolean hasPermissions(String... permissions) {

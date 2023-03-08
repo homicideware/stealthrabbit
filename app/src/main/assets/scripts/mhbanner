@@ -1,3 +1,5 @@
+#!/system/bin/sh
+
 echo "           _     "
 echo " _ __ ___ | |__  "
 echo "| '_ \` _ \| '_ \ "
