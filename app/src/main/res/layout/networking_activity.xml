@@ -50,7 +50,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="12dp"
-                app:startIconDrawable="@drawable/ic_renew">
+                app:startIconDrawable="@drawable/ic_wifi">
 
                 <AutoCompleteTextView
                     android:id="@+id/interfaces"
@@ -60,6 +60,28 @@
                     android:inputType="none"
                     android:singleLine="true" />
             </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/interfaces_update"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="12dp"
+                android:layout_marginEnd="12dp"
+                android:text="Update interfaces list"
+                android:singleLine="true"
+                app:icon="@drawable/ic_update"
+                app:iconGravity="textStart" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/rename_interface"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="12dp"
+                android:layout_marginEnd="12dp"
+                android:text="Rename interface"
+                android:singleLine="true"
+                app:icon="@drawable/ic_edit"
+                app:iconGravity="textStart" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/macchanger"

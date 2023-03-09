@@ -34,7 +34,7 @@ public class OneShotItem {
         return security;
     }
 
-    public float getPower() {
+    public float getSignal() {
         return power;
     }
 

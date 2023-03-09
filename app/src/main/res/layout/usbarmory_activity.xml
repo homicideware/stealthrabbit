@@ -212,7 +212,7 @@
                             android:adjustViewBounds="false"
                             android:baselineAlignBottom="false"
                             android:cropToPadding="false"
-                            app:icon="@drawable/ic_action_refresh" />
+                            app:icon="@drawable/ic_refresh" />
                     </LinearLayout>
                 </LinearLayout>
             </LinearLayout>
@@ -348,7 +348,7 @@
                             android:adjustViewBounds="false"
                             android:baselineAlignBottom="false"
                             android:cropToPadding="false"
-                            app:icon="@drawable/ic_action_refresh" />
+                            app:icon="@drawable/ic_refresh" />
                     </LinearLayout>
                 </LinearLayout>
             </LinearLayout>

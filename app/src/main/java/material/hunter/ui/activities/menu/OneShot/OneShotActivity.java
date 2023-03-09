@@ -53,7 +53,7 @@ public class OneShotActivity extends ThemedActivity {
     private TextInputEditText mInterface;
     private Button networking;
     private Button settings;
-    private ArrayList<OneShotItem> networks = new ArrayList<>();
+    private final ArrayList<OneShotItem> networks = new ArrayList<>();
     private OneShotRecyclerViewAdapter adapter;
     private Timer timer = new Timer();
     private boolean isScanning = false;
@@ -75,7 +75,7 @@ public class OneShotActivity extends ThemedActivity {
 
         File usefulDirectory = new File(PathsUtil.APP_SD_PATH + "/OneShot");
         if (!usefulDirectory.exists()) {
-            PathsUtil.showSnack(_view, "Creating directory for saved networks...", false);
+            PathsUtil.showSnack(_view, "Creating directory for saved networks and logs...", false);
             try {
                 usefulDirectory.mkdir();
             } catch (Exception e) {
@@ -110,15 +110,21 @@ public class OneShotActivity extends ThemedActivity {
         settings.setOnClickListener(v -> {
             String[] items = new String[]{
                     "Down network interface when the work is finished",
-                    "Activate MediaTek Wi-Fi interface driver on startup and deactivate it on exit"
+                    "Activate MediaTek Wi-Fi interface driver on startup and deactivate it on exit",
+                    "Sort networks list by signal",
+                    "Sort networks list by enabled WPS"
             };
             String[] preferences = new String[]{
                     "oneshot_iface_down",
-                    "oneshot_mtk_wifi"
+                    "oneshot_mtk_wifi",
+                    "oneshot_sort_by_signal",
+                    "oneshot_sort_by_enabled_wps"
             };
             final boolean[] itemsBooleans = new boolean[]{
                     prefs.getBoolean("oneshot_iface_down", false),
-                    prefs.getBoolean("oneshot_mtk_wifi", false)
+                    prefs.getBoolean("oneshot_mtk_wifi", false),
+                    prefs.getBoolean("oneshot_sort_by_signal", true),
+                    prefs.getBoolean("oneshot_sort_by_enabled_wps", true)
             };
 
             new MaterialAlertDialogBuilder(this)
@@ -216,7 +222,7 @@ public class OneShotActivity extends ThemedActivity {
         return result;
     }
 
-    @SuppressLint({"SetTextI18n", "NotifyDataSetChanged"})
+    @SuppressLint({"SetTextI18n"})
     private void scan() {
         String mInterface = prefs.getString("macchanger_interface", "");
         if (mInterface.isEmpty()) {
@@ -235,6 +241,7 @@ public class OneShotActivity extends ThemedActivity {
             isScanning = true;
             progressIndicator.setIndeterminate(true);
             progressIndicator.setVisibility(View.VISIBLE);
+            networks.clear();
             executor.execute(() -> {
                 for (String line : compactScanResult(mInterface)) {
                     try {
@@ -251,12 +258,13 @@ public class OneShotActivity extends ThemedActivity {
                             String model = Utils.matchString("[*] Model: (.*)", line, 1);
                             String modelNumber = Utils.matchString("[*] Model Number: (.*)", line, 1);
                             String deviceName = Utils.matchString("[*] Device name: (.*)", line, 1);
-                            addOrUpdateNetwork(new OneShotItem(ESSID, BSSID, security, power, isWpsLocked, deviceName, model, modelNumber));
+                            networks.add(new OneShotItem(ESSID, BSSID, security, power, isWpsLocked, deviceName, model, modelNumber));
                         }
                     } catch (Exception ignored) {
-                        PathsUtil.showSnack(_view, "Failed to load network(s) information...", false);
+                        PathsUtil.showSnack(_view, "Failed to load network information...", false);
                     }
                 }
+                sortNetworks();
                 new Handler(Looper.getMainLooper()).post(() -> {
                     adapter.notifyDataSetChangedL(networks);
                     progressIndicator.setVisibility(View.INVISIBLE);
@@ -267,25 +275,20 @@ public class OneShotActivity extends ThemedActivity {
         }
     }
 
+    private void sortNetworks() {
+        if (prefs.getBoolean("oneshot_sort_by_signal", true)) {
+            networks.sort((network, network2) -> (int) (network2.getSignal() - network.getSignal()));
+        }
+        if (prefs.getBoolean("oneshot_sort_by_enabled_wps", true)) {
+            networks.sort((network, network2) -> Boolean.compare(!network2.isWpsLocked(), !network.isWpsLocked()));
+        }
+    }
+    
     private String decodeESSID(String ESSID) {
         if (ESSID.contains("\\x")) {
             return new ShellUtils().executeCommandWithOutput("echo -e '" + ESSID + "'");
         } else {
             return ESSID;
-        }
-    }
-
-    private void addOrUpdateNetwork(OneShotItem network) {
-        boolean updated = false;
-        for (int i = 0; i < networks.size(); i++) {
-            OneShotItem oneShotItem = networks.get(i);
-            if (oneShotItem.getBSSID().equals(network.getBSSID())) {
-                networks.set(i, network);
-                updated = true;
-            }
-        }
-        if (!updated) {
-            networks.add(network);
         }
     }
 
@@ -303,25 +306,18 @@ public class OneShotActivity extends ThemedActivity {
             }
             if (matches.contains("WPA")) {
                 return "WPA";
-            } else {
-                return security;
             }
         }
         if (security.equals("WPA")) {
             if (matches.contains("RSN")) {
                 return "WPA/WPA2";
-            } else {
-                return security;
             }
         }
         if (security.equals("WPA2")) {
             if (matches.contains("WPA")) {
                 return "WPA/WPA2";
-            } else {
-                return security;
             }
-        } else {
-            return security;
         }
+        return security;
     }
 }

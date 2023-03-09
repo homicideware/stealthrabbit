@@ -44,14 +44,16 @@ import material.hunter.utils.Utils;
 
 public class MACChangerActivity extends ThemedActivity {
 
-    private Context context;
     private MacchangerActivityBinding binding;
     private TextInputLayout interfacesLayout;
     private AutoCompleteTextView interfaces;
+    private Button interfacesUpdate;
     private TextInputLayout macaddress_layout;
     private TextInputEditText macaddress;
+    private Button macaddressSetup;
     private TextInputLayout permanent_layout;
     private TextInputEditText permanent;
+    private Button permanentSetup;
     private Button networking;
     private View _view;
     private final ShellUtils exe = new ShellUtils();
@@ -63,7 +65,6 @@ public class MACChangerActivity extends ThemedActivity {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        context = this;
         binding = MacchangerActivityBinding.inflate(getLayoutInflater());
         View root = binding.getRoot();
         setContentView(root);
@@ -79,10 +80,13 @@ public class MACChangerActivity extends ThemedActivity {
 
         interfacesLayout = binding.interfacesLayout;
         interfaces = binding.interfaces;
+        interfacesUpdate = binding.interfacesUpdate;
         macaddress_layout = binding.macaddressLayout;
         macaddress = binding.macaddress;
+        macaddressSetup = binding.macaddressSetup;
         permanent_layout = binding.permanentLayout;
         permanent = binding.permanent;
+        permanentSetup = binding.permanentSetup;
         networking = binding.networking;
 
         executor.execute(() -> exe.executeCommandAsRoot("dos2unix " + PathsUtil.APP_SCRIPTS_PATH + "/changemac"));
@@ -96,15 +100,13 @@ public class MACChangerActivity extends ThemedActivity {
             getPermanentMAC();
         });
 
-        interfacesLayout.setStartIconOnClickListener(v -> loadInterfaces());
+        interfacesUpdate.setOnClickListener(v -> loadInterfaces());
 
         macaddress_layout.setStartIconOnClickListener(v -> macaddress.setText(genRandomMACAddress()));
 
-        macaddress_layout.setEndIconOnClickListener(v -> setMACAddress(interfaces.getText().toString(), macaddress.getText().toString()));
+        macaddressSetup.setOnClickListener(v -> setMACAddress(interfaces.getText().toString(), macaddress.getText().toString()));
 
-        permanent_layout.setStartIconOnClickListener(v -> getPermanentMAC());
-
-        permanent_layout.setEndIconOnClickListener(v -> setMACAddress(interfaces.getText().toString(), permanent.getText().toString()));
+        permanentSetup.setOnClickListener(v -> setMACAddress(interfaces.getText().toString(), permanent.getText().toString()));
 
         networking.setOnClickListener(v -> {
             finish();

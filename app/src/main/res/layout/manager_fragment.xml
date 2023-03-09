@@ -81,7 +81,7 @@
                 android:layout_marginEnd="2dp"
                 android:text="Install"
                 android:visibility="gone"
-                app:icon="@drawable/download"
+                app:icon="@drawable/ic_download"
                 app:iconGravity="textStart" />
 
             <com.google.android.material.button.MaterialButton

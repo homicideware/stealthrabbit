@@ -20,8 +20,10 @@ import androidx.core.content.ContextCompat;
 
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Timer;
@@ -46,10 +48,12 @@ public class NetworkingActivity extends ThemedActivity {
     private SharedPreferences prefs;
     private TerminalUtil terminalUtil;
     private TextInputLayout interfacesLayout;
-    private Button macchanger;
     private AutoCompleteTextView interfaces;
-    private Button runBluebinder;
+    private Button interfacesUpdate;
+    private Button renameInterface;
+    private Button macchanger;
     private TextView bluebinderProcesses;
+    private Button runBluebinder;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -72,18 +76,37 @@ public class NetworkingActivity extends ThemedActivity {
 
         interfacesLayout = binding.interfacesLayout;
         interfaces = binding.interfaces;
+        interfacesUpdate = binding.interfacesUpdate;
+        renameInterface = binding.renameInterface;
         macchanger = binding.macchanger;
         runBluebinder = binding.runBluebinder;
         bluebinderProcesses = binding.bluebinderProcesses;
 
-        interfacesLayout.setStartIconOnClickListener(v -> loadInterfaces());
+        interfacesUpdate.setOnClickListener(v -> loadInterfaces());
+
         interfaces.setOnItemClickListener((adapterView, v, pos, l) -> prefs.edit().putString("macchanger_interface", interfaces.getText().toString()).apply());
+
+        renameInterface.setOnClickListener(v -> {
+            View view = getLayoutInflater().inflate(R.layout.input_dialog, null);
+            TextInputEditText newName = view.findViewById(R.id.editText);
+            new MaterialAlertDialogBuilder(this)
+                    .setTitle("Rename interface")
+                    .setMessage("Enter new interface name:")
+                    .setView(view)
+                    .setPositiveButton(android.R.string.ok, (di, i) -> renameInterface(newName.getText().toString()))
+                    .setNegativeButton(android.R.string.cancel, (di, i) -> {
+                    })
+                    .show();
+        });
+
         macchanger.setOnClickListener(v -> {
             finish();
             Intent intent = new Intent(this, MACChangerActivity.class);
             startActivity(intent);
         });
+
         runBluebinder.setOnClickListener(v -> runBluebinder());
+
         Timer timer = new Timer();
         timer.scheduleAtFixedRate(new TimerTask() {
             @Override
@@ -197,5 +220,28 @@ public class NetworkingActivity extends ThemedActivity {
                 .setNegativeButton(android.R.string.cancel, (di, i) -> {
                 })
                 .show();
+    }
+
+    private void renameInterface(String newInterfaceName) {
+        executor.execute(() -> {
+            int code = new ShellUtils().executeCommandAsRootWithReturnCode("ip link set " + interfaces.getText().toString() + " down");
+            if (code == 0) {
+                code = new ShellUtils().executeCommandAsRootWithReturnCode("ip link set " + interfaces.getText().toString() + " name " + newInterfaceName);
+                if (code == 0) {
+                    new Handler(Looper.getMainLooper()).post(() -> interfaces.setText(newInterfaceName));
+                    prefs.edit().putString("macchanger_interface", newInterfaceName).apply();
+                    new ShellUtils().executeCommandAsRootWithReturnCode("ip link set " + interfaces.getText().toString() + " up");
+                    if (newInterfaceName.matches("(s|)wlan0")) {
+                        new ShellUtils().executeCommandAsRootWithReturnCode("svc wifi enable");
+                    }
+                    new Handler(Looper.getMainLooper()).post(() ->
+                            PathsUtil.showSnack(_view, "Interface successfully renamed!", false));
+                } else {
+                    int finalCode = code;
+                    new Handler(Looper.getMainLooper()).post(() ->
+                            PathsUtil.showSnack(_view, "Failed to rename interface. Code: " + finalCode, false));
+                }
+            }
+        });
     }
 }

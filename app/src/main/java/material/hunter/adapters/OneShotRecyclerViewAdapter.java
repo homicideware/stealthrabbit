@@ -67,7 +67,7 @@ public class OneShotRecyclerViewAdapter
                         + ", "
                         + oneShotItem.getWsc_model()
                         + " (" + oneShotItem.getWsc_device_name() + "), "
-                        + oneShotItem.getPower() + " dBm");
+                        + oneShotItem.getSignal() + " dBm");
         holder.additionalInfo.setSelected(true);
         if (!oneShotItem.isWpsLocked()) {
             holder.openAttackDialog.setOnClickListener(v -> {

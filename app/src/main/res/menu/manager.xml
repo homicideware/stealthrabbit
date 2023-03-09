@@ -9,7 +9,7 @@
 
     <item
         android:id="@+id/update_chroot_status"
-        android:icon="@drawable/update"
+        android:icon="@drawable/ic_update"
         android:title="Update status"
         app:showAsAction="ifRoom" />
 
@@ -21,7 +21,7 @@
 
     <item
         android:id="@+id/edit_chroot_folder"
-        android:icon="@drawable/snippet_folder"
+        android:icon="@drawable/ic_snippet_folder"
         android:title="Edit chroot folder"
         app:showAsAction="ifRoom" />
 

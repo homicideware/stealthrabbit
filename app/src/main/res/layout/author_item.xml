@@ -60,7 +60,7 @@
                 android:layout_height="42dp"
                 android:focusable="false"
                 android:padding="5dp"
-                android:src="@drawable/telegram"
+                android:src="@drawable/ic_telegram"
                 android:visibility="gone" />
         </LinearLayout>
     </LinearLayout>

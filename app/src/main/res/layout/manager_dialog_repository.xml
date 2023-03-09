@@ -34,7 +34,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        app:endIconDrawable="@drawable/ic_action_refresh"
+        app:endIconDrawable="@drawable/ic_refresh"
         app:endIconMode="custom">
 
         <com.google.android.material.textfield.TextInputEditText

@@ -525,13 +525,14 @@ public class USBArmoryActivity extends ThemedActivity {
         final LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         assert inflater != null;
         final View promptView = inflater.inflate(R.layout.input_dialog, null);
-        final EditText storedpathEditText = promptView.findViewById(R.id.cdw_et);
+        final EditText storedpathEditText = promptView.findViewById(R.id.editText);
 
         switch (item.getItemId()) {
             case R.id.f_usbarmory_menu_backupDB:
                 storedpathEditText.setText(PathsUtil.APP_SD_SQLBACKUP_PATH + "/FragmentUSBArsenal");
                 MaterialAlertDialogBuilder adbBackup = new MaterialAlertDialogBuilder(activity);
-                adbBackup.setTitle("Full path to where you want to save the database:");
+                adbBackup.setTitle("Save database");
+                adbBackup.setMessage("Full path to where you want to save the database:");
                 adbBackup.setView(promptView);
                 adbBackup.setNegativeButton(android.R.string.cancel, (dialog, which) -> dialog.cancel());
                 adbBackup.setPositiveButton(android.R.string.ok, (dialog, which) -> {

@@ -63,6 +63,7 @@ public class NmapActivity extends ThemedActivity {
     private ChipGroup argumentsChip;
     private TextInputLayout interfaceLayout;
     private AutoCompleteTextView mInterface;
+    private Button interfacesUpdate;
     private TextInputLayout hostsLayout;
     private TextInputEditText hosts;
     private TextInputLayout portsLayout;
@@ -111,6 +112,7 @@ public class NmapActivity extends ThemedActivity {
         argumentsChip = binding.argumentsChip;
         interfaceLayout = binding.interfaceLayout;
         mInterface = binding.mInterface;
+        interfacesUpdate = binding.interfacesUpdate;
         hostsLayout = binding.hostsLayout;
         hosts = binding.hosts;
         portsLayout = binding.portsLayout;
@@ -124,7 +126,8 @@ public class NmapActivity extends ThemedActivity {
         loadArguments();
         loadInterfaces();
 
-        interfaceLayout.setStartIconOnClickListener(v -> loadInterfaces());
+        interfacesUpdate.setOnClickListener(v -> loadInterfaces());
+
         mInterface.setOnItemClickListener((adapterView, v, pos, l) -> prefs.edit().putString("nmap_interface", mInterface.getText().toString()).apply());
 
         hostsLayout.setEndIconOnClickListener(v -> {

@@ -82,7 +82,7 @@
                     android:layout_width="42dp"
                     android:layout_height="42dp"
                     android:padding="5dp"
-                    android:src="@drawable/menu_usbarmory" />
+                    android:src="@drawable/ic_usbarmory" />
 
                 <LinearLayout
                     android:layout_width="0dp"
