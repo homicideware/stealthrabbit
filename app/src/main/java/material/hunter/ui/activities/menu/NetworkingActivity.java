@@ -1,5 +1,6 @@
 package material.hunter.ui.activities.menu;
 
+import android.annotation.SuppressLint;
 import android.app.ActivityManager;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
@@ -33,6 +34,7 @@ import java.util.concurrent.Executors;
 
 import material.hunter.BuildConfig;
 import material.hunter.R;
+import material.hunter.databinding.InputDialogBinding;
 import material.hunter.databinding.NetworkingActivityBinding;
 import material.hunter.services.BluetoothD;
 import material.hunter.ui.activities.ThemedActivity;
@@ -87,11 +89,12 @@ public class NetworkingActivity extends ThemedActivity {
         interfaces.setOnItemClickListener((adapterView, v, pos, l) -> prefs.edit().putString("macchanger_interface", interfaces.getText().toString()).apply());
 
         renameInterface.setOnClickListener(v -> {
-            View view = getLayoutInflater().inflate(R.layout.input_dialog, null);
-            TextInputEditText newName = view.findViewById(R.id.editText);
+            InputDialogBinding binding1 = InputDialogBinding.inflate(getLayoutInflater());
+            View view = binding1.getRoot();
+            TextInputEditText newName = binding1.editText;
+            newName.setText(interfaces.getText().toString());
             new MaterialAlertDialogBuilder(this)
                     .setTitle("Rename interface")
-                    .setMessage("Enter new interface name:")
                     .setView(view)
                     .setPositiveButton(android.R.string.ok, (di, i) -> renameInterface(newName.getText().toString()))
                     .setNegativeButton(android.R.string.cancel, (di, i) -> {
@@ -126,7 +129,7 @@ public class NetworkingActivity extends ThemedActivity {
             if (previousWlan.isEmpty()) {
                 String preferredInterface = list[0];
                 for (String iInterface : mInterfaces) {
-                    if (iInterface.startsWith("wl")) {
+                    if (iInterface.matches("^(s|)wl")) {
                         preferredInterface = iInterface;
                     }
                 }
@@ -141,6 +144,7 @@ public class NetworkingActivity extends ThemedActivity {
         });
     }
 
+    @SuppressLint("SetTextI18n")
     private void getBluebinderProcesses() {
         executor.execute(() -> {
             String processes = new ShellUtils().executeCommandAsChrootWithOutput("pidof bluebinder");

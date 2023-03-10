@@ -1,6 +1,7 @@
 package material.hunter.ui.fragments;
 
 import android.app.Activity;
+import android.app.BackgroundServiceStartNotAllowedException;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
@@ -193,6 +194,18 @@ public class MenuFragment extends Fragment {
     }
 
     private void runTerminalInChroot() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            try {
+                runTerminalInChrootThrow();
+            } catch (BackgroundServiceStartNotAllowedException e) {
+                terminalUtil.termuxServiceIsNotRunning();
+            }
+        } else {
+            runTerminalInChrootThrow();
+        }
+    }
+
+    private void runTerminalInChrootThrow() {
         try {
             terminalUtil.runCommand(PathsUtil.APP_SCRIPTS_PATH + "/bootroot_login", false);
         } catch (ActivityNotFoundException e) {
@@ -206,7 +219,7 @@ public class MenuFragment extends Fragment {
         }
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.N_MR1)
+    @RequiresApi(api = Build.VERSION_CODES.O)
     private boolean isShortcutPinned() {
         ShortcutManager shortcutManager =
                 context.getSystemService(ShortcutManager.class);
@@ -218,7 +231,7 @@ public class MenuFragment extends Fragment {
         return false;
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.N_MR1)
+    @RequiresApi(api = Build.VERSION_CODES.O)
     private void createShortcut() {
         ShortcutManager shortcutManager =
                 context.getSystemService(ShortcutManager.class);

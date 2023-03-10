@@ -19,6 +19,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
+import java.util.Arrays;
 import java.util.List;
 
 import material.hunter.BuildConfig;
@@ -27,6 +28,7 @@ import material.hunter.databinding.OneshotItemBinding;
 import material.hunter.ui.activities.menu.OneShot.OneShotItem;
 import material.hunter.utils.PathsUtil;
 import material.hunter.utils.ShellUtils;
+import material.hunter.utils.Utils;
 
 public class OneShotRecyclerViewAdapter
         extends RecyclerView.Adapter<OneShotRecyclerViewAdapter.ViewHolder> {
@@ -34,10 +36,12 @@ public class OneShotRecyclerViewAdapter
     private final Context context;
     private final SharedPreferences prefs;
     private List<OneShotItem> oneShotItems;
+    private View view;
 
-    public OneShotRecyclerViewAdapter(Context context, List<OneShotItem> oneShotItems) {
+    public OneShotRecyclerViewAdapter(Context context, List<OneShotItem> oneShotItems, View view) {
         this.context = context;
         this.oneShotItems = oneShotItems;
+        this.view = view;
         prefs = context.getSharedPreferences(BuildConfig.APPLICATION_ID, Context.MODE_PRIVATE);
     }
 
@@ -105,10 +109,10 @@ public class OneShotRecyclerViewAdapter
                             })
                             .show();
                     pinLayout.setEndIconOnClickListener(v3 -> {
-                        if (!(pin.getText().toString().length() < 8)) {
+                        if (pin.getText().toString().length() == 8) {
                             new ShellUtils.YetAnotherActiveShellExecutor(true) {
 
-                                final int[] associatingTemp = {0};
+                                final double[] attempt = {0};
 
                                 @Override
                                 public void onPrepare() {
@@ -118,37 +122,28 @@ public class OneShotRecyclerViewAdapter
 
                                 @Override
                                 public void onNewLine(String line) {
-                                    if (line.equals("[*] Associating with AP…") || line.equals("[*] Scanning…")) {
-                                        associatingTemp[0] += 1;
+                                    if (process[0] == null)
                                         process[0] = getProcess();
-                                        if (associatingTemp[0] > 3) {
-                                            outputTextView.append("[-] Attack failed, AP isn't vulnerable or signal is low.");
-                                            outputTextView.append("\n");
-                                            if (process[0] != null) {
-                                                process[0].destroy();
-                                            } else {
-                                                outputTextView.append("[-] Failed to destroy Nmap process.");
-                                                outputTextView.append("\n");
-                                            }
-                                            associatingTemp[0] = 0;
+                                    if (line.equals("[*] Scanning…") || line.equals("[*] Associating with AP…")) {
+                                        if (attempt[0] > 3) {
+                                            writeLineToLogger("[-] Attack failed, AP isn't vulnerable or signal is low.", outputTextView);
+                                            process[0].destroy();
                                         } else {
-                                            outputTextView.append(line);
-                                            outputTextView.append("\n");
+                                            writeLineToLogger(line, outputTextView);
+                                            attempt[0] += 0.5;
                                         }
                                     } else {
-                                        if (associatingTemp[0] > 0) {
-                                            associatingTemp[0] -= 1;
+                                        if (attempt[0] > 0) {
+                                            attempt[0] = 0;
                                         }
-                                        outputTextView.append(line);
-                                        outputTextView.append("\n");
+                                        writeLineToLogger(line, outputTextView);
                                     }
                                     scrollView.fullScroll(View.FOCUS_DOWN);
                                 }
 
                                 @Override
                                 public void onNewErrorLine(String line) {
-                                    outputTextView.append(line);
-                                    outputTextView.append("\n");
+                                    writeLineToLogger(line, outputTextView);
                                     scrollView.fullScroll(View.FOCUS_DOWN);
                                 }
 
@@ -158,7 +153,8 @@ public class OneShotRecyclerViewAdapter
                                 }
                             }.exec("python3 -u /usr/sbin/oneshot.py -i " + prefs.getString("macchanger_interface", "") + " -b " + oneShotItem.getBSSID() + " -p " + pin.getText().toString() + (ifaceDown ? " --iface-down" : "") + (isMtkWifi ? " --mtk-wifi" : ""));
                         } else {
-                            outputTextView.append("[-] Pin minimum length is: 8!");
+                            outputCard.setVisibility(View.VISIBLE);
+                            outputTextView.append("[-] Pin length must be: 8!\n");
                         }
                     });
                 });
@@ -179,7 +175,7 @@ public class OneShotRecyclerViewAdapter
                             .show();
                     new ShellUtils.YetAnotherActiveShellExecutor(true) {
 
-                        final int[] associatingTemp = {0};
+                        final double[] attempt = {0};
 
                         @Override
                         public void onPrepare() {
@@ -188,37 +184,28 @@ public class OneShotRecyclerViewAdapter
 
                         @Override
                         public void onNewLine(String line) {
-                            if (line.equals("[*] Associating with AP…") || line.equals("[*] Scanning…")) {
-                                associatingTemp[0] += 1;
+                            if (process[0] == null)
                                 process[0] = getProcess();
-                                if (associatingTemp[0] > 3) {
-                                    outputTextView.append("[-] Attack failed, AP isn't vulnerable or signal is low.");
-                                    outputTextView.append("\n");
-                                    if (process[0] != null) {
-                                        process[0].destroy();
-                                    } else {
-                                        outputTextView.append("[-] Failed to destroy Nmap process.");
-                                        outputTextView.append("\n");
-                                    }
-                                    associatingTemp[0] = 0;
+                            if (line.equals("[*] Scanning…") || line.equals("[*] Associating with AP…")) {
+                                if (attempt[0] > 3) {
+                                    writeLineToLogger("[-] Attack failed, AP isn't vulnerable or signal is low.", outputTextView);
+                                    process[0].destroy();
                                 } else {
-                                    outputTextView.append(line);
-                                    outputTextView.append("\n");
+                                    writeLineToLogger(line, outputTextView);
+                                    attempt[0] += 0.5;
                                 }
                             } else {
-                                if (associatingTemp[0] > 0) {
-                                    associatingTemp[0] -= 1;
+                                if (attempt[0] > 0) {
+                                    attempt[0] = 0;
                                 }
-                                outputTextView.append(line);
-                                outputTextView.append("\n");
+                                writeLineToLogger(line, outputTextView);
                             }
                             scrollView.fullScroll(View.FOCUS_DOWN);
                         }
 
                         @Override
                         public void onNewErrorLine(String line) {
-                            outputTextView.append(line);
-                            outputTextView.append("\n");
+                            writeLineToLogger(line, outputTextView);
                             scrollView.fullScroll(View.FOCUS_DOWN);
                         }
 
@@ -243,9 +230,9 @@ public class OneShotRecyclerViewAdapter
                                     process[0].destroy();
                             })
                             .show();
-                    new ShellUtils.YetAnotherActiveShellExecutor(true) {
+                    new ShellUtils.YetAnotherActiveShellExecutor(true) {;
 
-                        final int[] associatingTemp = {0};
+                        final double[] attempt = {0};
 
                         @Override
                         public void onPrepare() {
@@ -254,37 +241,28 @@ public class OneShotRecyclerViewAdapter
 
                         @Override
                         public void onNewLine(String line) {
-                            if (line.equals("[*] Associating with AP…") || line.equals("[*] Scanning…")) {
-                                associatingTemp[0] += 1;
+                            if (process[0] == null)
                                 process[0] = getProcess();
-                                if (associatingTemp[0] > 3) {
-                                    outputTextView.append("[-] Attack failed, AP isn't vulnerable or signal is low.");
-                                    outputTextView.append("\n");
-                                    if (process[0] != null) {
-                                        process[0].destroy();
-                                    } else {
-                                        outputTextView.append("[-] Failed to destroy Nmap process.");
-                                        outputTextView.append("\n");
-                                    }
-                                    associatingTemp[0] = 0;
+                            if (line.equals("[*] Scanning…") || line.equals("[*] Associating with AP…")) {
+                                if (attempt[0] > 3) {
+                                    writeLineToLogger("[-] Attack failed, AP isn't vulnerable or signal is low.", outputTextView);
+                                    process[0].destroy();
                                 } else {
-                                    outputTextView.append(line);
-                                    outputTextView.append("\n");
+                                    writeLineToLogger(line, outputTextView);
+                                    attempt[0] += 0.5;
                                 }
                             } else {
-                                if (associatingTemp[0] > 0) {
-                                    associatingTemp[0] -= 1;
+                                if (attempt[0] > 0) {
+                                    attempt[0] = 0;
                                 }
-                                outputTextView.append(line);
-                                outputTextView.append("\n");
+                                writeLineToLogger(line, outputTextView);
                             }
                             scrollView.fullScroll(View.FOCUS_DOWN);
                         }
 
                         @Override
                         public void onNewErrorLine(String line) {
-                            outputTextView.append(line);
-                            outputTextView.append("\n");
+                            writeLineToLogger(line, outputTextView);
                             scrollView.fullScroll(View.FOCUS_DOWN);
                         }
 
@@ -296,8 +274,26 @@ public class OneShotRecyclerViewAdapter
                 });
             });
         } else {
-            holder.openAttackDialog.setOnClickListener(v -> PathsUtil.showMessage(context, "WPS Locked!", false));
+            holder.openAttackDialog.setOnClickListener(v -> PathsUtil.showSnack(view, "WPS Locked!", false));
             holder.openAttackDialog.setImageResource(R.drawable.ic_lock);
+        }
+    }
+
+    private void writeLineToLogger(String line, TextView logger) {
+        if (prefs.getBoolean("oneshot_compact_stdout", true)) {
+            if (line.equals("[*] Running wpa_supplicant…")) {
+                String[] loggerLines = logger.getText().toString().split("\n");
+                if (!Utils.arrayContains(loggerLines, "[*] Running wpa_supplicant…")) {
+                    logger.append(line + "\n");
+                }
+            } else if (!line.startsWith("[P]")) {
+                logger.append(line + "\n");
+            } else if (line.startsWith("[+] Associated with")) {
+                logger.append("[+] Associated with " + Utils.matchString("\\(ESSID: (.*)\\)$", line, "network", 1));
+                logger.append("\n");
+            }
+        } else {
+            logger.append(line + "\n");
         }
     }
 

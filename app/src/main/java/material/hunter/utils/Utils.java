@@ -32,4 +32,31 @@ public class Utils {
             }
         return defaultValue;
     }
+
+    public static boolean arrayContains(String[] array, String value) {
+        for (String item : array) {
+            if (item.equals(value)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static boolean arrayContains(int[] array, int value) {
+        for (int item : array) {
+            if (item == value) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static boolean arrayContains(boolean[] array, boolean value) {
+        for (boolean item : array) {
+            if (item == value) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

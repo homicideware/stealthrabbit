@@ -63,6 +63,7 @@ public class SettingsActivity extends ThemedActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        PathsUtil.getInstance(this);
         prefs = getSharedPreferences(BuildConfig.APPLICATION_ID, Context.MODE_PRIVATE);
         terminalUtil = new TerminalUtil(this, this);
 

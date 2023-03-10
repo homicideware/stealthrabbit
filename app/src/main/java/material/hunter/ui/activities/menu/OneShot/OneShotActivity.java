@@ -103,7 +103,7 @@ public class OneShotActivity extends ThemedActivity {
             Intent intent = new Intent(this, NetworkingActivity.class);
             startActivity(intent);
         });
-        adapter = new OneShotRecyclerViewAdapter(this, networks);
+        adapter = new OneShotRecyclerViewAdapter(this, networks, _view);
         recyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
         recyclerView.setAdapter(adapter);
 
@@ -112,19 +112,22 @@ public class OneShotActivity extends ThemedActivity {
                     "Down network interface when the work is finished",
                     "Activate MediaTek Wi-Fi interface driver on startup and deactivate it on exit",
                     "Sort networks list by signal",
-                    "Sort networks list by enabled WPS"
+                    "Sort networks list by enabled WPS",
+                    "Compact stdout"
             };
             String[] preferences = new String[]{
                     "oneshot_iface_down",
                     "oneshot_mtk_wifi",
                     "oneshot_sort_by_signal",
-                    "oneshot_sort_by_enabled_wps"
+                    "oneshot_sort_by_enabled_wps",
+                    "oneshot_compact_stdout"
             };
             final boolean[] itemsBooleans = new boolean[]{
                     prefs.getBoolean("oneshot_iface_down", false),
                     prefs.getBoolean("oneshot_mtk_wifi", false),
                     prefs.getBoolean("oneshot_sort_by_signal", true),
-                    prefs.getBoolean("oneshot_sort_by_enabled_wps", true)
+                    prefs.getBoolean("oneshot_sort_by_enabled_wps", true),
+                    prefs.getBoolean("oneshot_compact_stdout", true)
             };
 
             new MaterialAlertDialogBuilder(this)
@@ -174,8 +177,8 @@ public class OneShotActivity extends ThemedActivity {
                 }
             }
             if (requirementsBuilder.length() > 1) {
-                requirementsBuilder = new StringBuilder(requirementsBuilder.substring(0, requirementsBuilder.length() - 2));
-                requirementsIsNotInstalledDialog(requirementsBuilder.toString());
+                new Handler(Looper.getMainLooper()).post(() ->
+                        requirementsIsNotInstalledDialog(requirementsBuilder.substring(0, requirementsBuilder.length() - 2)));
             }
         });
     }
@@ -187,7 +190,7 @@ public class OneShotActivity extends ThemedActivity {
                 .setCancelable(false)
                 .setPositiveButton("Install", (di, i) -> {
                     try {
-                        terminalUtil.runCommand(PathsUtil.APP_SCRIPTS_PATH + "/bootroot_exec 'apt update && apt install python3 wpasupplicant iw wget pixiewps -y; wget https://raw.githubusercontent.com/drygdryg/OneShot/master/oneshot.py; mv oneshot.py /usr/sbin/; chmod +x /usr/sbin/oneshot.py; mkdir -p /etc/OneShot; wget https://raw.githubusercontent.com/drygdryg/OneShot/master/vulnwsc.txt -O /etc/OneShot/vulnwsc.txt'", false);
+                        terminalUtil.runCommand(PathsUtil.APP_SCRIPTS_PATH + "/bootroot_exec 'apt update && apt install python3 wpasupplicant iw wget pixiewps -y; rm -f /usr/sbin/oneshot.py; wget https://raw.githubusercontent.com/drygdryg/OneShot/master/oneshot.py -O /usr/sbin/oneshot.py; chmod +x /usr/sbin/oneshot.py; mkdir -p /etc/OneShot; wget https://raw.githubusercontent.com/drygdryg/OneShot/master/vulnwsc.txt -O /etc/OneShot/vulnwsc.txt'", false);
                     } catch (ActivityNotFoundException e) {
                         if (prefs.getString("terminal_type", TerminalUtil.TERMINAL_TYPE_TERMUX).equals(TerminalUtil.TERMINAL_TYPE_TERMUX)) {
                             terminalUtil.checkIsTermuxApiSupported();
@@ -222,7 +225,7 @@ public class OneShotActivity extends ThemedActivity {
         return result;
     }
 
-    @SuppressLint({"SetTextI18n"})
+    @SuppressLint({"SetTextI18n", "NotifyDataSetChanged"})
     private void scan() {
         String mInterface = prefs.getString("macchanger_interface", "");
         if (mInterface.isEmpty()) {
@@ -261,12 +264,14 @@ public class OneShotActivity extends ThemedActivity {
                             networks.add(new OneShotItem(ESSID, BSSID, security, power, isWpsLocked, deviceName, model, modelNumber));
                         }
                     } catch (Exception ignored) {
-                        PathsUtil.showSnack(_view, "Failed to load network information...", false);
+                        new Handler(Looper.getMainLooper()).post(() ->
+                                PathsUtil.showSnack(_view, "Failed to load network information...", false));
                     }
                 }
                 sortNetworks();
                 new Handler(Looper.getMainLooper()).post(() -> {
-                    adapter.notifyDataSetChangedL(networks);
+                    //adapter.notifyDataSetChangedL(networks);
+                    adapter.notifyDataSetChanged();
                     progressIndicator.setVisibility(View.INVISIBLE);
                     progressIndicator.setIndeterminate(false);
                     isScanning = false;

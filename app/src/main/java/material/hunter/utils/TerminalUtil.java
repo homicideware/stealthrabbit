@@ -70,15 +70,7 @@ public class TerminalUtil {
             intent.putExtra("com.termux.RUN_COMMAND_WORKDIR", "/data/data/com.termux/files/home");
             intent.putExtra("com.termux.RUN_COMMAND_BACKGROUND", in_background);
             intent.putExtra("com.termux.RUN_COMMAND_SESSION_ACTION", "0");
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                try {
-                    context.startService(intent);
-                } catch (BackgroundServiceStartNotAllowedException e) {
-                    termuxServiceIsNotRunning();
-                }
-            } else {
-                context.startService(intent);
-            }
+            context.startService(intent);
         } else if (terminalType.equals(TERMINAL_TYPE_NETHUNTER)) {
             if (in_background) {
                 executor.execute(() -> exe.executeCommandAsRoot(command));
@@ -216,15 +208,13 @@ public class TerminalUtil {
         });
     }
 
-    private void termuxServiceIsNotRunning() {
+    public void termuxServiceIsNotRunning() {
         MaterialAlertDialogBuilder adb = new MaterialAlertDialogBuilder(context);
         adb.setTitle("Terminal");
         adb.setMessage(
                 "Termux service isn't running. Allow Termux to work in the background and run it, thus you will allow it to work in the background and wait for commands from other applications, after opening it can be immediately closed through a notification.");
-        adb.setPositiveButton(
-                android.R.string.ok,
-                (di, i) -> {
-                });
+        adb.setPositiveButton(android.R.string.ok, (di, i) -> {
+        });
         adb.show();
     }
 

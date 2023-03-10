@@ -48,7 +48,6 @@
             android:name=".ui.activities.MainActivity"
             android:configChanges="orientation|screenSize"
             android:exported="true"
-            android:label="@string/app_name"
             android:launchMode="singleTop"
             android:theme="@style/Theme.MaterialHunter">
             <intent-filter android:label="Home">
@@ -70,7 +69,8 @@
             android:exported="true"
             android:icon="@mipmap/ic_mh_termux"
             android:label="Chroot Terminal"
-            android:launchMode="standard">
+            android:launchMode="standard"
+            android:theme="@style/Theme.MaterialHunter.Transparent">
             <intent-filter android:label="Chroot Terminal">
                 <action android:name="android.intent.action.VIEW" />
 

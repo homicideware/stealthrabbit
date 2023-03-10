@@ -78,7 +78,7 @@ public class PathsUtil {
 
     public static Map.Entry<String, String> getBusyboxPath() {
         HashMap<String, String> busybox = new HashMap<>();
-        busybox.put("Magisk", "/data/adb/magisk/busybox");
+        //busybox.put("Magisk", "/data/adb/magisk/busybox");
         busybox.put("xbin", "/system/xbin/busybox");
         busybox.put("bin", "/system/bin/busybox");
         for (Map.Entry<String, String> entry : busybox.entrySet()) {
