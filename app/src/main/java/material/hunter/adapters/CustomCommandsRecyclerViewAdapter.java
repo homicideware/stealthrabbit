@@ -197,13 +197,13 @@ public class CustomCommandsRecyclerViewAdapter extends RecyclerView.Adapter<Cust
                                                     .getText()
                                                     .toString()
                                                     .isEmpty()) {
-                                                PathsUtil.showMessage(
+                                                PathsUtil.showToast(
                                                         context, "Label cannot be empty", false);
                                             } else if (commandEditText
                                                     .getText()
                                                     .toString()
                                                     .isEmpty()) {
-                                                PathsUtil.showMessage(
+                                                PathsUtil.showToast(
                                                         context,
                                                         "Command string cannot be empty",
                                                         false);

@@ -38,7 +38,6 @@
                 android:layout_height="wrap_content"
                 android:ellipsize="marquee"
                 android:singleLine="true"
-                android:textIsSelectable="true"
                 android:fontFamily="monospace"
                 android:textSize="14dp" />
 
@@ -56,7 +55,6 @@
             android:layout_width="42dp"
             android:layout_height="42dp"
             android:layout_gravity="center_vertical"
-            android:contentDescription="TODO"
             android:padding="5dp"
             android:src="@drawable/ic_play" />
     </LinearLayout>

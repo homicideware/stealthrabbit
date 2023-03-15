@@ -35,20 +35,14 @@ public class OneShotRecyclerViewAdapter
 
     private final Context context;
     private final SharedPreferences prefs;
-    private List<OneShotItem> oneShotItems;
-    private View view;
+    private final List<OneShotItem> oneShotItems;
+    private final View view;
 
-    public OneShotRecyclerViewAdapter(Context context, List<OneShotItem> oneShotItems, View view) {
+    public OneShotRecyclerViewAdapter(@NonNull Context context, List<OneShotItem> oneShotItems, View view) {
         this.context = context;
         this.oneShotItems = oneShotItems;
         this.view = view;
         prefs = context.getSharedPreferences(BuildConfig.APPLICATION_ID, Context.MODE_PRIVATE);
-    }
-
-    @SuppressLint("NotifyDataSetChanged")
-    public void notifyDataSetChangedL(List<OneShotItem> oneShotItems) {
-        this.oneShotItems = oneShotItems;
-        notifyDataSetChanged();
     }
 
     @NonNull
@@ -66,12 +60,7 @@ public class OneShotRecyclerViewAdapter
         holder.ssid.setSelected(true);
         holder.bssid.setText(oneShotItem.getBSSID());
         holder.bssid.setSelected(true);
-        holder.additionalInfo.setText(
-                oneShotItem.getSecurity()
-                        + ", "
-                        + oneShotItem.getWsc_model()
-                        + " (" + oneShotItem.getWsc_device_name() + "), "
-                        + oneShotItem.getSignal() + " dBm");
+        holder.additionalInfo.setText(getNetworkAdditionalInfo(oneShotItem));
         holder.additionalInfo.setSelected(true);
         if (!oneShotItem.isWpsLocked()) {
             holder.openAttackDialog.setOnClickListener(v -> {
@@ -277,6 +266,20 @@ public class OneShotRecyclerViewAdapter
             holder.openAttackDialog.setOnClickListener(v -> PathsUtil.showSnack(view, "WPS Locked!", false));
             holder.openAttackDialog.setImageResource(R.drawable.ic_lock);
         }
+    }
+
+    @NonNull
+    private String getNetworkAdditionalInfo(@NonNull OneShotItem oneShotItem) {
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append(oneShotItem.getSecurity());
+        if (!oneShotItem.getWsc_model().isEmpty()) {
+            stringBuilder.append(", ").append(oneShotItem.getWsc_model());
+        }
+        if (!oneShotItem.getWsc_device_name().isEmpty()) {
+            stringBuilder.append(" (").append(oneShotItem.getWsc_device_name()).append(")");
+        }
+        stringBuilder.append(", ").append(oneShotItem.getSignal()).append(" dBm");
+        return stringBuilder.toString();
     }
 
     private void writeLineToLogger(String line, TextView logger) {

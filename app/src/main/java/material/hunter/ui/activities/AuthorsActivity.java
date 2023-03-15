@@ -72,7 +72,7 @@ public class AuthorsActivity extends ThemedActivity {
                 try {
                     reader.close();
                 } catch (IOException e) {
-                    PathsUtil.showMessage(this, e.toString(), true);
+                    PathsUtil.showToast(this, e.toString(), true);
                 }
             }
         }

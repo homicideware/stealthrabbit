@@ -25,6 +25,7 @@ import com.google.android.material.textfield.TextInputEditText;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ExecutorService;
@@ -58,6 +59,7 @@ public class OneShotActivity extends ThemedActivity {
     private Timer timer = new Timer();
     private boolean isScanning = false;
 
+    @SuppressLint("NotifyDataSetChanged")
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -137,6 +139,8 @@ public class OneShotActivity extends ThemedActivity {
                         for (int f = 0; f < itemsBooleans.length; f++) {
                             prefs.edit().putBoolean(preferences[f], itemsBooleans[f]).apply();
                         }
+                        sortNetworks();
+                        adapter.notifyDataSetChanged();
                     })
                     .setNegativeButton(android.R.string.cancel, (di, i) -> {
                     })
@@ -244,7 +248,7 @@ public class OneShotActivity extends ThemedActivity {
             isScanning = true;
             progressIndicator.setIndeterminate(true);
             progressIndicator.setVisibility(View.VISIBLE);
-            networks.clear();
+            ArrayList<OneShotItem> newNetworks = new ArrayList<>();
             executor.execute(() -> {
                 for (String line : compactScanResult(mInterface)) {
                     try {
@@ -261,16 +265,17 @@ public class OneShotActivity extends ThemedActivity {
                             String model = Utils.matchString("[*] Model: (.*)", line, 1);
                             String modelNumber = Utils.matchString("[*] Model Number: (.*)", line, 1);
                             String deviceName = Utils.matchString("[*] Device name: (.*)", line, 1);
-                            networks.add(new OneShotItem(ESSID, BSSID, security, power, isWpsLocked, deviceName, model, modelNumber));
+                            newNetworks.add(new OneShotItem(ESSID, BSSID, security, power, isWpsLocked, deviceName, model, modelNumber));
                         }
                     } catch (Exception ignored) {
                         new Handler(Looper.getMainLooper()).post(() ->
                                 PathsUtil.showSnack(_view, "Failed to load network information...", false));
                     }
                 }
+                networks.clear();
+                networks.addAll(newNetworks);
                 sortNetworks();
                 new Handler(Looper.getMainLooper()).post(() -> {
-                    //adapter.notifyDataSetChangedL(networks);
                     adapter.notifyDataSetChanged();
                     progressIndicator.setVisibility(View.INVISIBLE);
                     progressIndicator.setIndeterminate(false);
@@ -278,6 +283,14 @@ public class OneShotActivity extends ThemedActivity {
                 });
             });
         }
+    }
+
+    private boolean getRandomBoolean() {
+        return Math.random() < 0.5;
+    }
+
+    private float random(int min, int max) {
+        return new Random().nextFloat() * (max - min) + min;
     }
 
     private void sortNetworks() {

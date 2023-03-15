@@ -361,13 +361,13 @@ public class ServicesActivity extends ThemedActivity {
                                 buttonAdd.setOnClickListener(
                                         v1 -> {
                                             if (titleEditText.getText().toString().isEmpty()) {
-                                                PathsUtil.showMessage(
+                                                PathsUtil.showToast(
                                                         context, "Title cannot be empty", false);
                                             } else if (startCmdEditText
                                                     .getText()
                                                     .toString()
                                                     .isEmpty()) {
-                                                PathsUtil.showMessage(
+                                                PathsUtil.showToast(
                                                         context,
                                                         "Start Command cannot be empty",
                                                         false);
@@ -375,7 +375,7 @@ public class ServicesActivity extends ThemedActivity {
                                                     .getText()
                                                     .toString()
                                                     .isEmpty()) {
-                                                PathsUtil.showMessage(
+                                                PathsUtil.showToast(
                                                         context,
                                                         "Stop Command cannot be empty",
                                                         false);
@@ -383,7 +383,7 @@ public class ServicesActivity extends ThemedActivity {
                                                     .getText()
                                                     .toString()
                                                     .isEmpty()) {
-                                                PathsUtil.showMessage(
+                                                PathsUtil.showToast(
                                                         context,
                                                         "Check Status Command cannot be empty",
                                                         false);
@@ -487,7 +487,7 @@ public class ServicesActivity extends ThemedActivity {
                                                         false);
                                                 adDelete.dismiss();
                                             } else {
-                                                PathsUtil.showMessage(
+                                                PathsUtil.showToast(
                                                         context, "Nothing to be deleted.", false);
                                             }
                                         });
@@ -551,7 +551,7 @@ public class ServicesActivity extends ThemedActivity {
                                                     && targetPositionIndex
                                                     == (originalPositionIndex
                                                     - 1))) {
-                                                PathsUtil.showMessage(
+                                                PathsUtil.showToast(
                                                         context,
                                                         "You are moving the item to the same"
                                                                 + " position, nothing to be moved.",

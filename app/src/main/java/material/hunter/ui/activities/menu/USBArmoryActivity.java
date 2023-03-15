@@ -464,7 +464,7 @@ public class USBArmoryActivity extends ThemedActivity {
                                             false);
                                     reloadMountStateButton.performClick();
                                 } else {
-                                    PathsUtil.showMessage(
+                                    PathsUtil.showToast(
                                             context,
                                             "Failed to unmount image "
                                                     + imgFileSpinner.getText().toString()

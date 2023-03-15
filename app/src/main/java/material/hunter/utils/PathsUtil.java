@@ -102,7 +102,7 @@ public class PathsUtil {
         return resourceId > 0 ? resources.getDimensionPixelSize(resourceId) : 0;
     }
 
-    public static void showMessage(Context context, String msg, boolean is_long) {
+    public static void showToast(Context context, String msg, boolean is_long) {
         if (is_long) Toast.makeText(context, msg, Toast.LENGTH_LONG).show();
         else Toast.makeText(context, msg, Toast.LENGTH_SHORT).show();
     }

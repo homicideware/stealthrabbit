@@ -310,7 +310,7 @@ public class MainActivity extends ThemedActivity {
                 mh_folder.mkdir();
             } catch (Exception e) {
                 e.printStackTrace();
-                PathsUtil.showMessage(
+                PathsUtil.showToast(
                         context,
                         "Failed to create MaterialHunter directory.",
                         false);
@@ -360,7 +360,7 @@ public class MainActivity extends ThemedActivity {
                         android.provider.Settings.ACTION_MANAGE_OVERLAY_PERMISSION);
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 context.startActivity(intent);
-                PathsUtil.showMessage(context, "Please, grant overlay permission for Termux", true);
+                PathsUtil.showToast(context, "Please, grant overlay permission for Termux", true);
             }
 
             prefs.edit().putInt("version", BuildConfig.VERSION_CODE).apply();

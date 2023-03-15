@@ -48,12 +48,11 @@ public class MACChangerActivity extends ThemedActivity {
     private TextInputLayout interfacesLayout;
     private AutoCompleteTextView interfaces;
     private Button interfacesUpdate;
-    private TextInputLayout macaddress_layout;
-    private TextInputEditText macaddress;
-    private Button macaddressSetup;
-    private TextInputLayout permanent_layout;
-    private TextInputEditText permanent;
-    private Button permanentSetup;
+    private TextInputLayout macAddressLayout;
+    private TextInputEditText macAddress;
+    private Button changeMac;
+    private String PERMANENT_MAC_ADDRESS;
+    private Button restoreToPermanentMac;
     private Button networking;
     private View _view;
     private final ShellUtils exe = new ShellUtils();
@@ -81,12 +80,10 @@ public class MACChangerActivity extends ThemedActivity {
         interfacesLayout = binding.interfacesLayout;
         interfaces = binding.interfaces;
         interfacesUpdate = binding.interfacesUpdate;
-        macaddress_layout = binding.macaddressLayout;
-        macaddress = binding.macaddress;
-        macaddressSetup = binding.macaddressSetup;
-        permanent_layout = binding.permanentLayout;
-        permanent = binding.permanent;
-        permanentSetup = binding.permanentSetup;
+        macAddressLayout = binding.macaddressLayout;
+        macAddress = binding.macaddress;
+        changeMac = binding.macaddressSetup;
+        restoreToPermanentMac = binding.permanentSetup;
         networking = binding.networking;
 
         executor.execute(() -> exe.executeCommandAsRoot("dos2unix " + PathsUtil.APP_SCRIPTS_PATH + "/changemac"));
@@ -102,11 +99,11 @@ public class MACChangerActivity extends ThemedActivity {
 
         interfacesUpdate.setOnClickListener(v -> loadInterfaces());
 
-        macaddress_layout.setStartIconOnClickListener(v -> macaddress.setText(genRandomMACAddress()));
+        macAddressLayout.setStartIconOnClickListener(v -> macAddress.setText(genRandomMACAddress()));
 
-        macaddressSetup.setOnClickListener(v -> setMACAddress(interfaces.getText().toString(), macaddress.getText().toString()));
+        changeMac.setOnClickListener(v -> setMACAddress(interfaces.getText().toString(), macAddress.getText().toString()));
 
-        permanentSetup.setOnClickListener(v -> setMACAddress(interfaces.getText().toString(), permanent.getText().toString()));
+        restoreToPermanentMac.setOnClickListener(v -> setMACAddress(interfaces.getText().toString(), PERMANENT_MAC_ADDRESS));
 
         networking.setOnClickListener(v -> {
             finish();
@@ -117,13 +114,13 @@ public class MACChangerActivity extends ThemedActivity {
 
     private void setMACAddress(String iface, String macAddress) {
         if (!macAddress.isEmpty() || macAddress.matches("((\\w{2}:){5}\\w{2})")) {
-            if (iface.matches("^(s|)wlan(0|1)") && (Build.VERSION.SDK_INT != Build.VERSION_CODES.R)) {
+            if (iface.matches("^(s|)wlan0") && (Build.VERSION.SDK_INT != Build.VERSION_CODES.R)) {
                 new ShellUtils.YetAnotherActiveShellExecutor() {
                     @Override
                     public void onPrepare() {
-                        interfacesLayout.setEnabled(false);
-                        macaddress_layout.setEnabled(false);
-                        permanent_layout.setEnabled(false);
+                        macAddressLayout.setEnabled(false);
+                        changeMac.setEnabled(false);
+                        restoreToPermanentMac.setEnabled(false);
                         networking.setEnabled(false);
                         CHANGED_MAC = macAddress;
                     }
@@ -157,21 +154,21 @@ public class MACChangerActivity extends ThemedActivity {
                                     long end = System.currentTimeMillis() + 10000;
                                     while (System.currentTimeMillis() < end) {
                                         if (isNetworkAvailable()) {
-                                            String macOnUp = exe.executeCommandAsRootWithOutput("ip addr show " + iface + " | sed -n \"s/.*link\\/ether \\(\\(\\w\\{2\\}:\\)\\{5\\}\\w\\{2\\}\\).*/\\1/p\"");
+                                            String macOnUp = exe.executeCommandAsRootWithOutput("ip addr show " + iface + " | sed -n \"s/.*link\\/ether \\(\\([0-9A-f]\\{2\\}:\\)\\{5\\}[0-9A-f]\\{2\\}\\).*/\\1/p\"");
                                             new Handler(Looper.getMainLooper()).post(() -> {
-                                                if (!CHANGED_MAC.equalsIgnoreCase(macOnUp)) {
+                                                if (CHANGED_MAC.equalsIgnoreCase(macOnUp)) {
+                                                    PathsUtil.showSnack(_view, "MAC address successful changed.", false);
+                                                } else {
                                                     View view = getLayoutInflater().inflate(R.layout.macchanger_a12dialog, null);
                                                     TextView message = view.findViewById(R.id.message);
                                                     message.setText(Html.fromHtml("Failed to change the MAC address on your device. The Android version of your device is greater than 11 (12+), in which case you need to use XPosed (or <a href=\"https://github.com/LSPosed/LSPosed#install\">LSPosed</a>) and the <a href=\"https://github.com/DavidBerdik/MACsposed\">MACsposed</a> module. More details <a href=\"https://github.com/DavidBerdik/MACsposed\">here</a>.", Html.FROM_HTML_MODE_LEGACY));
                                                     message.setMovementMethod(new LinkMovementMethod());
                                                     failedToChangeMACDialog(view);
-                                                } else {
-                                                    PathsUtil.showSnack(_view, "MAC address successful changed.", false);
                                                 }
                                                 loadMACAddress();
-                                                interfacesLayout.setEnabled(true);
-                                                macaddress_layout.setEnabled(true);
-                                                permanent_layout.setEnabled(true);
+                                                macAddressLayout.setEnabled(true);
+                                                changeMac.setEnabled(true);
+                                                restoreToPermanentMac.setEnabled(true);
                                                 networking.setEnabled(true);
                                             });
                                             return;
@@ -182,9 +179,9 @@ public class MACChangerActivity extends ThemedActivity {
                             }
                         } else {
                             loadMACAddress();
-                            interfacesLayout.setEnabled(true);
-                            macaddress_layout.setEnabled(true);
-                            permanent_layout.setEnabled(true);
+                            macAddressLayout.setEnabled(true);
+                            changeMac.setEnabled(true);
+                            restoreToPermanentMac.setEnabled(true);
                             networking.setEnabled(true);
                             PathsUtil.showSnack(_view, "Something wrong...", false);
                         }
@@ -195,9 +192,9 @@ public class MACChangerActivity extends ThemedActivity {
                         + "\" \""
                         + macAddress + "\"");
             } else {
-                interfacesLayout.setEnabled(false);
-                macaddress_layout.setEnabled(false);
-                permanent_layout.setEnabled(false);
+                macAddressLayout.setEnabled(false);
+                changeMac.setEnabled(false);
+                restoreToPermanentMac.setEnabled(false);
                 networking.setEnabled(false);
                 executor.execute(() -> {
                     int downNetworkInterface = exe.executeCommandAsRootWithReturnCode("ip link set " + iface + " down");
@@ -222,9 +219,9 @@ public class MACChangerActivity extends ThemedActivity {
                     }
                     new Handler(Looper.getMainLooper()).post(() -> {
                         loadMACAddress();
-                        interfacesLayout.setEnabled(true);
-                        macaddress_layout.setEnabled(true);
-                        permanent_layout.setEnabled(true);
+                        macAddressLayout.setEnabled(true);
+                        changeMac.setEnabled(true);
+                        restoreToPermanentMac.setEnabled(true);
                         networking.setEnabled(true);
                     });
                 });
@@ -244,7 +241,7 @@ public class MACChangerActivity extends ThemedActivity {
                 .show();
     }
 
-    private String genRandomMACAddress() {
+    public static String genRandomMACAddress() {
         SecureRandom random = new SecureRandom();
         byte[] macBytes = new byte[6];
         random.nextBytes(macBytes);
@@ -290,45 +287,27 @@ public class MACChangerActivity extends ThemedActivity {
             } else {
                 new Handler(Looper.getMainLooper()).post(() -> interfaces.setText(previousWlan, false));
             }
-            new Handler(Looper.getMainLooper()).post(() -> {
-                loadMACAddress();
-                getPermanentMAC();
-            });
         });
+        loadMACAddress();
+        getPermanentMAC();
     }
 
     private void loadMACAddress() {
         executor.execute(() -> {
             String mac = exe.executeCommandAsRootWithOutput("ip addr show " + interfaces.getText().toString() + " | sed -n \"s/.*link\\/ether \\(\\([0-9A-f]\\{2\\}:\\)\\{5\\}[0-9A-f]\\{2\\}\\).*/\\1/p\"");
-            new Handler(Looper.getMainLooper()).post(() -> macaddress.setText(mac));
+            new Handler(Looper.getMainLooper()).post(() -> macAddress.setText(mac));
         });
     }
 
     private void getPermanentMAC() {
-        new ShellUtils.YetAnotherActiveShellExecutor(true) {
-
-            @Override
-            public void onPrepare() {
-
+        executor.execute(() -> {
+            ShellUtils.ShellObject object = new ShellUtils().executeCommandAsChrootAndGetObject("macchanger -s " + interfaces.getText().toString());
+            if (object.getReturnCode() == 0) {
+                PERMANENT_MAC_ADDRESS = Utils.matchString("Permanent MAC: (.*) \\(", object.getStdout(), "00:00:00:00:00:00", 1);
+            } else {
+                PathsUtil.showSnack(_view, "Failed to get permanent MAC address!", false);
             }
-
-            @Override
-            public void onNewLine(String line) {
-                permanent.setText(Utils.matchString("Permanent MAC: (.*) \\(", line, "00:00:00:00:00:00", 1));
-            }
-
-            @Override
-            public void onNewErrorLine(String line) {
-
-            }
-
-            @Override
-            public void onFinished(int code) {
-                if (code != 0) {
-                    PathsUtil.showSnack(_view, "Failed to get permanent MAC address!", false);
-                }
-            }
-        }.exec("macchanger -s " + interfaces.getText().toString());
+        });
     }
 
     private void isRequirementsInstalled() {
@@ -345,8 +324,8 @@ public class MACChangerActivity extends ThemedActivity {
                 }
             }
             if (requirementsBuilder.length() > 1) {
-                requirementsBuilder = new StringBuilder(requirementsBuilder.substring(0, requirementsBuilder.length() - 2));
-                requirementsIsNotInstalledDialog(requirementsBuilder.toString());
+                new Handler(Looper.getMainLooper()).post(() ->
+                        requirementsIsNotInstalledDialog(requirementsBuilder.substring(0, requirementsBuilder.length() - 2)));
             }
         });
     }

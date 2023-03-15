@@ -358,13 +358,13 @@ public class CustomCommandsActivity extends ThemedActivity {
                                                     .getText()
                                                     .toString()
                                                     .isEmpty()) {
-                                                PathsUtil.showMessage(
+                                                PathsUtil.showToast(
                                                         context, "Label cannot be empty", false);
                                             } else if (commandEditText
                                                     .getText()
                                                     .toString()
                                                     .isEmpty()) {
-                                                PathsUtil.showMessage(
+                                                PathsUtil.showToast(
                                                         context,
                                                         "Command String cannot be empty",
                                                         false);
@@ -467,7 +467,7 @@ public class CustomCommandsActivity extends ThemedActivity {
                                                         false);
                                                 adDelete.dismiss();
                                             } else {
-                                                PathsUtil.showMessage(
+                                                PathsUtil.showToast(
                                                         context, "Nothing to be deleted.", false);
                                             }
                                         });
@@ -530,7 +530,7 @@ public class CustomCommandsActivity extends ThemedActivity {
                                                     && targetPositionIndex
                                                     == (originalPositionIndex
                                                     - 1))) {
-                                                PathsUtil.showMessage(
+                                                PathsUtil.showToast(
                                                         context,
                                                         "You are moving the item to the same"
                                                                 + " position, nothing to be moved.",

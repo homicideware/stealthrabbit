@@ -1,6 +1,5 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
@@ -74,7 +73,7 @@
                     android:id="@+id/macaddress"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:digits="ABCDEFabcdef1234567890"
+                    android:digits="ABCDEFabcdef1234567890:"
                     android:hint="MAC address:"
                     android:importantForAutofill="no"
                     android:inputType="textNoSuggestions"
@@ -87,37 +86,16 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="6dp"
-                android:text="Setup MAC"
+                android:text="Change MAC"
                 android:singleLine="true"
                 app:icon="@drawable/ic_done"
                 app:iconGravity="textStart" />
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/permanent_layout"
-                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                app:startIconDrawable="@drawable/ic_android">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/permanent"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:clickable="false"
-                    android:cursorVisible="false"
-                    android:focusable="false"
-                    android:hint="Permanent MAC address:"
-                    android:singleLine="true"
-                    android:text="00:00:00:00:00:00" />
-            </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/permanent_setup"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="6dp"
-                android:text="Setup permanent MAC"
+                android:text="Reset to permanent MAC"
                 android:singleLine="true"
                 app:icon="@drawable/ic_done"
                 app:iconGravity="textStart" />

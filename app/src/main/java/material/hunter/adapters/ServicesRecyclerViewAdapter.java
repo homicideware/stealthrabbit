@@ -181,13 +181,13 @@ public class ServicesRecyclerViewAdapter extends RecyclerView.Adapter<ServicesRe
                                 buttonEdit.setOnClickListener(
                                         v1 -> {
                                             if (titleEditText.getText().toString().isEmpty()) {
-                                                PathsUtil.showMessage(
+                                                PathsUtil.showToast(
                                                         context, "Title cannot be empty", false);
                                             } else if (startCmdEditText
                                                     .getText()
                                                     .toString()
                                                     .isEmpty()) {
-                                                PathsUtil.showMessage(
+                                                PathsUtil.showToast(
                                                         context,
                                                         "Start Command cannot be empty",
                                                         false);
@@ -195,7 +195,7 @@ public class ServicesRecyclerViewAdapter extends RecyclerView.Adapter<ServicesRe
                                                     .getText()
                                                     .toString()
                                                     .isEmpty()) {
-                                                PathsUtil.showMessage(
+                                                PathsUtil.showToast(
                                                         context,
                                                         "Stop Command cannot be empty",
                                                         false);
@@ -203,7 +203,7 @@ public class ServicesRecyclerViewAdapter extends RecyclerView.Adapter<ServicesRe
                                                     .getText()
                                                     .toString()
                                                     .isEmpty()) {
-                                                PathsUtil.showMessage(
+                                                PathsUtil.showToast(
                                                         context, "String cannot be empty", false);
                                             } else {
                                                 ArrayList<String> dataArrayList = new ArrayList<>();
