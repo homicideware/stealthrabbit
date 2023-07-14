@@ -1,6 +1,7 @@
 package material.hunter.ui.activities.menu;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.ActivityManager;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
@@ -12,19 +13,15 @@ import android.os.Handler;
 import android.os.Looper;
 import android.view.View;
 import android.widget.ArrayAdapter;
-import android.widget.AutoCompleteTextView;
-import android.widget.Button;
-import android.widget.TextView;
 
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
+import androidx.core.content.res.ResourcesCompat;
 
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.TextInputEditText;
-import com.google.android.material.textfield.TextInputLayout;
 
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Timer;
@@ -41,29 +38,23 @@ import material.hunter.ui.activities.ThemedActivity;
 import material.hunter.utils.PathsUtil;
 import material.hunter.utils.ShellUtils;
 import material.hunter.utils.TerminalUtil;
+import material.hunter.utils.Utils;
 
 public class NetworkingActivity extends ThemedActivity {
 
+    private Activity activity;
     private NetworkingActivityBinding binding;
-    private View _view;
     private ExecutorService executor;
     private SharedPreferences prefs;
     private TerminalUtil terminalUtil;
-    private TextInputLayout interfacesLayout;
-    private AutoCompleteTextView interfaces;
-    private Button interfacesUpdate;
-    private Button renameInterface;
-    private Button macchanger;
-    private TextView bluebinderProcesses;
-    private Button runBluebinder;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        activity = this;
         binding = NetworkingActivityBinding.inflate(getLayoutInflater());
         View root = binding.getRoot();
         setContentView(root);
-        _view = root;
 
         executor = Executors.newSingleThreadExecutor();
         prefs = getSharedPreferences(BuildConfig.APPLICATION_ID, Context.MODE_PRIVATE);
@@ -73,26 +64,23 @@ public class NetworkingActivity extends ThemedActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        isBluebinderInstalled();
         loadInterfaces();
 
-        interfacesLayout = binding.interfacesLayout;
-        interfaces = binding.interfaces;
-        interfacesUpdate = binding.interfacesUpdate;
-        renameInterface = binding.renameInterface;
-        macchanger = binding.macchanger;
-        runBluebinder = binding.runBluebinder;
-        bluebinderProcesses = binding.bluebinderProcesses;
+        binding.interfacesUpdate.setOnClickListener(v -> loadInterfaces());
 
-        interfacesUpdate.setOnClickListener(v -> loadInterfaces());
+        binding.upDownInterface.setOnClickListener(v -> upDownInterface());
 
-        interfaces.setOnItemClickListener((adapterView, v, pos, l) -> prefs.edit().putString("macchanger_interface", interfaces.getText().toString()).apply());
+        binding.interfaces.setOnItemClickListener((adapterView, v, pos, l) -> {
+            prefs.edit().putString("macchanger_interface", binding.interfaces.getText().toString()).apply();
+            getInterfaceInformation();
+            isInterfaceUp();
+        });
 
-        renameInterface.setOnClickListener(v -> {
+        binding.renameInterface.setOnClickListener(v -> {
             InputDialogBinding binding1 = InputDialogBinding.inflate(getLayoutInflater());
             View view = binding1.getRoot();
             TextInputEditText newName = binding1.editText;
-            newName.setText(interfaces.getText().toString());
+            newName.setText(binding.interfaces.getText().toString());
             new MaterialAlertDialogBuilder(this)
                     .setTitle("Rename interface")
                     .setView(view)
@@ -102,13 +90,15 @@ public class NetworkingActivity extends ThemedActivity {
                     .show();
         });
 
-        macchanger.setOnClickListener(v -> {
+        binding.macchanger.setOnClickListener(v -> {
             finish();
             Intent intent = new Intent(this, MACChangerActivity.class);
             startActivity(intent);
         });
 
-        runBluebinder.setOnClickListener(v -> runBluebinder());
+        binding.runBluebinder.setOnClickListener(v -> runBluebinderIfItIsInstalled());
+
+        executor.execute(this::isInterfaceUp);
 
         Timer timer = new Timer();
         timer.scheduleAtFixedRate(new TimerTask() {
@@ -124,22 +114,107 @@ public class NetworkingActivity extends ThemedActivity {
             String[] list = new ShellUtils().executeCommandAsRootWithOutput("iw dev | grep \"Interface\" | sed -r 's/Interface//g' | xargs | sed -r 's/ /\n/g'").split("\n");
             ArrayList<String> mInterfaces = new ArrayList<>(Arrays.asList(list));
             ArrayAdapter<String> adapter = new ArrayAdapter<>(this, R.layout.mh_spinner_item, mInterfaces);
-            new Handler(Looper.getMainLooper()).post(() -> interfaces.setAdapter(adapter));
+            new Handler(Looper.getMainLooper()).post(() -> binding.interfaces.setAdapter(adapter));
             String previousWlan = prefs.getString("macchanger_interface", "");
             if (previousWlan.isEmpty()) {
-                String preferredInterface = list[0];
-                for (String iInterface : mInterfaces) {
-                    if (iInterface.matches("^(s|)wl")) {
-                        preferredInterface = iInterface;
-                    }
-                }
-                String finalPreferredInterface = preferredInterface;
                 new Handler(Looper.getMainLooper()).post(() -> {
-                    interfaces.setText(finalPreferredInterface, false);
-                    prefs.edit().putString("macchanger_interface", finalPreferredInterface).apply();
+                    binding.interfaces.setText(list[0], false);
+                    prefs.edit().putString("macchanger_interface", list[0]).apply();
                 });
             } else {
-                new Handler(Looper.getMainLooper()).post(() -> interfaces.setText(previousWlan, false));
+                new Handler(Looper.getMainLooper()).post(() -> binding.interfaces.setText(previousWlan, false));
+            }
+            new Handler(Looper.getMainLooper()).post(this::getInterfaceInformation);
+        });
+    }
+
+    private void upDownInterface() {
+        executor.execute(() -> {
+            String mInterface = binding.interfaces.getText().toString();
+            boolean isInterfaceUp = isInterfaceUp(mInterface);
+            if (isInterfaceUp) {
+                if (mInterface.matches("(s|)wlan0")) {
+                    new ShellUtils().executeCommandAsRoot("svc wifi disable");
+                }
+                int downInterface = new ShellUtils().executeCommandAsChrootWithReturnCode("ifconfig " + mInterface + " down");
+                if (downInterface == 0) {
+                    new Handler(Looper.getMainLooper()).post(() -> {
+                        binding.upDownInterface.getBackground().setTint(getResources().getColor(R.color.green, getTheme()));
+                        binding.upDownInterface.setText("UP interface");
+                        binding.upDownInterface.setIcon(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_play, getTheme()));
+                    });
+                } else {
+                    new Handler(Looper.getMainLooper()).post(() -> PathsUtil.showSnackBar(activity, "Error code: " + downInterface, false));
+                }
+            } else {
+                int upInterface = new ShellUtils().executeCommandAsChrootWithReturnCode("ifconfig " + mInterface + " up");
+                if (upInterface == 0) {
+                    if (mInterface.matches("(s|)wlan0")) {
+                        new ShellUtils().executeCommandAsRoot("svc wifi enable");
+                    }
+                    new Handler(Looper.getMainLooper()).post(() -> {
+                        binding.upDownInterface.getBackground().setTint(getResources().getColor(R.color.red, getTheme()));
+                        binding.upDownInterface.setText("Down interface");
+                        binding.upDownInterface.setIcon(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_stop, getTheme()));
+                    });
+                } else {
+                    new Handler(Looper.getMainLooper()).post(() -> PathsUtil.showSnackBar(activity, "Error code: " + upInterface, false));
+                }
+            }
+            new Handler(Looper.getMainLooper()).post(this::getInterfaceInformation);
+        });
+    }
+
+    private boolean isInterfaceUp(String mInterface) {
+        return new ShellUtils().executeCommandAsRootWithOutput("cat /sys/class/net/" + mInterface + "/operstate").equals("up");
+    }
+
+    private void isInterfaceUp() {
+        boolean isInterfaceUp = isInterfaceUp(prefs.getString("macchanger_interface", ""));
+        if (isInterfaceUp) {
+            new Handler(Looper.getMainLooper()).post(() -> {
+                binding.upDownInterface.getBackground().setTint(getResources().getColor(R.color.red, getTheme()));
+                binding.upDownInterface.setText("Down interface");
+                binding.upDownInterface.setIcon(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_stop, getTheme()));
+            });
+        } else {
+            new Handler(Looper.getMainLooper()).post(() -> {
+                binding.upDownInterface.getBackground().setTint(getResources().getColor(R.color.green, getTheme()));
+                binding.upDownInterface.setText("UP interface");
+                binding.upDownInterface.setIcon(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_play, getTheme()));
+            });
+        }
+    }
+
+    @SuppressLint("SetTextI18n")
+    private void getInterfaceInformation() {
+        executor.execute(() -> {
+            String mInterface = prefs.getString("macchanger_interface", "");
+            if (mInterface.isEmpty()) {
+                new Handler(Looper.getMainLooper()).post(() -> binding.interfaceInformation.setText("Failed to get information about selected interface."));
+            } else {
+                boolean isInterfaceUp = isInterfaceUp(mInterface);
+                String ifconfigObj = new ShellUtils().executeCommandAsChrootWithOutput("ifconfig " + mInterface);
+                if (ifconfigObj.isEmpty()) {
+                    new Handler(Looper.getMainLooper()).post(() -> binding.interfaceInformation.setText("Failed to get information about selected interface."));
+                } else {
+                    String ipAddress = Utils.matchString(" +inet ((\\d{1,3}.){3}\\d{1,3})", ifconfigObj, 1);
+                    String macAddress = Utils.matchString(" +ether ((\\w{2}:){5}\\w{2})", ifconfigObj, 1);
+                    String broadcast = Utils.matchString(" +broadcast ((\\d{1,3}.){3}\\d{1,3})", ifconfigObj, 1);
+                    String flags = Utils.matchString(" +flags=\\d*<(.*)>", ifconfigObj, 1);
+                    StringBuilder information = new StringBuilder();
+                    information.append("Interface is ")
+                            .append(isInterfaceUp ? "up" : "down")
+                            .append("\n")
+                            .append(ipAddress.isEmpty() ? "" : "IP: " + ipAddress + "\n")
+                            .append("MAC Address: ")
+                            .append(macAddress)
+                            .append("\n")
+                            .append(broadcast.isEmpty() ? "" : "Broadcast: " + broadcast + "\n")
+                            .append("Flags: ")
+                            .append(flags);
+                    new Handler(Looper.getMainLooper()).post(() -> binding.interfaceInformation.setText(information));
+                }
             }
         });
     }
@@ -150,11 +225,11 @@ public class NetworkingActivity extends ThemedActivity {
             String processes = new ShellUtils().executeCommandAsChrootWithOutput("pidof bluebinder");
             new Handler(Looper.getMainLooper()).post(() -> {
                 if (!processes.isEmpty()) {
-                    bluebinderProcesses.setVisibility(View.VISIBLE);
-                    bluebinderProcesses.setText("Running processes: " + processes.replaceAll("\n", ", "));
+                    binding.bluebinderProcesses.setVisibility(View.VISIBLE);
+                    binding.bluebinderProcesses.setText("Running processes: " + processes.replaceAll("\n", ", "));
                 } else {
-                    bluebinderProcesses.setVisibility(View.GONE);
-                    bluebinderProcesses.setText("");
+                    binding.bluebinderProcesses.setVisibility(View.GONE);
+                    binding.bluebinderProcesses.setText("");
                 }
             });
         });
@@ -170,24 +245,23 @@ public class NetworkingActivity extends ThemedActivity {
         return false;
     }
 
-    private void runBluebinder() {
-        if (isServiceRunning(BluetoothD.class)) {
-            Intent service = new Intent(this, BluetoothD.class);
-            service.setAction(BluetoothD.ACTION_STOP);
-            ContextCompat.startForegroundService(this, service);
-        } else {
-            Intent service = new Intent(this, BluetoothD.class);
-            service.setAction(BluetoothD.ACTION_START);
-            ContextCompat.startForegroundService(this, service);
-        }
-    }
-
-    private void isBluebinderInstalled() {
+    private void runBluebinderIfItIsInstalled() {
         executor.execute(() -> {
             int code = new ShellUtils().executeCommandAsChrootWithReturnCode("which bluebinder");
             new Handler(Looper.getMainLooper()).post(() -> {
                 if (code == 1) {
                     bluebinderIsNotInstalledDialog();
+                } else {
+                    if (isServiceRunning(BluetoothD.class)) {
+                        Intent service = new Intent(this, BluetoothD.class);
+                        service.setAction(BluetoothD.ACTION_STOP);
+                        ContextCompat.startForegroundService(this, service);
+                    } else {
+                        PathsUtil.showSnackBar(activity, "Please, wait! Running...", false);
+                        Intent service = new Intent(this, BluetoothD.class);
+                        service.setAction(BluetoothD.ACTION_START);
+                        ContextCompat.startForegroundService(this, service);
+                    }
                 }
             });
         });
@@ -228,22 +302,22 @@ public class NetworkingActivity extends ThemedActivity {
 
     private void renameInterface(String newInterfaceName) {
         executor.execute(() -> {
-            int code = new ShellUtils().executeCommandAsRootWithReturnCode("ip link set " + interfaces.getText().toString() + " down");
+            int code = new ShellUtils().executeCommandAsRootWithReturnCode("ip link set " + binding.interfaces.getText().toString() + " down");
             if (code == 0) {
-                code = new ShellUtils().executeCommandAsRootWithReturnCode("ip link set " + interfaces.getText().toString() + " name " + newInterfaceName);
+                code = new ShellUtils().executeCommandAsRootWithReturnCode("ip link set " + binding.interfaces.getText().toString() + " name " + newInterfaceName);
                 if (code == 0) {
-                    new Handler(Looper.getMainLooper()).post(() -> interfaces.setText(newInterfaceName));
+                    new Handler(Looper.getMainLooper()).post(() -> binding.interfaces.setText(newInterfaceName));
                     prefs.edit().putString("macchanger_interface", newInterfaceName).apply();
-                    new ShellUtils().executeCommandAsRootWithReturnCode("ip link set " + interfaces.getText().toString() + " up");
+                    new ShellUtils().executeCommandAsRootWithReturnCode("ip link set " + binding.interfaces.getText().toString() + " up");
                     if (newInterfaceName.matches("(s|)wlan0")) {
                         new ShellUtils().executeCommandAsRootWithReturnCode("svc wifi enable");
                     }
                     new Handler(Looper.getMainLooper()).post(() ->
-                            PathsUtil.showSnack(_view, "Interface successfully renamed!", false));
+                            PathsUtil.showSnackBar(activity, "Interface successfully renamed!", false));
                 } else {
                     int finalCode = code;
                     new Handler(Looper.getMainLooper()).post(() ->
-                            PathsUtil.showSnack(_view, "Failed to rename interface. Code: " + finalCode, false));
+                            PathsUtil.showSnackBar(activity, "Failed to rename interface. Code: " + finalCode, false));
                 }
             }
         });

@@ -2,12 +2,8 @@ package material.hunter.ui.activities;
 
 import android.content.res.AssetManager;
 import android.os.Bundle;
-import android.view.View;
 
 import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
-import com.google.android.material.appbar.MaterialToolbar;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -16,26 +12,24 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
-import material.hunter.R;
 import material.hunter.adapters.AuthorsRecyclerViewAdapter;
+import material.hunter.databinding.AuthorsActivityBinding;
 import material.hunter.models.AuthorsModel;
 import material.hunter.utils.PathsUtil;
 import material.hunter.utils.Utils;
 
 public class AuthorsActivity extends ThemedActivity {
-
-    private final List<AuthorsModel> list = new ArrayList<AuthorsModel>();
-    MaterialToolbar toolbar;
-    private RecyclerView recycler;
+    
+    private final List<AuthorsModel> list = new ArrayList<>();
+    private AuthorsActivityBinding binding;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.authors_activity);
+        binding = AuthorsActivityBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
 
-        View included = findViewById(R.id.included);
-        toolbar = included.findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+        setSupportActionBar(binding.included.toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         AssetManager assetManager = getAssets();
@@ -53,15 +47,15 @@ public class AuthorsActivity extends ThemedActivity {
                 while ((value = reader.read()) != -1) {
                     builder.append((char) value);
                 }
-                String[] builded = builder.toString().split("\n", 3);
+                String[] built = builder.toString().split("\n", 3);
                 System.out.println(asset);
                 list.add(
                         new AuthorsModel(
                                 asset,
-                                builded[0],
-                                Utils.matchString("GitHub: (http[s]?:\\/\\/(?:[A-z]|[0-9]|[$-_@.]|[!*\\(\\),]|(?:%[0-9A-f][0-9A-f]))+)", builded[1], "", 1),
-                                Utils.matchString("Telegram: (http[s]?:\\/\\/(?:[A-z]|[0-9]|[$-_@.]|[!*\\(\\),]|(?:%[0-9A-f][0-9A-f]))+)", builded[1], "", 1),
-                                builded[2]));
+                                built[0],
+                                Utils.matchString("GitHub: (http[s]?:\\/\\/(?:[A-z]|[0-9]|[$-_@.]|[!*\\(\\),]|(?:%[0-9A-f][0-9A-f]))+)", built[1], "", 1),
+                                Utils.matchString("Telegram: (http[s]?:\\/\\/(?:[A-z]|[0-9]|[$-_@.]|[!*\\(\\),]|(?:%[0-9A-f][0-9A-f]))+)", built[1], "", 1),
+                                built[2]));
                 builder = new StringBuilder();
             }
         } catch (IndexOutOfBoundsException e) {
@@ -79,9 +73,8 @@ public class AuthorsActivity extends ThemedActivity {
 
         AuthorsRecyclerViewAdapter adapter = new AuthorsRecyclerViewAdapter(this, list);
 
-        recycler = findViewById(R.id.recycler_view);
-        recycler.setLayoutManager(
+        binding.recyclerView.setLayoutManager(
                 new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
-        recycler.setAdapter(adapter);
+        binding.recyclerView.setAdapter(adapter);
     }
 }

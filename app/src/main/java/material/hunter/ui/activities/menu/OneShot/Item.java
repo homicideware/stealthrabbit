@@ -1,6 +1,6 @@
 package material.hunter.ui.activities.menu.OneShot;
 
-public class OneShotItem {
+public class Item {
 
     private final String ESSID;
     private final String BSSID;
@@ -11,7 +11,7 @@ public class OneShotItem {
     private final String wsc_model;
     private final String wsc_modelNumber;
 
-    public OneShotItem(String ESSID, String BSSID, String security, float power, boolean isWpsLocked, String wsc_device_name, String wsc_model, String wsc_modelNumber) {
+    public Item(String ESSID, String BSSID, String security, float power, boolean isWpsLocked, String wsc_device_name, String wsc_model, String wsc_modelNumber) {
         this.ESSID = ESSID;
         this.BSSID = BSSID;
         this.security = security;

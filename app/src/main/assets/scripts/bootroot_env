@@ -20,13 +20,7 @@ export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:$PATH
 ## Define busybox path
 BUSYBOX=`which busybox | head -n1`
 if [ -z $BUSYBOX ]; then
-    if [ -x "/data/adb/magisk/busybox" ]; then
-        BUSYBOX="/data/adb/magisk/busybox"
-    elif [ -x "/system/xbin/busybox" ]; then
-        BUSYBOX="/system/xbin/busybox"
-    elif [ -x "/system/bin/busybox" ]; then
-        BUSYBOX="/system/bin/busybox"
-    fi
+    BUSYBOX=`cat /data/data/material.hunter/shared_prefs/material.hunter.xml | sed -n 's/.*<string name="busybox">\(.*\)<\/string>/\1/p'`
 fi
 
 ## Define chroot settings

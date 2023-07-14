@@ -43,7 +43,10 @@
         android:supportsPictureInPicture="false"
         android:theme="@style/Theme.MaterialHunter"
         android:usesCleartextTraffic="true"
-        android:windowSoftInputMode="adjustResize">
+        android:windowSoftInputMode="adjustResize"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        tools:targetApi="s"
+        tools:ignore="DataExtractionRules">
         <activity
             android:name=".ui.activities.MainActivity"
             android:configChanges="orientation|screenSize"
@@ -198,7 +201,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".ui.activities.menu.Nmap.NmapActivity"
+            android:name=".ui.activities.menu.Nmap.Activity"
             android:configChanges="orientation|keyboardHidden|screenSize|keyboard"
             android:exported="true"
             android:label="Nmap"
@@ -212,7 +215,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".ui.activities.menu.OneShot.OneShotActivity"
+            android:name=".ui.activities.menu.OneShot.Activity"
             android:configChanges="orientation|keyboardHidden|screenSize|keyboard"
             android:exported="true"
             android:label="OneShot"

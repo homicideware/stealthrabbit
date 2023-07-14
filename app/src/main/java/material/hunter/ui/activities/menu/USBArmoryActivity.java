@@ -1,44 +1,34 @@
 package material.hunter.ui.activities.menu;
 
-import android.app.Activity;
+import static material.hunter.utils.Utils.setErrorListener;
+
+import android.annotation.SuppressLint;
 import android.content.Context;
-import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.ArrayAdapter;
-import android.widget.AutoCompleteTextView;
-import android.widget.Button;
-import android.widget.CheckBox;
-import android.widget.EditText;
-import android.widget.LinearLayout;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
 
-import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.TextInputEditText;
-import com.google.android.material.textfield.TextInputLayout;
-import com.google.common.base.Predicates;
-import com.google.common.collect.Collections2;
-import com.google.common.collect.Lists;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import material.hunter.BuildConfig;
 import material.hunter.R;
 import material.hunter.SQL.USBArmorySQL;
+import material.hunter.databinding.ActionbarLayoutBinding;
+import material.hunter.databinding.UsbarmoryActivityBinding;
 import material.hunter.models.USBArmorySwitchModel;
 import material.hunter.ui.activities.ThemedActivity;
 import material.hunter.utils.PathsUtil;
@@ -46,589 +36,387 @@ import material.hunter.utils.ShellUtils;
 
 public class USBArmoryActivity extends ThemedActivity {
 
-    private static boolean is_init_exists = false;
-    private final ShellUtils exe = new ShellUtils();
-    private final EditText[] usbSwitchInfoEditTextGroup = new TextInputEditText[5];
-    MaterialToolbar toolbar;
-    private Activity activity;
-    private Context context;
-    private AutoCompleteTextView targetOSSpinner;
-    private AutoCompleteTextView usbFuncSpinner;
-    private AutoCompleteTextView adbSpinner;
-    private AutoCompleteTextView imgFileSpinner;
-    private Button reloadUSBStateImageButton;
-    private Button reloadMountStateButton;
-    private Button setUSBIfaceButton;
-    private Button mountImgButton;
-    private Button unmountImgButton;
-    private Button saveUSBFunctionConfigButton;
-    private CheckBox readOnlyCheckBox;
+    private UsbarmoryActivityBinding binding;
     private ExecutorService executor;
-    private LinearLayout imageMounterLL;
-    private TextInputLayout adbSpinnerLayout;
-    private TextView usbStatusTextView;
-    private TextView mountedImageTextView;
-    private TextView mountedImageHintTextView;
-    private View _view;
+    private SharedPreferences prefs;
 
+    @SuppressLint({"SetTextI18n", "CommitPrefEdits"})
     @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
+    public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        context = this;
-        activity = this;
+        binding = UsbarmoryActivityBinding.inflate(getLayoutInflater());
         executor = Executors.newSingleThreadExecutor();
+        prefs = getSharedPreferences(BuildConfig.APPLICATION_ID, Context.MODE_PRIVATE);
 
-        setContentView(R.layout.usbarmory_activity);
+        setContentView(binding.getRoot());
 
-        _view = getWindow().getDecorView();
-        View included = findViewById(R.id.included);
-        toolbar = included.findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+        ActionbarLayoutBinding included = binding.included;
+        setSupportActionBar(included.toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
-        targetOSSpinner = findViewById(R.id.f_usbarmory_spr_targetplatform);
-        usbFuncSpinner = findViewById(R.id.f_usbarmory_spr_usbfunctions);
-        adbSpinnerLayout = findViewById(R.id.f_usbarmory_spr_adb_lauout);
-        adbSpinner = findViewById(R.id.f_usbarmory_spr_adb);
-        imgFileSpinner = findViewById(R.id.f_usbarmory_spr_img_files);
-        setUSBIfaceButton = findViewById(R.id.f_usbarmory_btn_setusbinterface);
-        mountImgButton = findViewById(R.id.f_usbarmory_btn_mountImage);
-        unmountImgButton = findViewById(R.id.f_usbarmory_btn_unmountImage);
-        reloadUSBStateImageButton = findViewById(R.id.f_usbarmory_imgbtn_reloadUSBStatus);
-        reloadMountStateButton = findViewById(R.id.f_usbarmory_imgbtn_reloadMountStatus);
-        saveUSBFunctionConfigButton = findViewById(R.id.f_usbarmory_btn_saveusbfuncswitch);
-        readOnlyCheckBox = findViewById(R.id.f_usbarmory_chkbox_ReadOrWrite);
-        usbStatusTextView = findViewById(R.id.f_usbarmory_tv_current_usb_state);
-        mountedImageTextView = findViewById(R.id.f_usbarmory_tv_mount_state);
-        mountedImageHintTextView = findViewById(R.id.f_usbarmory_ll_tv_imagemounter_hint);
-        imageMounterLL = findViewById(R.id.f_usbarmory_ll_imageMounter_sub2);
-
-        usbSwitchInfoEditTextGroup[0] = findViewById(R.id.f_usbarmory_et_idvendor);
-        usbSwitchInfoEditTextGroup[1] = findViewById(R.id.f_usbarmory_et_idproduct);
-        usbSwitchInfoEditTextGroup[2] = findViewById(R.id.f_usbarmory_et_manufacturer);
-        usbSwitchInfoEditTextGroup[3] = findViewById(R.id.f_usbarmory_et_product);
-        usbSwitchInfoEditTextGroup[4] = findViewById(R.id.f_usbarmory_et_serialnumber);
 
         File sql_folder = new File(PathsUtil.APP_SD_SQLBACKUP_PATH);
         if (!sql_folder.exists()) {
-            PathsUtil.showSnack(_view, "Creating directory for backing up dbs...", false);
             try {
-                sql_folder.mkdir();
+                if (sql_folder.mkdir()) ;
+                PathsUtil.showSnackBar(
+                        this, binding.getRoot(), "Created directory for backing up config.", false);
             } catch (Exception e) {
                 e.printStackTrace();
-                PathsUtil.showSnack(
-                        _view,
-                        "Failed to create directory " + PathsUtil.APP_SD_SQLBACKUP_PATH,
-                        false);
+                PathsUtil.showSnackBar(
+                        this, binding.getRoot(), "Failed to create directory " + PathsUtil.APP_SD_SQLBACKUP_PATH, false);
             }
         }
 
-        ArrayAdapter<String> usb_target =
-                new ArrayAdapter<String>(
-                        activity, R.layout.mh_spinner_item, new String[]{"Windows", "Linux", "Mac OS"});
-        ArrayAdapter<String> usb_functions =
-                new ArrayAdapter<String>(
-                        activity,
-                        R.layout.mh_spinner_item,
-                        getResources().getStringArray(R.array.usbarmory_usb_states_win_lin));
-        ArrayAdapter<String> usb_functions_mac =
-                new ArrayAdapter<String>(
-                        activity,
-                        R.layout.mh_spinner_item,
-                        getResources().getStringArray(R.array.usbarmory_usb_states_mac));
-        ArrayAdapter<String> adb_enable =
-                new ArrayAdapter<String>(
-                        activity, R.layout.mh_spinner_item, new String[]{"Enable", "Disable"});
+        binding.targetOsTitle.setEnabled(true);
+        binding.functionsTitle.setEnabled(true);
+        binding.targetOs.setEnabled(true);
+        binding.functions.setEnabled(true);
 
-        targetOSSpinner.setAdapter(usb_target);
-        usbFuncSpinner.setAdapter(usb_functions);
-        adbSpinner.setAdapter(adb_enable);
+        binding.targetOsLayout.setOnClickListener(v -> {
+            String[] os = new String[]{
+                    "Windows",
+                    "Linux",
+                    "Mac OS"
+            };
+            String[] selectedOs = {prefs.getString("usbarmory_target_os", "Windows")};
+            new MaterialAlertDialogBuilder(this)
+                    .setTitle("Target OS")
+                    .setSingleChoiceItems(os, Arrays.asList(os).indexOf(selectedOs[0]), (di, position) -> selectedOs[0] = os[position])
+                    .setPositiveButton(android.R.string.ok, (di, i) -> {
+                        prefs.edit().putString("usbarmory_target_os", selectedOs[0]).apply();
+                        binding.targetOs.setText(selectedOs[0]);
+                        setDeviceInformation();
+                    })
+                    .setNegativeButton(android.R.string.cancel, (di, i) -> {
+                    })
+                    .show();
+        });
 
-        adbSpinnerLayout.setEnabled(false);
-
-        ArrayAdapter<String> usbFuncWinArrayAdapter =
-                new ArrayAdapter<>(activity, R.layout.mh_spinner_item, new ArrayList<>());
-        ArrayAdapter<String> usbFuncMACArrayAdapter =
-                new ArrayAdapter<>(activity, R.layout.mh_spinner_item, new ArrayList<>());
-
-        executor.execute(
-                () -> {
-                    if (exe.executeCommandAsRootWithReturnCode("[ -f /init.nethunter.rc ]") == 0) {
-                        is_init_exists = true;
-                        String result =
-                                exe.executeCommandAsRootWithOutput(
-                                        "cat /init.nethunter.rc | grep -E -o"
-                                                + " 'sys.usb.config=([a-zA-Z,_]+)' | sed"
-                                                + " 's/sys.usb.config=//' | sort | uniq");
-                        ArrayList<String> usbFuncArray =
-                                new ArrayList<>(Arrays.asList(result.split("\\n")));
-                        List<String> usbFuncWinArray =
-                                Lists.newArrayList(
-                                        Collections2.filter(
-                                                usbFuncArray, Predicates.containsPattern("win")));
-                        List<String> usbFuncMacArray =
-                                Lists.newArrayList(
-                                        Collections2.filter(
-                                                usbFuncArray, Predicates.containsPattern("mac")));
-                        usbFuncWinArrayAdapter.clear();
-                        usbFuncWinArrayAdapter.addAll(usbFuncWinArray);
-                        usbFuncMACArrayAdapter.clear();
-                        usbFuncMACArrayAdapter.addAll(usbFuncMacArray);
-                        new Handler(Looper.getMainLooper())
-                                .post(
-                                        () -> {
-                                            for (EditText infoEditText :
-                                                    usbSwitchInfoEditTextGroup) {
-                                                infoEditText.setEnabled(false);
-                                            }
-                                            saveUSBFunctionConfigButton.setEnabled(false);
-                                            adbSpinnerLayout.setEnabled(false);
-                                        });
-                    } else {
-                        is_init_exists = false;
-                        usbFuncWinArrayAdapter.clear();
-                        usbFuncWinArrayAdapter.addAll(
-                                getResources()
-                                        .getStringArray(R.array.usbarmory_usb_states_win_lin));
-                        usbFuncMACArrayAdapter.clear();
-                        usbFuncMACArrayAdapter.addAll(
-                                getResources().getStringArray(R.array.usbarmory_usb_states_mac));
-                    }
-                });
-
-        targetOSSpinner.setOnItemClickListener(
-                (adapterView, v, i, l) -> {
-                    if (i == 2) {
-                        usbFuncSpinner.setAdapter(usbFuncMACArrayAdapter);
-                    } else {
-                        usbFuncSpinner.setAdapter(usbFuncWinArrayAdapter);
-                    }
-                    refreshUSBSwitchInfos(
-                            gettargetOSSpinnerString(), getusbFuncSpinnerString());
-                });
-
-        usbFuncSpinner.setOnItemClickListener(
-                (parent, view, position, id) -> {
-                    if (position == 0) {
-                        adbSpinnerLayout.setEnabled(false);
-                        adbSpinner.setText("Enable", false);
-                    } else {
-                        adbSpinnerLayout.setEnabled(true);
-                    }
-                    refreshUSBSwitchInfos(
-                            gettargetOSSpinnerString(), getusbFuncSpinnerString());
-                });
-
-        adbSpinner.setOnItemClickListener(
-                (parent, view, position, id) -> refreshUSBSwitchInfos(
-                        gettargetOSSpinnerString(), getusbFuncSpinnerString()));
-
-        setUSBIfaceButton.setOnClickListener(
-                v -> {
-                    if (isAllUSBInfosValid()) {
-                        setUSBIfaceButton.setEnabled(false);
-                        String target =
-                                targetOSSpinner.getText().toString().equals("Windows")
-                                        ? "win"
-                                        : targetOSSpinner.getText().toString().equals("Linux")
-                                        ? "lnx"
-                                        : targetOSSpinner
-                                        .getText()
-                                        .toString()
-                                        .equals("Mac OS")
-                                        ? "mac"
-                                        : "";
-                        String functions = usbFuncSpinner.getText().toString();
-                        String adbEnable =
-                                adbSpinner.getText().toString().equals("Enable") ? ",adb" : "";
-                        String idVendor =
-                                " -v '" + usbSwitchInfoEditTextGroup[0].getText().toString() + "'";
-                        String idProduct =
-                                " -p '" + usbSwitchInfoEditTextGroup[1].getText().toString() + "'";
-                        String manufacturer =
-                                usbSwitchInfoEditTextGroup[2].getText().toString().isEmpty()
-                                        ? ""
-                                        : " -m '"
-                                        + usbSwitchInfoEditTextGroup[2].getText().toString()
-                                        + "'";
-                        String product =
-                                usbSwitchInfoEditTextGroup[3].getText().toString().isEmpty()
-                                        ? ""
-                                        : " -P '"
-                                        + usbSwitchInfoEditTextGroup[3].getText().toString()
-                                        + "'";
-                        String serialnumber =
-                                usbSwitchInfoEditTextGroup[4].getText().toString().isEmpty()
-                                        ? ""
-                                        : " -s '"
-                                        + usbSwitchInfoEditTextGroup[4].getText().toString()
-                                        + "'";
-
-                        executor.execute(
-                                () -> {
-                                    int result =
-                                            exe.executeCommandAsRootWithReturnCode(
-                                                    "[ -f /init.nethunter.rc ] && setprop"
-                                                            + " sys.usb.config "
-                                                            + functions
-                                                            + " || "
-                                                            + PathsUtil.APP_SCRIPTS_PATH
-                                                            + "/usbarmory -t '"
-                                                            + target
-                                                            + "' -f '"
-                                                            + functions
-                                                            + adbEnable
-                                                            + "'"
-                                                            + idVendor
-                                                            + idProduct
-                                                            + manufacturer
-                                                            + product
-                                                            + serialnumber);
-                                    new Handler(Looper.getMainLooper())
-                                            .post(
-                                                    () -> {
-                                                        if (result != 0) {
-                                                            PathsUtil.showSnack(
-                                                                    _view,
-                                                                    "Failed to set USB function.",
-                                                                    false);
-                                                        } else {
-                                                            PathsUtil.showSnack(
-                                                                    _view,
-                                                                    "USB function set"
-                                                                            + " successfully.",
-                                                                    false);
-                                                            reloadUSBStateImageButton
-                                                                    .performClick();
-                                                        }
-                                                        setUSBIfaceButton.setEnabled(true);
-                                                    });
-                                });
-                    }
-                });
-
-        reloadUSBStateImageButton.setOnClickListener(
-                v -> executor.execute(
-                        () -> {
-                            String result =
-                                    exe.executeCommandAsRootWithOutput(
-                                            "find /config/usb_gadget/g1/configs/b.1 -type l"
-                                                    + " -exec readlink -e {} \\; | xargs echo");
-                            new Handler(Looper.getMainLooper())
-                                    .post(
-                                            () -> {
-                                                if (result.equals("")) {
-                                                    usbStatusTextView.setText(
-                                                            "No USB function has been enabled");
-                                                    imageMounterLL.setVisibility(View.GONE);
-                                                    mountedImageHintTextView.setVisibility(
-                                                            View.VISIBLE);
-                                                } else {
-                                                    usbStatusTextView.setText(
-                                                            result.replaceAll(
-                                                                            "/config/usb_gadget/g1/functions/",
-                                                                            "")
-                                                                    .replaceAll(
-                                                                            "/config/usb_gadget/g1/functions",
-                                                                            "gsi.rndis")
-                                                                    .replaceAll(" ", "\n"));
-                                                    if (usbStatusTextView
-                                                            .getText()
-                                                            .toString()
-                                                            .contains("mass_storage")) {
-                                                        imageMounterLL.setVisibility(
-                                                                View.VISIBLE);
-                                                        mountedImageHintTextView.setVisibility(
-                                                                View.GONE);
-                                                        getImageFiles();
-                                                    } else {
-                                                        imageMounterLL.setVisibility(View.GONE);
-                                                        mountedImageHintTextView.setVisibility(
-                                                                View.VISIBLE);
-                                                    }
-                                                }
-                                            });
-                        }));
-
-        reloadMountStateButton.setOnClickListener(
-                v -> executor.execute(
-                        () -> {
-                            String result =
-                                    exe.executeCommandAsRootWithOutput(
-                                            "cat /config/usb_gadget/g1/functions/mass_storage.0/lun.0/file");
-                            new Handler(Looper.getMainLooper())
-                                    .post(
-                                            () -> {
-                                                if (result.equals("")) {
-                                                    mountedImageTextView.setText(
-                                                            "No image is mounted");
-                                                } else {
-                                                    mountedImageTextView.setText(result);
-                                                }
-                                                getImageFiles();
-                                            });
-                        }));
-
-        mountImgButton.setOnClickListener(
-                v -> {
-                    if (imgFileSpinner.getText().toString().isEmpty()) {
-                        PathsUtil.showSnack(_view, "No image file is selected.", false);
-                    } else {
-                        mountImgButton.setEnabled(false);
-                        unmountImgButton.setEnabled(false);
-                        executor.execute(
-                                () -> {
-                                    int result = 1;
-                                    if (readOnlyCheckBox.isChecked())
-                                        result =
-                                                exe.executeCommandAsRootWithReturnCode(
-                                                        String.format(
-                                                                "%s%s && echo '%s/%s' >"
-                                                                        + " /config/usb_gadget/g1/functions/mass_storage.0/lun.0/file",
-                                                                "echo '1' >"
-                                                                        + " /config/usb_gadget/g1/functions/mass_storage.0/lun.0/ro",
-                                                                imgFileSpinner
-                                                                        .getText()
-                                                                        .toString()
-                                                                        .contains(".iso")
-                                                                        ? " && echo '1' >"
-                                                                        + " /config/usb_gadget/g1/functions/mass_storage.0/lun.0/cdrom"
-                                                                        : " && echo '0' >"
-                                                                        + " /config/usb_gadget/g1/functions/mass_storage.0/lun.0/cdrom",
-                                                                PathsUtil.APP_SD_FILES_IMG_PATH,
-                                                                imgFileSpinner
-                                                                        .getText()
-                                                                        .toString()));
-                                    else
-                                        result =
-                                                exe.executeCommandAsRootWithReturnCode(
-                                                        String.format(
-                                                                "%s%s && echo '%s/%s' >"
-                                                                        + " /config/usb_gadget/g1/functions/mass_storage.0/lun.0/file",
-                                                                "echo '0' >"
-                                                                        + " /config/usb_gadget/g1/functions/mass_storage.0/lun.0/ro",
-                                                                imgFileSpinner
-                                                                        .getText()
-                                                                        .toString()
-                                                                        .contains(".iso")
-                                                                        ? " && echo '1' >"
-                                                                        + " /config/usb_gadget/g1/functions/mass_storage.0/lun.0/cdrom"
-                                                                        : " && echo '0' >"
-                                                                        + " /config/usb_gadget/g1/functions/mass_storage.0/lun.0/cdrom",
-                                                                PathsUtil.APP_SD_FILES_IMG_PATH,
-                                                                imgFileSpinner
-                                                                        .getText()
-                                                                        .toString()));
-                                    if (result == 0)
-                                        PathsUtil.showSnack(
-                                                _view,
-                                                imgFileSpinner.getText().toString()
-                                                        + " has been mounted.",
-                                                false);
-                                    else
-                                        PathsUtil.showSnack(
-                                                _view,
-                                                "Failed to mount image "
-                                                        + imgFileSpinner.getText().toString(),
-                                                false);
-                                    new Handler(Looper.getMainLooper())
-                                            .post(
-                                                    () -> {
-                                                        reloadMountStateButton.performClick();
-                                                        mountImgButton.setEnabled(true);
-                                                        unmountImgButton.setEnabled(true);
-                                                    });
-                                });
-                    }
-                });
-
-        unmountImgButton.setOnClickListener(
-                v -> {
-                    mountImgButton.setEnabled(false);
-                    unmountImgButton.setEnabled(false);
-                    executor.execute(
-                            () -> {
-                                int result =
-                                        exe.executeCommandAsRootWithReturnCode(
-                                                "echo '' >"
-                                                        + " /config/usb_gadget/g1/functions/mass_storage.0/lun.0/file"
-                                                        + " && echo '0' >"
-                                                        + " /config/usb_gadget/g1/functions/mass_storage.0/lun.0/ro"
-                                                        + " && echo '0' >"
-                                                        + " /config/usb_gadget/g1/functions/mass_storage.0/lun.0/cdrom");
-                                if (result == 0) {
-                                    PathsUtil.showSnack(
-                                            _view,
-                                            imgFileSpinner.getText().toString()
-                                                    + " has been unmounted.",
-                                            false);
-                                    reloadMountStateButton.performClick();
-                                } else {
-                                    PathsUtil.showToast(
-                                            context,
-                                            "Failed to unmount image "
-                                                    + imgFileSpinner.getText().toString()
-                                                    + ". Your drive may be still be in use by the"
-                                                    + " host, please eject your drive on the host"
-                                                    + " first, and then try to umount the image"
-                                                    + " again.",
-                                            true);
-                                }
-                                reloadMountStateButton.performClick();
-                                new Handler(Looper.getMainLooper())
-                                        .post(
-                                                () -> {
-                                                    mountImgButton.setEnabled(true);
-                                                    unmountImgButton.setEnabled(true);
-                                                });
-                            });
-                });
-
-        saveUSBFunctionConfigButton.setOnClickListener(
-                v -> {
-                    if (isAllUSBInfosValid()) {
-                        for (int i = 0; i < usbSwitchInfoEditTextGroup.length; i++) {
-                            if (!USBArmorySQL.getInstance(context)
-                                    .setUSBSwitchColumnData(
-                                            getusbFuncSpinnerString(),
-                                            i + 2,
-                                            targetOSSpinner.getText().toString(),
-                                            usbSwitchInfoEditTextGroup[i].getText().toString())) {
-                                PathsUtil.showSnack(
-                                        _view,
-                                        "Something wrong when processing key "
-                                                + i,
-                                        false);
-                            }
-                            PathsUtil.showSnack(_view, "Done!", false);
+        binding.functionsOsLayout.setOnClickListener(v -> {
+            boolean isMacOs = binding.targetOs.getText().toString().equals("Mac OS");
+            String readFunctionsList = getUSBFunctions();
+            String[] functions = new String[]{
+                    "hid",
+                    "mass_storage",
+                    isMacOs ? "acm,ecm" : "rndis"
+            };
+            final boolean[] functionsBooleans = new boolean[]{
+                    readFunctionsList.contains("hid"),
+                    readFunctionsList.contains("mass_storage"),
+                    readFunctionsList.matches(".*(rndis|acm|ecm).*")
+            };
+            final StringBuilder result = new StringBuilder();
+            new MaterialAlertDialogBuilder(this)
+                    .setTitle("Functions")
+                    .setMultiChoiceItems(functions, functionsBooleans, (di, position, bool) -> functionsBooleans[position] = bool)
+                    .setPositiveButton(android.R.string.ok, (di, i) -> {
+                        for (int a = 0; a < functions.length; a++) {
+                            result.append(functionsBooleans[a] ? "," + functions[a] : "");
                         }
+                        try {
+                            String functionsResult = result.substring(1);
+                            binding.functions.setText(functionsResult);
+                            setDeviceInformation();
+                            binding.adbSwitchLayout.setEnabled(true);
+                            binding.adbSwitch.setEnabled(true);
+                        } catch (StringIndexOutOfBoundsException e) {
+                            binding.functions.setText("reset");
+                            setDeviceInformation();
+                            binding.adbSwitchLayout.setEnabled(false);
+                            binding.adbSwitch.setEnabled(false);
+                        }
+                    })
+                    .setNegativeButton(android.R.string.cancel, (di, i) -> {
+                    })
+                    .show();
+        });
+
+        binding.adbSwitchLayout.setOnClickListener(v -> {
+            binding.adbSwitch.toggle();
+            setDeviceInformation();
+        });
+
+        binding.targetOs.setText(prefs.getString("usbarmory_target_os", "Windows"));
+
+        binding.update.setOnClickListener(v -> executor.execute(() -> {
+            String enabledUsbFunctions = getEnabledUSBFunctions();
+            new Handler(Looper.getMainLooper()).post(() -> {
+                setDeviceInformation();
+                if (enabledUsbFunctions == null) {
+                    binding.functions.setText("Nothing.");
+                } else {
+                    binding.functions.setText(enabledUsbFunctions);
+                    if (enabledUsbFunctions.equals("adb")) {
+                        binding.adbSwitchLayout.setEnabled(false);
+                        binding.adbSwitch.setEnabled(false);
+                    } else {
+                        binding.adbSwitch.setChecked(enabledUsbFunctions.contains("adb"));
                     }
+                    if (enabledUsbFunctions.contains("mass_storage")) {
+                        binding.imageMounterCard.setVisibility(View.VISIBLE);
+                        executor.execute(() -> {
+                            boolean isRoEnabled = new ShellUtils().executeCommandAsRootWithOutput(
+                                    "cat /config/usb_gadget/g1/functions/mass_storage.0/lun.0/ro").equals("1");
+                            new Handler(Looper.getMainLooper()).post(() -> {
+                                if (isRoEnabled) {
+                                    binding.imageReadOnlySwitch.setChecked(true);
+                                }
+                            });
+                        });
+                    } else {
+                        binding.imageMounterCard.setVisibility(View.GONE);
+                    }
+                }
+            });
+        }));
+
+        binding.setUsbFunctions.setOnClickListener(v -> {
+            if (isUSBSystemInfoValid()) {
+                binding.setUsbFunctions.setEnabled(false);
+                String target =
+                        getTargetOS().equals("Windows")
+                                ? "win"
+                                : getTargetOS().equals("Linux")
+                                ? "lnx"
+                                : getTargetOS().equals("Mac OS")
+                                ? "mac"
+                                : "";
+                String functions = getUSBFunctions();
+                String manufacturer =
+                        binding.manufacturer.getText().toString().isEmpty()
+                                ? ""
+                                : " -m '"
+                                + binding.manufacturer.getText().toString()
+                                + "'";
+                String product =
+                        binding.product.getText().toString().isEmpty()
+                                ? ""
+                                : " -P '"
+                                + binding.product.getText().toString()
+                                + "'";
+                String serialnumber =
+                        binding.serialnumber.getText().toString().isEmpty()
+                                ? ""
+                                : " -s '"
+                                + binding.serialnumber.getText().toString()
+                                + "'";
+
+                executor.execute(() -> {
+                    int result = new ShellUtils().executeCommandAsRootWithReturnCode(
+                            PathsUtil.APP_SCRIPTS_PATH
+                                    + "/usbarmory -t '"
+                                    + target
+                                    + "' -f '"
+                                    + functions
+                                    + "' -v '"
+                                    + binding.idVendorLayout.getPrefixText().toString()
+                                    + binding.idVendor.getText().toString()
+                                    + "' -p '"
+                                    + binding.idProductLayout.getPrefixText().toString()
+                                    + binding.idProduct.getText().toString()
+                                    + "' "
+                                    + manufacturer
+                                    + product
+                                    + serialnumber);
+                    new Handler(Looper.getMainLooper()).post(() -> {
+                        if (result != 0) {
+                            PathsUtil.showSnackBar(
+                                    this,
+                                    "Failed to set USB function.",
+                                    false);
+                        } else {
+                            PathsUtil.showSnackBar(
+                                    this,
+                                    "USB function set successfully!",
+                                    false);
+                        }
+                        binding.update.performClick();
+                        binding.setUsbFunctions.setEnabled(true);
+                    });
                 });
+            }
+        });
+
+        binding.saveConfig.setOnClickListener(v -> {
+            if (isUSBSystemInfoValid()) {
+                ArrayList<TextInputEditText> arrayList = new ArrayList<>();
+                arrayList.add(binding.idVendor);
+                arrayList.add(binding.idProduct);
+                arrayList.add(binding.manufacturer);
+                arrayList.add(binding.product);
+                arrayList.add(binding.serialnumber);
+                for (int i = 0; i < arrayList.size(); i++) {
+                    if (!USBArmorySQL.getInstance(this)
+                            .setUSBSwitchColumnData(
+                                    getUSBFunctions(),
+                                    i + 2,
+                                    getTargetOS(),
+                                    arrayList.get(i).getText().toString())) {
+                        PathsUtil.showSnackBar(this, "Something wrong when processing key " + i, false);
+                    }
+                    PathsUtil.showSnackBar(this, "Done!", false);
+                }
+            }
+        });
+
+        binding.imageMount.setOnClickListener(v -> {
+            if (binding.images.getText().toString().isEmpty()) {
+                PathsUtil.showSnackBar(this, "No image file is selected.", false);
+            } else {
+                binding.imageMount.setEnabled(false);
+                binding.imageUmount.setEnabled(false);
+                executor.execute(() -> {
+                    int result;
+                    if (binding.imageReadOnlySwitch.isChecked())
+                        result = new ShellUtils().executeCommandAsRootWithReturnCode(
+                                String.format(
+                                        "%s%s && echo '%s/%s' >"
+                                                + " /config/usb_gadget/g1/functions/mass_storage.0/lun.0/file",
+                                        "echo '1' >"
+                                                + " /config/usb_gadget/g1/functions/mass_storage.0/lun.0/ro",
+                                        binding.images.getText().toString().contains(".iso")
+                                                ? " && echo '1' >"
+                                                + " /config/usb_gadget/g1/functions/mass_storage.0/lun.0/cdrom"
+                                                : " && echo '0' >"
+                                                + " /config/usb_gadget/g1/functions/mass_storage.0/lun.0/cdrom",
+                                        PathsUtil.APP_SD_FILES_IMG_PATH,
+                                        binding.images.getText().toString()));
+                    else
+                        result = new ShellUtils().executeCommandAsRootWithReturnCode(
+                                String.format(
+                                        "%s%s && echo '%s/%s' >"
+                                                + " /config/usb_gadget/g1/functions/mass_storage.0/lun.0/file",
+                                        "echo '0' >"
+                                                + " /config/usb_gadget/g1/functions/mass_storage.0/lun.0/ro",
+                                        binding.images.getText().toString().contains(".iso")
+                                                ? " && echo '1' >"
+                                                + " /config/usb_gadget/g1/functions/mass_storage.0/lun.0/cdrom"
+                                                : " && echo '0' >"
+                                                + " /config/usb_gadget/g1/functions/mass_storage.0/lun.0/cdrom",
+                                        PathsUtil.APP_SD_FILES_IMG_PATH,
+                                        binding.images.getText().toString()));
+                    new Handler(Looper.getMainLooper()).post(() -> {
+                        boolean selectedImageAlreadyMounted = binding.images.getText().toString().equals(binding.mountedImage.getText().toString());
+                        if (result == 0) {
+                            PathsUtil.showSnackBar(
+                                    this, binding.images.getText().toString() + " has been mounted!", false);
+                        } else {
+                            /*if (selectedImageAlreadyMounted) {
+                                PathsUtil.showSnackBar(this, "Umount the current image for this action.", false);
+                            } else {
+                                executor.execute(() -> {
+                                    int umountImage = umountImage();
+                                    new Handler(Looper.getMainLooper()).post(() -> {
+                                        if (umountImage == 0) {
+                                            binding.imageMount.setEnabled(true);
+                                            binding.imageMount.performClick();
+                                        } else {*/
+                            PathsUtil.showSnackBar(this, "Failed to mount " + binding.images.getText().toString(), false);
+                                        /*}
+                                    });
+                                });
+                            }*/
+                        }
+                        binding.updateImagesLayout.performClick();
+                    });
+                });
+            }
+        });
+
+        binding.imageUmount.setOnClickListener(v -> {
+            binding.imageMount.setEnabled(false);
+            binding.imageUmount.setEnabled(false);
+            executor.execute(() -> {
+                int result = umountImage();
+                if (result == 0) {
+                    PathsUtil.showSnackBar(
+                            this, binding.mountedImage.getText().toString() + " has been umounted.", false);
+                } else {
+                    PathsUtil.showToast(
+                            this,
+                            "Failed to umount image "
+                                    + binding.mountedImage.getText().toString()
+                                    + ". Your drive may be still be in use by the"
+                                    + " host, please eject your drive on the host"
+                                    + " first, and then try to umount the image"
+                                    + " again.",
+                            true);
+                }
+                new Handler(Looper.getMainLooper()).post(() -> binding.updateImagesLayout.performClick());
+            });
+        });
+
+        binding.imageReadOnlyLayout.setOnClickListener(v -> {
+            if (binding.mountedImage.getText().toString().equals("No image mounted.")) {
+                binding.imageReadOnlySwitch.toggle();
+            } else {
+                PathsUtil.showSnackBar(this, "Umount the current image for this action.", false);
+            }
+        });
+
+        binding.updateImagesLayout.setOnClickListener(v -> executor.execute(() -> {
+            String result =
+                    new ShellUtils().executeCommandAsRootWithOutput(
+                            "basename $(cat /config/usb_gadget/g1/functions/mass_storage.0/lun.0/file)");
+            new Handler(Looper.getMainLooper()).post(() -> {
+                if (result.equals("")) {
+                    binding.mountedImage.setText("No image mounted.");
+                } else {
+                    binding.mountedImage.setText(result);
+                }
+                if (result.equals(binding.images.getText().toString())) {
+                    binding.imageMount.setEnabled(false);
+                    binding.imageUmount.setEnabled(true);
+                } else {
+                    binding.imageMount.setEnabled(true);
+                    binding.imageUmount.setEnabled(false);
+                }
+            });
+        }));
+
+        binding.images.setOnItemClickListener((parent, view, position, id) -> {
+            boolean selectedImageAlreadyMounted = binding.images.getText().toString().equals(binding.mountedImage.getText().toString());
+            binding.imageMount.setEnabled(!selectedImageAlreadyMounted);
+            binding.imageUmount.setEnabled(selectedImageAlreadyMounted);
+        });
+
+        setErrorListener(binding.idVendor, binding.idVendorLayout, "^[A-z0-9]{4}$", "The id vendor must be matches ^0x[A-z0-9]{4}$");
+        setErrorListener(binding.idProduct, binding.idProductLayout, "^[A-z0-9]{4}$", "The id product must be matches ^0x[A-z0-9]{4}$");
+        setErrorListener(binding.manufacturer, binding.manufacturerLayout, "^[A-z0-9\\- ]+$|^$", "The manufacturer must be matches ^[A-z0-9\\- ]+$");
+        setErrorListener(binding.serialnumber, binding.serialnumberLayout, "^[A-z0-9]+$|^$", "The serial number must be matches ^[A-z0-9]+$");
     }
 
     @Override
     public void onStart() {
         super.onStart();
-        refreshUSBSwitchInfos(gettargetOSSpinnerString(), getusbFuncSpinnerString());
-        reloadUSBStateImageButton.performClick();
-        if (imageMounterLL.getVisibility() == View.VISIBLE) reloadMountStateButton.performClick();
+        binding.update.performClick();
+        setDeviceInformation();
+        binding.updateImagesLayout.performClick();
+        getImagesList();
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(@NonNull Menu menu) {
-        getMenuInflater().inflate(R.menu.usbarmory, menu);
-        return true;
+    private int umountImage() {
+        return new ShellUtils().executeCommandAsRootWithReturnCode(
+                "echo '' >"
+                        + " /config/usb_gadget/g1/functions/mass_storage.0/lun.0/file"
+                        + " && echo '0' >"
+                        + " /config/usb_gadget/g1/functions/mass_storage.0/lun.0/ro"
+                        + " && echo '0' >"
+                        + " /config/usb_gadget/g1/functions/mass_storage.0/lun.0/cdrom");
     }
 
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        final LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        assert inflater != null;
-        final View promptView = inflater.inflate(R.layout.input_dialog, null);
-        final EditText storedpathEditText = promptView.findViewById(R.id.editText);
-
-        switch (item.getItemId()) {
-            case R.id.f_usbarmory_menu_backupDB:
-                storedpathEditText.setText(PathsUtil.APP_SD_SQLBACKUP_PATH + "/FragmentUSBArsenal");
-                MaterialAlertDialogBuilder adbBackup = new MaterialAlertDialogBuilder(activity);
-                adbBackup.setTitle("Save database");
-                adbBackup.setMessage("Full path to where you want to save the database:");
-                adbBackup.setView(promptView);
-                adbBackup.setNegativeButton(android.R.string.cancel, (dialog, which) -> dialog.cancel());
-                adbBackup.setPositiveButton(android.R.string.ok, (dialog, which) -> {
-                });
-                final AlertDialog adBackup = adbBackup.create();
-                adBackup.setOnShowListener(dialog -> {
-                    final Button buttonOK = adBackup.getButton(DialogInterface.BUTTON_POSITIVE);
-                    buttonOK.setOnClickListener(v -> {
-                        String returnedResult =
-                                USBArmorySQL.getInstance(context)
-                                        .backupData(
-                                                storedpathEditText
-                                                        .getText()
-                                                        .toString());
-                        if (returnedResult == null) {
-                            PathsUtil.showSnack(
-                                    _view,
-                                    "db is successfully backup to "
-                                            + storedpathEditText.getText().toString(),
-                                    false);
-                        } else {
-                            PathsUtil.showSnack(
-                                    _view,
-                                    "Failed to backup the DB.",
-                                    false);
-                        }
-                        dialog.dismiss();
-                    });
-                });
-                adBackup.show();
-                break;
-            case R.id.f_usbarmory_menu_restoreDB:
-                storedpathEditText.setText(PathsUtil.APP_SD_SQLBACKUP_PATH + "/FragmentUSBArsenal");
-                MaterialAlertDialogBuilder adbRestore = new MaterialAlertDialogBuilder(activity);
-                adbRestore.setTitle("Full path of the db file from where you want to restore:");
-                adbRestore.setView(promptView);
-                adbRestore.setNegativeButton(android.R.string.cancel, (dialog, which) -> dialog.cancel());
-                adbRestore.setPositiveButton(android.R.string.ok, (dialog, which) -> {
-                });
-                final AlertDialog adRestore = adbRestore.create();
-                adRestore.setOnShowListener(dialog -> {
-                    final Button buttonOK = adRestore.getButton(DialogInterface.BUTTON_POSITIVE);
-                    buttonOK.setOnClickListener(v -> {
-                        String returnedResult =
-                                USBArmorySQL.getInstance(context)
-                                        .restoreData(
-                                                storedpathEditText
-                                                        .getText()
-                                                        .toString());
-                        if (returnedResult == null) {
-                            PathsUtil.showSnack(
-                                    _view,
-                                    "db is successfully restored to "
-                                            + storedpathEditText.getText().toString(),
-                                    false);
-                            refreshUSBSwitchInfos(
-                                    gettargetOSSpinnerString(),
-                                    getusbFuncSpinnerString());
-                        } else {
-                            PathsUtil.showSnack(
-                                    _view,
-                                    "Failed to restore the DB.",
-                                    false);
-                        }
-                        dialog.dismiss();
-                    });
-                });
-                adRestore.show();
-                break;
-            case R.id.f_usbarmory_menu_ResetToDefault:
-                if (USBArmorySQL.getInstance(context).resetData()) {
-                    PathsUtil.showSnack(_view, "db is successfully reset to default.", false);
-                    refreshUSBSwitchInfos(gettargetOSSpinnerString(), getusbFuncSpinnerString());
-                } else {
-                    PathsUtil.showSnack(_view, "Failed to reset the db to default.", false);
-                }
-                break;
-        }
-        return super.onOptionsItemSelected(item);
-    }
-
-    private void getImageFiles() {
-        mountImgButton.setEnabled(false);
-        unmountImgButton.setEnabled(false);
+    private void getImagesList() {
+        binding.imageMount.setEnabled(false);
+        binding.imageUmount.setEnabled(false);
         ArrayList<String> result = new ArrayList<>();
         File image_folder = new File(PathsUtil.APP_SD_FILES_IMG_PATH);
         if (!image_folder.exists()) {
-            PathsUtil.showSnack(_view, "Creating directory for storing image files...", false);
+            PathsUtil.showSnackBar(this, "Creating directory for storing image files...", false);
             try {
-                image_folder.mkdir();
+                if (image_folder.mkdir()) ;
             } catch (Exception e) {
                 e.printStackTrace();
-                PathsUtil.showSnack(
-                        _view,
-                        "Failed to get images files from " + PathsUtil.SD_PATH + "/MassStorage",
-                        false);
+                PathsUtil.showSnackBar(this, "Failed to get images files.", false);
                 return;
             }
         }
@@ -645,106 +433,106 @@ public class USBArmoryActivity extends ThemedActivity {
         } catch (NullPointerException e) {
             e.printStackTrace();
         }
-        ArrayAdapter<String> imageAdapter =
-                new ArrayAdapter<>(activity, R.layout.mh_spinner_item, result);
-        imgFileSpinner.setAdapter(imageAdapter);
+        ArrayAdapter<String> imageAdapter = new ArrayAdapter<>(this, R.layout.mh_spinner_item, result);
+        binding.images.setAdapter(imageAdapter);
 
-        if (result.size() > 0) imgFileSpinner.setText(result.get(0), false);
-        mountImgButton.setEnabled(true);
-        unmountImgButton.setEnabled(true);
+        if (result.size() > 0) binding.images.setText(result.get(0), false);
+        binding.imageMount.setEnabled(true);
+        binding.imageUmount.setEnabled(true);
     }
 
-    private String getusbFuncSpinnerString() {
-        return usbFuncSpinner.getText().toString()
-                + (adbSpinner.getText().toString().equals("Enable") ? ",adb" : "");
+    @NonNull
+    private String getTargetOS() {
+        return binding.targetOs.getText().toString();
     }
 
-    private String gettargetOSSpinnerString() {
-        return targetOSSpinner.getText().toString();
-    }
-
-    private boolean isAllUSBInfosValid() {
-        if (!is_init_exists) {
-            if (!usbSwitchInfoEditTextGroup[0].getText().toString().matches("^0x[A-f0-9]{4}$")) {
-                new MaterialAlertDialogBuilder(context)
-                        .setTitle("Invalid format")
-                        .setMessage("The id vendor must be mathes ^0x[A-f0-9]{4}$")
-                        .create()
-                        .show();
-                return false;
-            }
-            if (!usbSwitchInfoEditTextGroup[1].getText().toString().matches("^0x[A-f0-9]{4}$")) {
-                new MaterialAlertDialogBuilder(context)
-                        .setTitle("Invalid format")
-                        .setMessage("The id product must be matches ^0x[A-f0-9]{4}$")
-                        .create()
-                        .show();
-                return false;
-            }
-            if (!usbSwitchInfoEditTextGroup[2]
-                    .getText()
-                    .toString()
-                    .matches("^[A-z0-9.,\\- ]+$|^$")) {
-                new MaterialAlertDialogBuilder(context)
-                        .setTitle("Invalid format")
-                        .setMessage("The manufacturer must be matches ^[A-z0-9.,\\- ]+$")
-                        .create()
-                        .show();
-                return false;
-            }
-            if (!usbSwitchInfoEditTextGroup[3]
-                    .getText()
-                    .toString()
-                    .matches("^[A-z0-9.,\\- ]+$|^$")) {
-                new MaterialAlertDialogBuilder(context)
-                        .setTitle("Invalid format")
-                        .setMessage("The product must be matches ^[A-z0-9.,\\- ]+$")
-                        .create()
-                        .show();
-                return false;
-            }
-            if (!usbSwitchInfoEditTextGroup[4]
-                    .getText()
-                    .toString()
-                    .matches("^[A-z0-9]{4,10}$|^$")) {
-                new MaterialAlertDialogBuilder(context)
-                        .setTitle("Invalid format")
-                        .setMessage("The serial number must be matches ^[A-z0-9]{4,10}$")
-                        .create()
-                        .show();
-                return false;
-            }
+    @Nullable
+    private String getEnabledUSBFunctions() {
+        String result =
+                new ShellUtils()
+                        .executeCommandAsRootWithOutput(
+                                "for i in $(find /config/usb_gadget/g1/configs/b.1 -type l -exec readlink -e {} \\;); do basename $i; done | xargs");
+        if (result.isEmpty()) {
+            return null;
+        } else {
+            return result.replace("ffs.adb", "adb");
         }
-        return true;
     }
 
-    private void refreshUSBSwitchInfos(String targetOSName, String functionName) {
+    @NonNull
+    private String getUSBFunctions() {
+        String functionsList = binding.functions.getText().toString();
+        if (functionsList.isEmpty() || functionsList.equals("Nothing.")) {
+            return "reset";
+        } else {
+            StringBuilder functions = new StringBuilder();
+            if (functionsList.equals("adb") || functionsList.equals("reset")) {
+                return "reset";
+            } else {
+                if (functionsList.contains("hid")) {
+                    functions.append(",hid");
+                }
+                if (functionsList.contains("mass_storage")) {
+                    functions.append(",mass_storage");
+                }
+                if (functionsList.contains("rndis")) {
+                    functions.append(",rndis");
+                }
+                if (functionsList.contains("acm") || functionsList.contains("ecm")) {
+                    functions.append(",acm,ecm");
+                }
+                if (binding.adbSwitch.isChecked()) {
+                    functions.append(",adb");
+                }
+            }
+            return functions.substring(1);
+        }
+    }
+
+    private void setDeviceInformation() {
         executor.execute(() -> {
             USBArmorySwitchModel result =
-                    USBArmorySQL.getInstance(context)
-                            .getUSBSwitchColumnData(targetOSName, functionName);
+                    USBArmorySQL.getInstance(this)
+                            .getUSBSwitchColumnData(getTargetOS(), getUSBFunctions());
             String manufacturer =
-                    (result).getManufacturer().isEmpty()
-                            ? exe.executeCommandAsRootWithOutput(
+                    TextUtils.isEmpty((result).getManufacturer())
+                            ? new ShellUtils().executeCommandAsRootWithOutput(
                             "cat /config/usb_gadget/g1/strings/0x409/manufacturer")
                             : (result).getManufacturer();
             String product =
-                    (result).getProduct().isEmpty()
-                            ? exe.executeCommandAsRootWithOutput(
+                    TextUtils.isEmpty((result).getProduct())
+                            ? new ShellUtils().executeCommandAsRootWithOutput(
                             "cat /config/usb_gadget/g1/strings/0x409/product")
                             : (result).getProduct();
             String serialnumber =
-                    (result).getSerialnumber().isEmpty()
-                            ? exe.executeCommandAsRootWithOutput(
+                    TextUtils.isEmpty((result).getSerialnumber())
+                            ? new ShellUtils().executeCommandAsRootWithOutput(
                             "cat /config/usb_gadget/g1/strings/0x409/serialnumber")
                             : (result).getSerialnumber();
             new Handler(Looper.getMainLooper()).post(() -> {
-                usbSwitchInfoEditTextGroup[0].setText((result).getIdVendor());
-                usbSwitchInfoEditTextGroup[1].setText((result).getIdProduct());
-                usbSwitchInfoEditTextGroup[2].setText(manufacturer);
-                usbSwitchInfoEditTextGroup[3].setText(product);
-                usbSwitchInfoEditTextGroup[4].setText(serialnumber);
+                binding.idVendor.setText((result).getIdVendor());
+                binding.idProduct.setText((result).getIdProduct());
+                binding.manufacturer.setText(manufacturer);
+                binding.product.setText(product);
+                binding.serialnumber.setText(serialnumber);
             });
         });
+    }
+
+    private boolean isUSBSystemInfoValid() {
+        boolean valid = true;
+        if (!binding.idVendor.getText().toString().matches("^[A-z0-9]{4}$")) {
+            valid = false;
+        }
+        if (!binding.idProduct.getText().toString().matches("^[A-z0-9]{4}$")) {
+            valid = false;
+        }
+        if (!binding.manufacturer.getText().toString().matches("^[A-z0-9\\- ]+$|^$")) {
+            valid = false;
+        }
+        if (!binding.serialnumber.getText().toString().matches("^[A-z0-9]+$|^$")) {
+            valid = false;
+        }
+        return valid;
     }
 }

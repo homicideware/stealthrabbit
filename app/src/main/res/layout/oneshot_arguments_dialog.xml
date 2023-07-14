@@ -9,7 +9,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="16dp">
+        android:padding="26dp">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -20,16 +20,18 @@
                 android:id="@+id/oneshot_custom_pin"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_margin="2dp"
+                android:layout_marginEnd="3.25dp"
                 android:layout_weight="1"
+                android:singleLine="true"
                 android:text="Custom pin" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/oneshot_offline_bruteforce"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_margin="2dp"
+                android:layout_marginStart="3.25dp"
                 android:layout_weight="1"
+                android:singleLine="true"
                 android:text="Offline bruteforce" />
         </LinearLayout>
 
@@ -42,16 +44,18 @@
                 android:id="@+id/oneshot_online_bruteforce"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_margin="2dp"
+                android:layout_marginEnd="3.25dp"
                 android:layout_weight="1"
+                android:singleLine="true"
                 android:text="Online bruteforce" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/oneshot_push_button"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_margin="2dp"
+                android:layout_marginStart="3.25dp"
                 android:layout_weight="1"
+                android:singleLine="true"
                 android:text="Push button" />
         </LinearLayout>
 
@@ -59,7 +63,7 @@
             android:id="@+id/oneshot_pixie_dust"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="2dp"
+            android:singleLine="true"
             android:text="Pixie dust" />
     </LinearLayout>
 

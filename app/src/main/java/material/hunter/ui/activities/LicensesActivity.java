@@ -2,12 +2,8 @@ package material.hunter.ui.activities;
 
 import android.content.res.AssetManager;
 import android.os.Bundle;
-import android.view.View;
 
 import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
-import com.google.android.material.appbar.MaterialToolbar;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -18,21 +14,21 @@ import java.util.List;
 
 import material.hunter.R;
 import material.hunter.adapters.LicensesRecyclerViewAdapter;
+import material.hunter.databinding.LicensesActivityBinding;
 import material.hunter.models.LicenseModel;
 
 public class LicensesActivity extends ThemedActivity {
 
-    private final List<LicenseModel> list = new ArrayList<LicenseModel>();
-    MaterialToolbar toolbar;
+    private final List<LicenseModel> list = new ArrayList<>();
+    private LicensesActivityBinding binding;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        binding = LicensesActivityBinding.inflate(getLayoutInflater());
         setContentView(R.layout.licenses_activity);
 
-        View included = findViewById(R.id.included);
-        toolbar = included.findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+        setSupportActionBar(binding.included.toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         AssetManager assetManager = getAssets();
@@ -69,10 +65,10 @@ public class LicensesActivity extends ThemedActivity {
         }
 
         LicensesRecyclerViewAdapter adapter = new LicensesRecyclerViewAdapter(this, list);
-
-        RecyclerView recycler = findViewById(R.id.recycler_view);
-        recycler.setLayoutManager(
+        
+        binding.recyclerView.setHasFixedSize(true);
+        binding.recyclerView.setLayoutManager(
                 new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
-        recycler.setAdapter(adapter);
+        binding.recyclerView.setAdapter(adapter);
     }
 }

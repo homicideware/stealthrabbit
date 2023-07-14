@@ -1,5 +1,6 @@
 package material.hunter.ui.activities.menu;
 
+import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
@@ -20,6 +21,7 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.google.android.material.appbar.MaterialToolbar;
@@ -44,6 +46,8 @@ import material.hunter.utils.Utils;
 
 public class MACChangerActivity extends ThemedActivity {
 
+    private final ShellUtils exe = new ShellUtils();
+    private Activity activity;
     private MacchangerActivityBinding binding;
     private TextInputLayout interfacesLayout;
     private AutoCompleteTextView interfaces;
@@ -54,20 +58,33 @@ public class MACChangerActivity extends ThemedActivity {
     private String PERMANENT_MAC_ADDRESS;
     private Button restoreToPermanentMac;
     private Button networking;
-    private View _view;
-    private final ShellUtils exe = new ShellUtils();
     private ExecutorService executor;
     private SharedPreferences prefs;
     private TerminalUtil terminalUtil;
     private String CHANGED_MAC = "";
 
+    @NonNull
+    public static String genRandomMACAddress() {
+        SecureRandom random = new SecureRandom();
+        byte[] macBytes = new byte[6];
+        random.nextBytes(macBytes);
+        String macAddress = "";
+        macAddress += String.format("%02x", ((macBytes[0] & 0xfc) | 0x2));
+        macAddress += ":" + String.format("%02x", macBytes[1]);
+        macAddress += ":" + String.format("%02x", macBytes[2]);
+        macAddress += ":" + String.format("%02x", macBytes[3]);
+        macAddress += ":" + String.format("%02x", macBytes[4]);
+        macAddress += ":" + String.format("%02x", macBytes[5]);
+        return macAddress;
+    }
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        activity = this;
         binding = MacchangerActivityBinding.inflate(getLayoutInflater());
         View root = binding.getRoot();
         setContentView(root);
-        _view = root;
 
         executor = Executors.newSingleThreadExecutor();
         prefs = getSharedPreferences(BuildConfig.APPLICATION_ID, Context.MODE_PRIVATE);
@@ -112,9 +129,9 @@ public class MACChangerActivity extends ThemedActivity {
         });
     }
 
-    private void setMACAddress(String iface, String macAddress) {
+    private void setMACAddress(String iface, @NonNull String macAddress) {
         if (!macAddress.isEmpty() || macAddress.matches("((\\w{2}:){5}\\w{2})")) {
-            if (iface.matches("^(s|)wlan0") && (Build.VERSION.SDK_INT != Build.VERSION_CODES.R)) {
+            if (iface.matches("^wlan0$") && (Build.VERSION.SDK_INT != Build.VERSION_CODES.R)) {
                 new ShellUtils.YetAnotherActiveShellExecutor() {
                     @Override
                     public void onPrepare() {
@@ -128,15 +145,15 @@ public class MACChangerActivity extends ThemedActivity {
                     @Override
                     public void onNewLine(String line) {
                         if (line.contains("MAC address format error")) {
-                            PathsUtil.showSnack(_view, "MAC address format error.", false);
+                            PathsUtil.showSnackBar(activity, "MAC address format error.", false);
                         } else if (line.contains("Changing MAC address")) {
-                            PathsUtil.showSnack(_view, "Changing MAC address...", false);
+                            PathsUtil.showSnackBar(activity, "Changing MAC address...", false);
                         } else if (line.contains("Wait 5")) {
-                            PathsUtil.showSnack(_view, line, false);
+                            PathsUtil.showSnackBar(activity, line, false);
                         } else if (line.contains("Failed to change")) {
-                            PathsUtil.showSnack(_view, "Failed to change MAC address.", false);
+                            PathsUtil.showSnackBar(activity, "Failed to change MAC address.", false);
                         } else if (line.contains("successfully changed")) {
-                            PathsUtil.showSnack(_view, "MAC address was successfully changed.", false);
+                            PathsUtil.showSnackBar(activity, "MAC address was successfully changed.", false);
                         }
                     }
 
@@ -149,7 +166,7 @@ public class MACChangerActivity extends ThemedActivity {
                     public void onFinished(int code) {
                         if (code == 0) {
                             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                                PathsUtil.showSnack(_view, "Need to connect to network.\nWaiting 10 seconds...", true);
+                                PathsUtil.showSnackBar(activity, "Need to connect to network.\nWaiting 10 seconds...", true);
                                 executor.execute(() -> {
                                     long end = System.currentTimeMillis() + 10000;
                                     while (System.currentTimeMillis() < end) {
@@ -157,7 +174,7 @@ public class MACChangerActivity extends ThemedActivity {
                                             String macOnUp = exe.executeCommandAsRootWithOutput("ip addr show " + iface + " | sed -n \"s/.*link\\/ether \\(\\([0-9A-f]\\{2\\}:\\)\\{5\\}[0-9A-f]\\{2\\}\\).*/\\1/p\"");
                                             new Handler(Looper.getMainLooper()).post(() -> {
                                                 if (CHANGED_MAC.equalsIgnoreCase(macOnUp)) {
-                                                    PathsUtil.showSnack(_view, "MAC address successful changed.", false);
+                                                    PathsUtil.showSnackBar(activity, "MAC address successful changed.", false);
                                                 } else {
                                                     View view = getLayoutInflater().inflate(R.layout.macchanger_a12dialog, null);
                                                     TextView message = view.findViewById(R.id.message);
@@ -174,7 +191,7 @@ public class MACChangerActivity extends ThemedActivity {
                                             return;
                                         }
                                     }
-                                    PathsUtil.showSnack(_view, "The network wait time was longer than expected.", false);
+                                    PathsUtil.showSnackBar(activity, "The network wait time was longer than expected.", false);
                                 });
                             }
                         } else {
@@ -183,7 +200,7 @@ public class MACChangerActivity extends ThemedActivity {
                             changeMac.setEnabled(true);
                             restoreToPermanentMac.setEnabled(true);
                             networking.setEnabled(true);
-                            PathsUtil.showSnack(_view, "Something wrong...", false);
+                            PathsUtil.showSnackBar(activity, "Something wrong...", false);
                         }
                     }
                 }.exec(PathsUtil.APP_SCRIPTS_PATH
@@ -204,18 +221,18 @@ public class MACChangerActivity extends ThemedActivity {
                             int upNetworkInterface = exe.executeCommandAsRootWithReturnCode("ip link set " + iface + " up");
                             if (upNetworkInterface == 0) {
                                 new Handler(Looper.getMainLooper()).post(() ->
-                                        PathsUtil.showSnack(_view, "MAC address successful changed.", false));
+                                        PathsUtil.showSnackBar(activity, "MAC address successful changed.", false));
                             } else {
                                 new Handler(Looper.getMainLooper()).post(() ->
-                                        PathsUtil.showSnack(_view, "Failed to up network interface.", false));
+                                        PathsUtil.showSnackBar(activity, "Failed to up network interface.", false));
                             }
                         } else {
                             new Handler(Looper.getMainLooper()).post(() ->
-                                    PathsUtil.showSnack(_view, "Failed to change MAC address.", false));
+                                    PathsUtil.showSnackBar(activity, "Failed to change MAC address.", false));
                         }
                     } else {
                         new Handler(Looper.getMainLooper()).post(() ->
-                                PathsUtil.showSnack(_view, "Failed to down network interface.", false));
+                                PathsUtil.showSnackBar(activity, "Failed to down network interface.", false));
                     }
                     new Handler(Looper.getMainLooper()).post(() -> {
                         loadMACAddress();
@@ -227,7 +244,7 @@ public class MACChangerActivity extends ThemedActivity {
                 });
             }
         } else {
-            PathsUtil.showSnack(_view, "MAC address format error.", false);
+            PathsUtil.showSnackBar(activity, "MAC address format error.", false);
         }
     }
 
@@ -239,20 +256,6 @@ public class MACChangerActivity extends ThemedActivity {
                 })
                 .setCancelable(true)
                 .show();
-    }
-
-    public static String genRandomMACAddress() {
-        SecureRandom random = new SecureRandom();
-        byte[] macBytes = new byte[6];
-        random.nextBytes(macBytes);
-        String macAddress = "";
-        macAddress += String.format("%02x", ((macBytes[0] & 0xfc) | 0x2));
-        macAddress += ":" + String.format("%02x", macBytes[1]);
-        macAddress += ":" + String.format("%02x", macBytes[2]);
-        macAddress += ":" + String.format("%02x", macBytes[3]);
-        macAddress += ":" + String.format("%02x", macBytes[4]);
-        macAddress += ":" + String.format("%02x", macBytes[5]);
-        return macAddress;
     }
 
     private boolean isNetworkAvailable() {
@@ -283,13 +286,17 @@ public class MACChangerActivity extends ThemedActivity {
                 new Handler(Looper.getMainLooper()).post(() -> {
                     interfaces.setText(finalPreferredInterface, false);
                     prefs.edit().putString("macchanger_interface", finalPreferredInterface).apply();
+                    loadMACAddress();
+                    getPermanentMAC();
                 });
             } else {
-                new Handler(Looper.getMainLooper()).post(() -> interfaces.setText(previousWlan, false));
+                new Handler(Looper.getMainLooper()).post(() -> {
+                    interfaces.setText(previousWlan, false);
+                    loadMACAddress();
+                    getPermanentMAC();
+                });
             }
         });
-        loadMACAddress();
-        getPermanentMAC();
     }
 
     private void loadMACAddress() {
@@ -305,7 +312,7 @@ public class MACChangerActivity extends ThemedActivity {
             if (object.getReturnCode() == 0) {
                 PERMANENT_MAC_ADDRESS = Utils.matchString("Permanent MAC: (.*) \\(", object.getStdout(), "00:00:00:00:00:00", 1);
             } else {
-                PathsUtil.showSnack(_view, "Failed to get permanent MAC address!", false);
+                PathsUtil.showSnackBar(activity, "Failed to get permanent MAC address!", false);
             }
         });
     }

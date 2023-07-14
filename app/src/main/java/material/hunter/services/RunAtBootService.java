@@ -61,11 +61,8 @@ public class RunAtBootService extends Service {
                 hashMap.put("ROOT", isOK);
             }
 
-            ShellUtils exe = new ShellUtils();
-
-            exe.executeCommandAsRootWithOutput(PathsUtil.BUSYBOX + " run-parts " + PathsUtil.APP_INITD_PATH);
-            if (exe.executeCommandAsRootWithReturnCode(PathsUtil.APP_SCRIPTS_PATH + "/chrootmgr -c \"status\"")
-                    == 0) {
+            new ShellUtils().executeCommandAsRootWithOutput(PathsUtil.BUSYBOX + " run-parts " + PathsUtil.APP_INITD_PATH);
+            if (Utils.isChrootInstalled()) {
                 hashMap.put("CHROOT", isOK);
             }
 

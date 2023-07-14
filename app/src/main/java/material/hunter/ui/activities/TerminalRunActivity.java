@@ -1,14 +1,9 @@
 package material.hunter.ui.activities;
 
 import android.app.Activity;
-import android.app.BackgroundServiceStartNotAllowedException;
-import android.content.ActivityNotFoundException;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
-import android.widget.Toast;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
@@ -18,7 +13,7 @@ import material.hunter.utils.TerminalUtil;
 public class TerminalRunActivity extends Activity {
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         try {
             PathsUtil.getInstance(this);

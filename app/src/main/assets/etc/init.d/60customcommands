@@ -1,0 +1,36 @@
+#!/system/bin/sh
+
+if [ ! $? -eq 0 ]; then
+    exit 1
+fi
+
+. /data/data/material.hunter/files/scripts/bootroot_env
+
+if sh /data/data/material.hunter/files/scripts/chrootmgr -p $MNT -c 'status'; then
+    IS_CHROOT_MOUNTED=0
+    echo "[+] IS_CHROOT_MOUNTED: Yes"
+else
+    IS_CHROOT_MOUNTED=1
+    echo "[-] IS_CHROOT_MOUNTED: No"
+fi
+
+if [ -f "/data/data/material.hunter/files/scripts/init-custom-commands" ]; then
+    echo "[!] Starting user defined commands..."
+    while IFS= read -r line || [ -n "$line" ]; do
+        read -r SENDTO CMD <<< $line
+        if [ "$SENDTO" = "android" ]; then
+            echo "[!] Executing: $CMD"
+            sh -c "$CMD"
+        elif [ "$SENDTO" = "chroot" ]; then
+            if [ $IS_CHROOT_MOUNTED -eq 0 ]; then
+                echo "[!] Executing in chroot: $CMD"
+                $BUSYBOX chroot $MNT $CHROOT_EXEC -E PATH=$PATH su -c "$CMD"
+            else
+                echo "[!] Chroot isn't mounted, skip executing: $CMD"
+            fi
+        fi
+    done < /data/data/material.hunter/files/scripts/init-custom-commands
+    echo "[+] User defined commands has been all executed."
+else
+    echo "[!] User commands isn't defined."
+fi

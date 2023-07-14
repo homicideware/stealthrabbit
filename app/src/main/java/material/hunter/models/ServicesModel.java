@@ -24,7 +24,7 @@ public class ServicesModel {
         this.Status = Status;
     }
 
-    public String getServiceName() {
+    public String getLabel() {
         return ServiceName;
     }
 

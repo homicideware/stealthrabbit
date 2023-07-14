@@ -25,11 +25,15 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
+import androidx.core.widget.NestedScrollView;
+import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.materialswitch.MaterialSwitch;
 import com.google.android.material.progressindicator.LinearProgressIndicator;
-import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
@@ -44,6 +48,10 @@ import java.util.concurrent.Executors;
 
 import material.hunter.BuildConfig;
 import material.hunter.R;
+import material.hunter.databinding.ManagerDialogEditBinding;
+import material.hunter.databinding.ManagerDialogSettingsChangeSystemPathBinding;
+import material.hunter.databinding.ManagerDialogSettingsSecurityBinding;
+import material.hunter.databinding.ManagerFragmentBinding;
 import material.hunter.ui.activities.MainActivity;
 import material.hunter.utils.DownloadChroot;
 import material.hunter.utils.MHRepo;
@@ -53,21 +61,14 @@ import material.hunter.utils.contract.JSON;
 
 public class ManagerFragment extends Fragment {
 
+    private ManagerFragmentBinding binding;
     private static final int IS_MOUNTED = 0;
     private static final int IS_UNMOUNTED = 1;
     private static final int NEED_TO_INSTALL = 2;
     private static final int CHROOT_CORRUPTED = 3;
-    private final ShellUtils exe = new ShellUtils();
     private Activity activity;
     private Context context;
-    private TextView resultViewerLoggerTextView;
-    private Button mountChrootButton;
-    private Button unmountChrootButton;
-    private Button installChrootButton;
-    private Button removeChrootButton;
-    private Button backupChrootButton;
     private SharedPreferences prefs;
-    private LinearProgressIndicator progressbar;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -75,31 +76,22 @@ public class ManagerFragment extends Fragment {
         setHasOptionsMenu(true);
         activity = getActivity();
         context = getContext();
+        binding = ManagerFragmentBinding.inflate(getLayoutInflater());
         prefs = context.getSharedPreferences(BuildConfig.APPLICATION_ID, Context.MODE_PRIVATE);
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.manager_fragment, container, false);
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        return binding.getRoot();
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-        progressbar = view.findViewById(R.id.progressbar);
-        resultViewerLoggerTextView = view.findViewById(R.id.report);
-        mountChrootButton = view.findViewById(R.id.start);
-        unmountChrootButton = view.findViewById(R.id.stop);
-        installChrootButton = view.findViewById(R.id.install);
-        backupChrootButton = view.findViewById(R.id.backup);
-        removeChrootButton = view.findViewById(R.id.remove);
-
         setStopButton();
         setStartButton();
         setInstallButton();
         setRemoveButton();
         setBackupButton();
-
         showBanner();
         compatCheck();
     }
@@ -110,11 +102,12 @@ public class ManagerFragment extends Fragment {
         super.onCreateOptionsMenu(menu, inflater);
     }
 
+    @SuppressLint("NonConstantResourceId")
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
             case R.id.clear_logger:
-                resultViewerLoggerTextView.setText("");
+                binding.report.setText("[?] Log cleared.\n");
                 break;
             case R.id.update_chroot_status:
                 compatCheck();
@@ -143,20 +136,21 @@ public class ManagerFragment extends Fragment {
                 break;
             case R.id.edit_chroot_folder:
                 MaterialAlertDialogBuilder edit = new MaterialAlertDialogBuilder(context);
+                edit.setTitle("Edit chroot folder");
                 View view_edit =
                         getLayoutInflater().inflate(R.layout.manager_dialog_edit, null);
                 AutoCompleteTextView path =
-                        view_edit.findViewById(R.id.path);
+                        view_edit.findViewById(R.id.input);
                 String path_now = prefs.getString("chroot_directory", "chroot");
                 path.setText(path_now);
                 ArrayList<String> chroots = new ArrayList<>();
-                for (String file : exe.executeCommandAsRootWithOutput("for i in $(ls " + PathsUtil.SYSTEM_PATH() + "); do test -d " + PathsUtil.SYSTEM_PATH() + "/$i && echo $i; done").split("\n")) {
+                for (String file : new ShellUtils().executeCommandAsRootWithOutput("for i in $(ls " + PathsUtil.SYSTEM_PATH() + "); do test -d " + PathsUtil.SYSTEM_PATH() + "/$i && echo $i; done").split("\n")) {
                     if (!file.isEmpty()) chroots.add(file);
                 }
                 ArrayAdapter<String> adapter = new ArrayAdapter<>(activity, R.layout.mh_spinner_item, chroots);
                 path.setAdapter(adapter);
                 edit.setView(view_edit);
-                edit.setPositiveButton("Apply", (dialogInterface, i) -> {
+                edit.setPositiveButton(android.R.string.ok, (dialogInterface, i) -> {
                 });
                 edit.setNegativeButton(android.R.string.cancel, (dialogInterface2, i2) -> {
                 });
@@ -164,7 +158,7 @@ public class ManagerFragment extends Fragment {
                 editAd.setOnShowListener(dialog -> {
                     final Button apply = editAd.getButton(DialogInterface.BUTTON_POSITIVE);
                     apply.setOnClickListener(v -> {
-                        if (path.getText().toString().matches("^[A-z0-9.\\/\\-_~]+$")) {
+                        if (path.getText().toString().matches("^[A-z0-9.\\-_~]+$")) {
                             prefs
                                     .edit()
                                     .putString("chroot_directory", path.getText().toString())
@@ -172,20 +166,21 @@ public class ManagerFragment extends Fragment {
                             editAd.dismiss();
                             compatCheck();
                         } else
-                            PathsUtil.showSnack(getView(), "Invalid chroot directory name.", false);
+                            PathsUtil.showSnackBar(activity, MainActivity.getBnCard(), "Invalid chroot directory name.", false);
                     });
                 });
                 editAd.show();
                 break;
             case R.id.change_system_path:
                 MaterialAlertDialogBuilder change_system_path = new MaterialAlertDialogBuilder(context);
+                change_system_path.setTitle("Change system path");
                 View view_change_system_path = getLayoutInflater().inflate(R.layout.manager_dialog_settings_change_system_path, null);
                 TextInputEditText input1 = view_change_system_path.findViewById(R.id.new_system_path);
 
                 input1.setText(prefs.getString("chroot_system_path", "/data/local/nhsystem"));
 
                 change_system_path.setView(view_change_system_path);
-                change_system_path.setPositiveButton("Apply", (dialogInterface, i) -> {
+                change_system_path.setPositiveButton(android.R.string.ok, (dialogInterface, i) -> {
                 });
                 change_system_path.setNegativeButton(android.R.string.cancel, (dialogInterface, i) -> {
                 });
@@ -194,8 +189,8 @@ public class ManagerFragment extends Fragment {
                     final Button apply = ad1.getButton(DialogInterface.BUTTON_POSITIVE);
                     apply.setOnClickListener(v -> {
                         String inputText = input1.getText().toString();
-                        if (!inputText.matches("^[A-z0-9.\\/\\-_~]+$")) {
-                            PathsUtil.showSnack(getView(), "Invalid system path.", false);
+                        if (!inputText.matches("^[A-z0-9.\\-_~]+$")) {
+                            PathsUtil.showSnackBar(activity, MainActivity.getBnCard(), "Invalid system path.", false);
                         } else {
                             prefs.edit().putString("chroot_system_path", inputText).apply();
                             ad1.dismiss();
@@ -206,54 +201,18 @@ public class ManagerFragment extends Fragment {
                 ad1.show();
                 break;
             case R.id.security_settings:
-                MaterialAlertDialogBuilder security_settings = new MaterialAlertDialogBuilder(context);
-                View view_security_settings = getLayoutInflater().inflate(R.layout.manager_dialog_settings_security, null);
-                SwitchMaterial sdcard = view_security_settings.findViewById(R.id.mount_sdcard);
-                SwitchMaterial system = view_security_settings.findViewById(R.id.mount_system);
-                SwitchMaterial data = view_security_settings.findViewById(R.id.mount_data);
-                SwitchMaterial modules = view_security_settings.findViewById(R.id.mount_modules);
-                TextInputEditText hostname = view_security_settings.findViewById(R.id.hostname);
-
-                sdcard.setChecked(prefs.getBoolean("mount_sdcard", false));
-                system.setChecked(prefs.getBoolean("mount_system", false));
-                data.setChecked(prefs.getBoolean("mount_data", false));
-                modules.setChecked(prefs.getBoolean("mount_modules", false));
-                hostname.setText(prefs.getString("hostname", "mh"));
-
-                security_settings.setView(view_security_settings);
-                security_settings.setPositiveButton("Apply", (dialogInterface, i) -> {
-                });
-                security_settings.setNegativeButton(android.R.string.cancel, (dialogInterface, i) -> {
-                });
-                final AlertDialog ad2 = security_settings.create();
-                ad2.setOnShowListener(dialog -> {
-                    final Button apply = ad2.getButton(DialogInterface.BUTTON_POSITIVE);
-                    apply.setOnClickListener(v -> {
-                        String _hostname = hostname.getText().toString();
-                        if (!_hostname.matches("([a-zA-Z0-9-]){2,253}")) {
-                            PathsUtil.showSnack(getView(), "Invalid hostname.", false);
-                        } else {
-                            prefs.edit().putBoolean("mount_sdcard", sdcard.isChecked()).apply();
-                            prefs.edit().putBoolean("mount_system", system.isChecked()).apply();
-                            prefs.edit().putBoolean("mount_data", data.isChecked()).apply();
-                            prefs.edit().putBoolean("mount_modules", modules.isChecked()).apply();
-                            prefs.edit().putString("hostname", _hostname).apply();
-                            ad2.dismiss();
-                            compatCheck();
-                        }
-                    });
-                });
-                ad2.show();
+                securitySettings();
                 break;
             case R.id.rename_chroot_folder:
                 MaterialAlertDialogBuilder rename_chroot_folder = new MaterialAlertDialogBuilder(context);
+                rename_chroot_folder.setTitle("Rename chroot folder");
                 View view_rename_chroot_folder = getLayoutInflater().inflate(R.layout.manager_dialog_settings_rename_chroot_folder, null);
                 TextInputEditText input2 = view_rename_chroot_folder.findViewById(R.id.new_chroot_folder_name);
 
                 input2.setText(prefs.getString("chroot_directory", "chroot"));
 
                 rename_chroot_folder.setView(view_rename_chroot_folder);
-                rename_chroot_folder.setPositiveButton("Apply", (dialogInterface, i) -> {
+                rename_chroot_folder.setPositiveButton(android.R.string.ok, (dialogInterface, i) -> {
                 });
                 rename_chroot_folder.setNegativeButton(android.R.string.cancel, (dialogInterface, i) -> {
                 });
@@ -262,10 +221,10 @@ public class ManagerFragment extends Fragment {
                     final Button apply = ad3.getButton(DialogInterface.BUTTON_POSITIVE);
                     apply.setOnClickListener(v -> {
                         String inputText = input2.getText().toString();
-                        if (!inputText.matches("^[A-z0-9.\\/\\-_~]+$"))
-                            PathsUtil.showSnack(getView(), "Invalid folder name.", false);
+                        if (!inputText.matches("^[A-z0-9.\\-_~]+$"))
+                            PathsUtil.showSnackBar(activity, MainActivity.getBnCard(), "Invalid folder name.", false);
                         else {
-                            exe.executeCommandAsRoot("mv " + PathsUtil.CHROOT_PATH() + " " + PathsUtil.SYSTEM_PATH() + "/" + inputText);
+                            new ShellUtils().executeCommandAsRoot("mv " + PathsUtil.CHROOT_PATH() + " " + PathsUtil.SYSTEM_PATH() + "/" + inputText);
                             prefs.edit().putString("chroot_directory", inputText).apply();
                             ad3.dismiss();
                             compatCheck();
@@ -278,8 +237,50 @@ public class ManagerFragment extends Fragment {
         return super.onOptionsItemSelected(item);
     }
 
+    private void securitySettings() {
+        ManagerDialogSettingsSecurityBinding binding1 = ManagerDialogSettingsSecurityBinding.inflate(getLayoutInflater());
+        MaterialAlertDialogBuilder adb = new MaterialAlertDialogBuilder(context);
+        adb.setTitle("Security settings");
+
+        binding1.mountSdcard.setOnClickListener(v -> binding1.mountSdcardSwitch.toggle());
+        binding1.mountSystem.setOnClickListener(v -> binding1.mountSystemSwitch.toggle());
+        binding1.mountData.setOnClickListener(v -> binding1.mountDataSwitch.toggle());
+        binding1.mountModules.setOnClickListener(v -> binding1.mountModulesSwitch.toggle());
+
+        binding1.mountSdcardSwitch.setChecked(prefs.getBoolean("mount_sdcard", false));
+        binding1.mountSystemSwitch.setChecked(prefs.getBoolean("mount_system", false));
+        binding1.mountDataSwitch.setChecked(prefs.getBoolean("mount_data", false));
+        binding1.mountModulesSwitch.setChecked(prefs.getBoolean("mount_modules", false));
+        binding1.hostname.setText(prefs.getString("hostname", "mh"));
+
+        adb.setView(binding1.getRoot());
+        adb.setPositiveButton(android.R.string.ok, (dialogInterface, i) -> {
+        });
+        adb.setNegativeButton(android.R.string.cancel, (dialogInterface, i) -> {
+        });
+        AlertDialog ad = adb.create();
+        ad.setOnShowListener(dialog -> {
+            Button apply = ad.getButton(DialogInterface.BUTTON_POSITIVE);
+            apply.setOnClickListener(v -> {
+                String _hostname = binding1.hostname.getText().toString();
+                if (!_hostname.matches("([a-zA-Z0-9-]){2,253}")) {
+                    PathsUtil.showSnackBar(activity, MainActivity.getBnCard(), "Invalid hostname.", false);
+                } else {
+                    prefs.edit().putBoolean("mount_sdcard", binding1.mountSdcardSwitch.isChecked()).apply();
+                    prefs.edit().putBoolean("mount_system", binding1.mountSystemSwitch.isChecked()).apply();
+                    prefs.edit().putBoolean("mount_data", binding1.mountDataSwitch.isChecked()).apply();
+                    prefs.edit().putBoolean("mount_modules", binding1.mountModulesSwitch.isChecked()).apply();
+                    prefs.edit().putString("hostname", _hostname).apply();
+                    ad.dismiss();
+                    compatCheck();
+                }
+            });
+        });
+        ad.show();
+    }
+
     private void setStartButton() {
-        mountChrootButton.setOnClickListener(view -> new ShellUtils.ActiveShellExecutor(prefs.getBoolean("print_timestamp", false)) {
+        binding.start.setOnClickListener(view -> new ShellUtils.ActiveShellExecutor(prefs.getBoolean("print_timestamp", false)) {
             @Override
             public void onPrepare() {
                 setAllButtonEnable(false);
@@ -288,6 +289,7 @@ public class ManagerFragment extends Fragment {
             @Override
             public void onNewLine(String line) {
                 MainActivity.notifyManagerBadge();
+                binding.scrollView.fullScroll(View.FOCUS_DOWN);
             }
 
             @Override
@@ -299,11 +301,11 @@ public class ManagerFragment extends Fragment {
                     compatCheck();
                 }
             }
-        }.exec(PathsUtil.APP_SCRIPTS_PATH + "/bootroot", resultViewerLoggerTextView));
+        }.exec(PathsUtil.APP_SCRIPTS_PATH + "/bootroot", binding.report));
     }
 
     private void setStopButton() {
-        unmountChrootButton.setOnClickListener(view -> new ShellUtils.ActiveShellExecutor(prefs.getBoolean("print_timestamp", false)) {
+        binding.stop.setOnClickListener(view -> new ShellUtils.ActiveShellExecutor(prefs.getBoolean("print_timestamp", false)) {
             @Override
             public void onPrepare() {
                 setAllButtonEnable(false);
@@ -312,6 +314,7 @@ public class ManagerFragment extends Fragment {
             @Override
             public void onNewLine(String line) {
                 MainActivity.notifyManagerBadge();
+                binding.scrollView.fullScroll(View.FOCUS_DOWN);
             }
 
             @Override
@@ -323,11 +326,11 @@ public class ManagerFragment extends Fragment {
                     compatCheck();
                 }
             }
-        }.exec(PathsUtil.APP_SCRIPTS_PATH + "/killroot", resultViewerLoggerTextView));
+        }.exec(PathsUtil.APP_SCRIPTS_PATH + "/killroot", binding.report));
     }
 
     private void setInstallButton() {
-        installChrootButton.setOnClickListener(view -> {
+        binding.install.setOnClickListener(view -> {
             MaterialAlertDialogBuilder adb = new MaterialAlertDialogBuilder(context);
             if (MainActivity.isBusyboxInstalled()) {
                 View rootView = getLayoutInflater().inflate(R.layout.manager_dialog_install, null);
@@ -357,11 +360,11 @@ public class ManagerFragment extends Fragment {
                                     chroot_url = "http://" + chroot_url;
                                 }
                                 if (!chroot_url.matches(".*\\.(tar\\.xz|tar\\.gz)$")) {
-                                    PathsUtil.showSnack(getView(), "Tarball must be xz or gz compression.", true);
+                                    PathsUtil.showSnackBar(activity, MainActivity.getBnCard(), "Tarball must be xz or gz compression.", true);
                                     return;
                                 }
                             } else {
-                                PathsUtil.showSnack(getView(), "URL can't be empty!", false);
+                                PathsUtil.showSnackBar(activity, MainActivity.getBnCard(), "URL can't be empty!", false);
                                 return;
                             }
                             prefs.edit().putString("chroot_download_url_prev", chroot_url).apply();
@@ -375,20 +378,21 @@ public class ManagerFragment extends Fragment {
                                     adb1Ad.dismiss();
                                     disableToolbarMenu(true);
                                     setAllButtonEnable(false);
-                                    progressbar.setIndeterminate(false);
-                                    progressbar.show();
-                                    progressbar.setProgress(0);
-                                    progressbar.setMax(100);
+                                    binding.progressbar.setIndeterminate(false);
+                                    binding.progressbar.show();
+                                    binding.progressbar.setProgress(0);
+                                    binding.progressbar.setMax(100);
                                 }
 
                                 @Override
                                 public void onNewLine(String line) {
                                     MainActivity.notifyManagerBadge();
+                                    binding.scrollView.fullScroll(View.FOCUS_DOWN);
                                 }
 
                                 @Override
                                 public void onProgressUpdate(int progress) {
-                                    progressbar.setProgress(progress);
+                                    binding.progressbar.setProgress(progress);
                                 }
 
                                 @Override
@@ -400,12 +404,13 @@ public class ManagerFragment extends Fragment {
                                             @Override
                                             public void onPrepare() {
                                                 setAllButtonEnable(false);
-                                                progressbar.setIndeterminate(true);
+                                                binding.progressbar.setIndeterminate(true);
                                             }
 
                                             @Override
                                             public void onNewLine(String line) {
                                                 MainActivity.notifyManagerBadge();
+                                                binding.scrollView.fullScroll(View.FOCUS_DOWN);
                                             }
 
                                             @Override
@@ -413,8 +418,8 @@ public class ManagerFragment extends Fragment {
                                                 disableToolbarMenu(false);
                                                 setAllButtonEnable(true);
                                                 compatCheck();
-                                                progressbar.hide();
-                                                progressbar.setIndeterminate(false);
+                                                binding.progressbar.hide();
+                                                binding.progressbar.setIndeterminate(false);
                                                 chroot.delete();
                                             }
                                         }.exec(
@@ -424,12 +429,12 @@ public class ManagerFragment extends Fragment {
                                                         + " "
                                                         + PathsUtil.CHROOT_PATH()
                                                         + "\"",
-                                                resultViewerLoggerTextView);
+                                                binding.report);
                                     } else {
-                                        progressbar.hide();
+                                        binding.progressbar.hide();
                                     }
                                 }
-                            }.exec(chroot_url, chroot, resultViewerLoggerTextView);
+                            }.exec(chroot_url, chroot, binding.report);
                         });
                     });
                     adb1Ad.show();
@@ -471,11 +476,11 @@ public class ManagerFragment extends Fragment {
                                 selector_layout.setVisibility(View.VISIBLE);
                             });
                         } catch (IOException e) {
-                            PathsUtil.showSnack(getView(), "No internet connection, please try again later.", true);
+                            PathsUtil.showSnackBar(activity, MainActivity.getBnCard(), "No internet connection, please try again later.", true);
                         } catch (JSONException e) {
-                            PathsUtil.showSnack(getView(), "Bad repository, contact it's author.", true);
+                            PathsUtil.showSnackBar(activity, MainActivity.getBnCard(), "Bad repository, contact it's author.", true);
                         } catch (NullPointerException e) {
-                            PathsUtil.showSnack(getView(), "Repository url must not be empty.", true);
+                            PathsUtil.showSnackBar(activity, MainActivity.getBnCard(), "Repository url must not be empty.", true);
                         }
                     }));
 
@@ -512,15 +517,15 @@ public class ManagerFragment extends Fragment {
                                     chroot_url = "http://" + chroot_url;
 
                                 if (!chroot_url.matches(".*\\.(tar\\.xz|tar\\.gz)$")) {
-                                    PathsUtil.showSnack(getView(), "Bad chroot type, contact repository author.", true);
+                                    PathsUtil.showSnackBar(activity, MainActivity.getBnCard(), "Bad chroot type, contact repository author.", true);
                                     return;
                                 }
 
                             } catch (JSONException e) {
-                                PathsUtil.showSnack(getView(), "Bad repository skeleton.", true);
+                                PathsUtil.showSnackBar(activity, MainActivity.getBnCard(), "Bad repository skeleton.", true);
                                 return;
                             } catch (NullPointerException e) {
-                                PathsUtil.showSnack(getView(), "Chroot url must not be empty.", true);
+                                PathsUtil.showSnackBar(activity, MainActivity.getBnCard(), "Chroot url must not be empty.", true);
                                 return;
                             }
 
@@ -535,21 +540,22 @@ public class ManagerFragment extends Fragment {
                                     adb2Ad.dismiss();
                                     disableToolbarMenu(true);
                                     setAllButtonEnable(false);
-                                    PathsUtil.showSnack(getView(), "Downloading chroot by: " + chroot_author[0], false);
-                                    progressbar.setIndeterminate(false);
-                                    progressbar.show();
-                                    progressbar.setProgress(0);
-                                    progressbar.setMax(100);
+                                    PathsUtil.showSnackBar(activity, MainActivity.getBnCard(), "Downloading chroot by: " + chroot_author[0], false);
+                                    binding.progressbar.setIndeterminate(false);
+                                    binding.progressbar.show();
+                                    binding.progressbar.setProgress(0);
+                                    binding.progressbar.setMax(100);
                                 }
 
                                 @Override
                                 public void onNewLine(String line) {
                                     MainActivity.notifyManagerBadge();
+                                    binding.scrollView.fullScroll(View.FOCUS_DOWN);
                                 }
 
                                 @Override
                                 public void onProgressUpdate(int progress) {
-                                    progressbar.setProgress(progress);
+                                    binding.progressbar.setProgress(progress);
                                 }
 
                                 @Override
@@ -561,12 +567,13 @@ public class ManagerFragment extends Fragment {
                                             @Override
                                             public void onPrepare() {
                                                 setAllButtonEnable(false);
-                                                progressbar.setIndeterminate(true);
+                                                binding.progressbar.setIndeterminate(true);
                                             }
 
                                             @Override
                                             public void onNewLine(String line) {
                                                 MainActivity.notifyManagerBadge();
+                                                binding.scrollView.fullScroll(View.FOCUS_DOWN);
                                             }
 
                                             @Override
@@ -574,8 +581,8 @@ public class ManagerFragment extends Fragment {
                                                 disableToolbarMenu(false);
                                                 setAllButtonEnable(true);
                                                 compatCheck();
-                                                progressbar.hide();
-                                                progressbar.setIndeterminate(false);
+                                                binding.progressbar.hide();
+                                                binding.progressbar.setIndeterminate(false);
                                                 chroot.delete();
                                             }
                                         }.exec(
@@ -585,12 +592,12 @@ public class ManagerFragment extends Fragment {
                                                         + " "
                                                         + PathsUtil.CHROOT_PATH()
                                                         + "\"",
-                                                resultViewerLoggerTextView);
+                                                binding.report);
                                     } else {
-                                        progressbar.hide();
+                                        binding.progressbar.hide();
                                     }
                                 }
-                            }.exec(chroot_url, chroot, resultViewerLoggerTextView);
+                            }.exec(chroot_url, chroot, binding.report);
                         });
                     });
                     adb2Ad.show();
@@ -622,13 +629,14 @@ public class ManagerFragment extends Fragment {
                                     adb3Ad.dismiss();
                                     disableToolbarMenu(true);
                                     setAllButtonEnable(false);
-                                    progressbar.show();
-                                    progressbar.setIndeterminate(true);
+                                    binding.progressbar.show();
+                                    binding.progressbar.setIndeterminate(true);
                                 }
 
                                 @Override
                                 public void onNewLine(String line) {
                                     MainActivity.notifyManagerBadge();
+                                    binding.scrollView.fullScroll(View.FOCUS_DOWN);
                                 }
 
                                 @Override
@@ -636,8 +644,8 @@ public class ManagerFragment extends Fragment {
                                     disableToolbarMenu(false);
                                     setAllButtonEnable(true);
                                     compatCheck();
-                                    progressbar.hide();
-                                    progressbar.setIndeterminate(false);
+                                    binding.progressbar.hide();
+                                    binding.progressbar.setIndeterminate(false);
                                 }
                             }.exec(
                                     PathsUtil.APP_SCRIPTS_PATH
@@ -646,7 +654,7 @@ public class ManagerFragment extends Fragment {
                                             + " "
                                             + PathsUtil.CHROOT_PATH()
                                             + "\"",
-                                    resultViewerLoggerTextView);
+                                    binding.report);
                         });
                     });
                     adb3Ad.show();
@@ -666,7 +674,7 @@ public class ManagerFragment extends Fragment {
     }
 
     private void setRemoveButton() {
-        removeChrootButton.setOnClickListener(view -> {
+        binding.remove.setOnClickListener(view -> {
             MaterialAlertDialogBuilder adb = new MaterialAlertDialogBuilder(context);
             MaterialAlertDialogBuilder removing = new MaterialAlertDialogBuilder(context);
             removing.setTitle("Removing...");
@@ -687,14 +695,15 @@ public class ManagerFragment extends Fragment {
                 public void onPrepare() {
                     disableToolbarMenu(true);
                     setAllButtonEnable(false);
-                    progressbar.show();
-                    progressbar.setIndeterminate(true);
+                    binding.progressbar.show();
+                    binding.progressbar.setIndeterminate(true);
                     removingDialog.show();
                 }
 
                 @Override
                 public void onNewLine(String line) {
                     MainActivity.notifyManagerBadge();
+                    binding.scrollView.fullScroll(View.FOCUS_DOWN);
                 }
 
                 @Override
@@ -702,15 +711,15 @@ public class ManagerFragment extends Fragment {
                     disableToolbarMenu(false);
                     setAllButtonEnable(true);
                     compatCheck();
-                    progressbar.hide();
-                    progressbar.setIndeterminate(false);
+                    binding.progressbar.hide();
+                    binding.progressbar.setIndeterminate(false);
                     removingDialog.dismiss();
                 }
             }.exec(
                     PathsUtil.APP_SCRIPTS_PATH
                             + "/chrootmgr -c \"remove "
                             + PathsUtil.CHROOT_PATH()
-                            + "\"", resultViewerLoggerTextView));
+                            + "\"", binding.report));
             adb.setNegativeButton(android.R.string.cancel, (dialogInterface, i) -> {
             });
             adb.show();
@@ -718,12 +727,11 @@ public class ManagerFragment extends Fragment {
     }
 
     private void setBackupButton() {
-        backupChrootButton.setOnClickListener(view -> {
+        binding.backup.setOnClickListener(view -> {
             MaterialAlertDialogBuilder adb = new MaterialAlertDialogBuilder(context);
             View v = getLayoutInflater().inflate(R.layout.manager_dialog_backup, null);
             TextInputEditText path = v.findViewById(R.id.input);
-            path.setText(
-                    prefs.getString("chroot_backup_path", ""));
+            path.setText(prefs.getString("chroot_backup_path", ""));
             adb.setView(v);
             adb.setPositiveButton("Do", (dialogInterface, i) -> new ShellUtils.ActiveShellExecutor(prefs.getBoolean("print_timestamp", false)) {
                 @Override
@@ -731,26 +739,27 @@ public class ManagerFragment extends Fragment {
                     prefs.edit().putString("chroot_backup_path", path.getText().toString()).apply();
                     disableToolbarMenu(true);
                     setAllButtonEnable(false);
-                    progressbar.show();
-                    progressbar.setIndeterminate(true);
+                    binding.progressbar.show();
+                    binding.progressbar.setIndeterminate(true);
                 }
 
                 @Override
                 public void onNewLine(String line) {
                     MainActivity.notifyManagerBadge();
+                    binding.scrollView.fullScroll(View.FOCUS_DOWN);
                 }
 
                 @Override
                 public void onFinished(int code) {
                     disableToolbarMenu(false);
                     setAllButtonEnable(true);
-                    progressbar.hide();
-                    progressbar.setIndeterminate(true);
+                    binding.progressbar.hide();
+                    binding.progressbar.setIndeterminate(true);
                 }
             }.exec(
                     PathsUtil.APP_SCRIPTS_PATH
                             + "/chrootmgr -c \"backup "
-                            + PathsUtil.CHROOT_PATH() + " " + path.getText().toString() + "\"", resultViewerLoggerTextView));
+                            + PathsUtil.CHROOT_PATH() + " " + path.getText().toString() + "\"", binding.report));
             adb.show();
         });
     }
@@ -763,12 +772,13 @@ public class ManagerFragment extends Fragment {
 
             @Override
             public void onNewLine(String line) {
+                binding.scrollView.fullScroll(View.FOCUS_DOWN);
             }
 
             @Override
             public void onFinished(int code) {
             }
-        }.exec(PathsUtil.APP_SCRIPTS_PATH + "/mhbanner", resultViewerLoggerTextView);
+        }.exec(PathsUtil.APP_SCRIPTS_PATH + "/mhbanner", binding.report);
     }
 
     private void compatCheck() {
@@ -781,6 +791,7 @@ public class ManagerFragment extends Fragment {
             @Override
             public void onNewLine(String line) {
                 MainActivity.notifyManagerBadge();
+                binding.scrollView.fullScroll(View.FOCUS_DOWN);
             }
 
             @Override
@@ -794,7 +805,7 @@ public class ManagerFragment extends Fragment {
         }.exec(
                 PathsUtil.APP_SCRIPTS_PATH
                         + "/chrootmgr -c \"status\" -p "
-                        + PathsUtil.CHROOT_PATH(), resultViewerLoggerTextView);
+                        + PathsUtil.CHROOT_PATH(), binding.report);
     }
 
     private void setMountStatsTextView(int MODE) {
@@ -812,41 +823,41 @@ public class ManagerFragment extends Fragment {
     private void setButtonVisibility(int MODE) {
         switch (MODE) {
             case IS_MOUNTED:
-                mountChrootButton.setVisibility(View.GONE);
-                unmountChrootButton.setVisibility(View.VISIBLE);
-                installChrootButton.setVisibility(View.GONE);
-                removeChrootButton.setVisibility(View.GONE);
-                backupChrootButton.setVisibility(View.GONE);
+                binding.start.setVisibility(View.GONE);
+                binding.stop.setVisibility(View.VISIBLE);
+                binding.install.setVisibility(View.GONE);
+                binding.remove.setVisibility(View.GONE);
+                binding.backup.setVisibility(View.GONE);
                 break;
             case IS_UNMOUNTED:
-                mountChrootButton.setVisibility(View.VISIBLE);
-                unmountChrootButton.setVisibility(View.GONE);
-                installChrootButton.setVisibility(View.GONE);
-                removeChrootButton.setVisibility(View.VISIBLE);
-                backupChrootButton.setVisibility(View.VISIBLE);
+                binding.start.setVisibility(View.VISIBLE);
+                binding.stop.setVisibility(View.GONE);
+                binding.install.setVisibility(View.GONE);
+                binding.remove.setVisibility(View.VISIBLE);
+                binding.backup.setVisibility(View.VISIBLE);
                 break;
             case NEED_TO_INSTALL:
-                mountChrootButton.setVisibility(View.GONE);
-                unmountChrootButton.setVisibility(View.GONE);
-                installChrootButton.setVisibility(View.VISIBLE);
-                removeChrootButton.setVisibility(View.GONE);
-                backupChrootButton.setVisibility(View.GONE);
+                binding.start.setVisibility(View.GONE);
+                binding.stop.setVisibility(View.GONE);
+                binding.install.setVisibility(View.VISIBLE);
+                binding.remove.setVisibility(View.GONE);
+                binding.backup.setVisibility(View.GONE);
                 break;
             case CHROOT_CORRUPTED:
-                mountChrootButton.setVisibility(View.GONE);
-                unmountChrootButton.setVisibility(View.GONE);
-                installChrootButton.setVisibility(View.GONE);
-                removeChrootButton.setVisibility(View.VISIBLE);
-                backupChrootButton.setVisibility(View.GONE);
+                binding.start.setVisibility(View.GONE);
+                binding.stop.setVisibility(View.GONE);
+                binding.install.setVisibility(View.GONE);
+                binding.remove.setVisibility(View.VISIBLE);
+                binding.backup.setVisibility(View.GONE);
         }
     }
 
     private void setAllButtonEnable(boolean isEnable) {
-        mountChrootButton.setEnabled(isEnable);
-        unmountChrootButton.setEnabled(isEnable);
-        installChrootButton.setEnabled(isEnable);
-        removeChrootButton.setEnabled(isEnable);
-        backupChrootButton.setEnabled(isEnable);
+        binding.start.setEnabled(isEnable);
+        binding.stop.setEnabled(isEnable);
+        binding.install.setEnabled(isEnable);
+        binding.remove.setEnabled(isEnable);
+        binding.backup.setEnabled(isEnable);
     }
 
     private void disableToolbarMenu(boolean working) {

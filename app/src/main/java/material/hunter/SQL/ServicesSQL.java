@@ -9,6 +9,8 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Environment;
 import android.text.TextUtils;
 
+import androidx.annotation.NonNull;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -19,8 +21,8 @@ import material.hunter.models.ServicesModel;
 
 public class ServicesSQL extends SQLiteOpenHelper {
 
+    public static final String TAG = "ServicesSQL";
     private static final String DATABASE_NAME = "ServicesFragment";
-    private static final String TAG = "ServicesSQL";
     private static final String TABLE_NAME = DATABASE_NAME;
     private static final String[][] ServicesData = {
             {"1", "SSH", "service ssh start", "service ssh stop", "sshd", "0"}
@@ -30,7 +32,6 @@ public class ServicesSQL extends SQLiteOpenHelper {
 
     private ServicesSQL(Context context) {
         super(context, DATABASE_NAME, null, 3);
-        // Add your default column here;
         COLUMNS.add("id");
         COLUMNS.add("label");
         COLUMNS.add("cmd_start");
@@ -47,7 +48,7 @@ public class ServicesSQL extends SQLiteOpenHelper {
     }
 
     @Override
-    public void onCreate(SQLiteDatabase db) {
+    public void onCreate(@NonNull SQLiteDatabase db) {
         db.execSQL(
                 "CREATE TABLE "
                         + TABLE_NAME
@@ -80,7 +81,7 @@ public class ServicesSQL extends SQLiteOpenHelper {
     }
 
     @Override
-    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+    public void onUpgrade(@NonNull SQLiteDatabase db, int oldVersion, int newVersion) {
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME);
         this.onCreate(db);
     }
@@ -106,7 +107,7 @@ public class ServicesSQL extends SQLiteOpenHelper {
         return servicesModelArrayList;
     }
 
-    public void addData(int targetPositionId, ArrayList<String> Data) {
+    public void addData(int targetPositionId, @NonNull ArrayList<String> Data) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues initialValues = new ContentValues();
         db.execSQL(
@@ -226,7 +227,7 @@ public class ServicesSQL extends SQLiteOpenHelper {
         db.close();
     }
 
-    public void editData(Integer targetPosition, ArrayList<String> editData) {
+    public void editData(Integer targetPosition, @NonNull ArrayList<String> editData) {
         SQLiteDatabase db = this.getWritableDatabase();
         db.execSQL(
                 "UPDATE "
@@ -294,7 +295,7 @@ public class ServicesSQL extends SQLiteOpenHelper {
         db.close();
     }
 
-    public String backupData(String storedDBpath) {
+    public String backupData(String storedDBPath) {
         try {
             String currentDBPath =
                     Environment.getDataDirectory()
@@ -302,7 +303,7 @@ public class ServicesSQL extends SQLiteOpenHelper {
                             + getDatabaseName();
             if (Environment.getExternalStorageDirectory().canWrite()) {
                 File currentDB = new File(currentDBPath);
-                File backupDB = new File(storedDBpath);
+                File backupDB = new File(storedDBPath);
                 if (currentDB.exists()) {
                     FileChannel src = new FileInputStream(currentDB).getChannel();
                     FileChannel dst = new FileOutputStream(backupDB).getChannel();
@@ -318,8 +319,8 @@ public class ServicesSQL extends SQLiteOpenHelper {
         return null;
     }
 
-    public String restoreData(String storedDBpath) {
-        if (!new File(storedDBpath).exists()) {
+    public String restoreData(String storedDBPath) {
+        if (!new File(storedDBPath).exists()) {
             return "db file not found.";
         }
         try {
@@ -329,7 +330,7 @@ public class ServicesSQL extends SQLiteOpenHelper {
                             + getDatabaseName();
             if (Environment.getExternalStorageDirectory().canWrite()) {
                 File currentDB = new File(currentDBPath);
-                File backupDB = new File(storedDBpath);
+                File backupDB = new File(storedDBPath);
                 if (backupDB.exists()) {
                     FileChannel src = new FileInputStream(backupDB).getChannel();
                     FileChannel dst = new FileOutputStream(currentDB).getChannel();

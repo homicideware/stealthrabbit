@@ -1,113 +1,108 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/scrollView"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:layout_height="match_parent">
 
-    <com.google.android.material.progressindicator.LinearProgressIndicator
-        android:id="@+id/progressbar"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:visibility="invisible" />
+        android:orientation="vertical">
 
-    <com.google.android.material.card.MaterialCardView
-        android:id="@+id/loggerCard"
-        style="@style/Widget.Mirivan.NewsCardView"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_marginStart="12dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="12dp"
-        android:layout_weight="1">
+        <com.google.android.material.progressindicator.LinearProgressIndicator
+            android:id="@+id/progressbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="invisible" />
 
         <TextView
             android:id="@+id/report"
             style="@style/Widget.Mirivan.ShellOutputTextView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:gravity="bottom"
             android:paddingStart="16dp"
             android:paddingTop="8dp"
             android:paddingEnd="16dp"
             android:paddingBottom="8dp"
             android:textSize="12dp" />
-    </com.google.android.material.card.MaterialCardView>
 
-    <HorizontalScrollView
-        android:id="@+id/navigation"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="12dp"
-        android:layout_marginEnd="12dp"
-        android:animateLayoutChanges="true"
-        android:scrollbars="none">
-
-        <LinearLayout
-            android:layout_width="wrap_content"
+        <HorizontalScrollView
+            android:id="@+id/navigation"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:orientation="horizontal">
+            android:animateLayoutChanges="true"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"
+            android:scrollbars="none">
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/start"
-                style="@style/Widget.Material3.Button.ElevatedButton"
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="2dp"
-                android:layout_marginEnd="2dp"
-                android:text="Start"
-                android:visibility="gone"
-                app:icon="@drawable/ic_play"
-                app:iconGravity="textStart" />
+                android:layout_gravity="center"
+                android:orientation="horizontal">
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/stop"
-                style="@style/Widget.Material3.Button.ElevatedButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="2dp"
-                android:layout_marginEnd="2dp"
-                android:text="Stop"
-                android:visibility="gone"
-                app:icon="@drawable/ic_stop"
-                app:iconGravity="textStart" />
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/start"
+                    style="@style/Widget.Material3.Button.ElevatedButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="2dp"
+                    android:layout_marginEnd="2dp"
+                    android:text="Start"
+                    android:visibility="gone"
+                    app:icon="@drawable/ic_play"
+                    app:iconGravity="textStart" />
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/install"
-                style="@style/Widget.Material3.Button.ElevatedButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="2dp"
-                android:layout_marginEnd="2dp"
-                android:text="Install"
-                android:visibility="gone"
-                app:icon="@drawable/ic_download"
-                app:iconGravity="textStart" />
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/stop"
+                    style="@style/Widget.Material3.Button.ElevatedButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="2dp"
+                    android:layout_marginEnd="2dp"
+                    android:text="Stop"
+                    android:visibility="gone"
+                    app:icon="@drawable/ic_stop"
+                    app:iconGravity="textStart" />
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/backup"
-                style="@style/Widget.Material3.Button.ElevatedButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="2dp"
-                android:layout_marginEnd="2dp"
-                android:text="Backup"
-                android:visibility="gone"
-                app:icon="@drawable/ic_backup"
-                app:iconGravity="textStart" />
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/install"
+                    style="@style/Widget.Material3.Button.ElevatedButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="2dp"
+                    android:layout_marginEnd="2dp"
+                    android:text="Install"
+                    android:visibility="gone"
+                    app:icon="@drawable/ic_download"
+                    app:iconGravity="textStart" />
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/remove"
-                style="@style/Widget.Material3.Button.ElevatedButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="2dp"
-                android:layout_marginEnd="2dp"
-                android:text="Remove"
-                android:visibility="gone"
-                app:icon="@drawable/ic_delete"
-                app:iconGravity="textStart" />
-        </LinearLayout>
-    </HorizontalScrollView>
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/backup"
+                    style="@style/Widget.Material3.Button.ElevatedButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="2dp"
+                    android:layout_marginEnd="2dp"
+                    android:text="Backup"
+                    android:visibility="gone"
+                    app:icon="@drawable/ic_backup"
+                    app:iconGravity="textStart" />
 
-</LinearLayout>
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/remove"
+                    style="@style/Widget.Material3.Button.ElevatedButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="2dp"
+                    android:layout_marginEnd="2dp"
+                    android:text="Remove"
+                    android:visibility="gone"
+                    app:icon="@drawable/ic_delete"
+                    app:iconGravity="textStart" />
+            </LinearLayout>
+        </HorizontalScrollView>
+    </LinearLayout>
+
+</androidx.core.widget.NestedScrollView>

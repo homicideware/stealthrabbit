@@ -1,18 +1,21 @@
 package material.hunter.viewdata;
 
+import android.app.Activity;
 import android.content.Context;
 
+import androidx.annotation.NonNull;
 import androidx.lifecycle.MutableLiveData;
 
-import com.google.android.material.switchmaterial.SwitchMaterial;
+import com.google.android.material.materialswitch.MaterialSwitch;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import material.hunter.SQL.CustomCommandsSQL;
 import material.hunter.SQL.ServicesSQL;
+import material.hunter.models.CustomCommandsModel;
 import material.hunter.models.ServicesModel;
-import material.hunter.ui.activities.menu.ServicesActivity;
 import material.hunter.utils.AsynchronousExecutor;
 import material.hunter.utils.PathsUtil;
 import material.hunter.utils.ShellUtils;
@@ -25,6 +28,7 @@ public class ServicesData {
     private final MutableLiveData<List<ServicesModel>> data = new MutableLiveData<>();
     private final List<ServicesModel> copyOfServicesModelListFull = new ArrayList<>();
     public List<ServicesModel> servicesModelListFull;
+    private Activity activity;
 
     public static synchronized ServicesData getInstance() {
         if (instance == null) {
@@ -33,7 +37,8 @@ public class ServicesData {
         return instance;
     }
 
-    public MutableLiveData<List<ServicesModel>> getServicesModels(Context context) {
+    public MutableLiveData<List<ServicesModel>> getServicesModels(Activity activity, Context context) {
+        this.activity = activity;
         if (!isDataInitiated) {
             data.setValue(ServicesSQL.getInstance(context).bindData(servicesModelArrayList));
             servicesModelListFull = new ArrayList<>(data.getValue());
@@ -70,8 +75,8 @@ public class ServicesData {
                                                                 .getCommandForCheckingService()
                                                                 + "'")
                                                 == 0
-                                                ? "[+] Service is running"
-                                                : "[-] Service isn't running");
+                                                ? "[+] Service is running!"
+                                                : "[-] Service isn't running.");
                     }
                 }
             }
@@ -85,7 +90,7 @@ public class ServicesData {
         }.run();
     }
 
-    public void startServiceforItem(int position, SwitchMaterial mSwitch, Context context) {
+    public void startServiceForItem(int position, MaterialSwitch mSwitch) {
         List<ServicesModel> model = getInitCopyOfServicesModelListFull();
 
         new AsynchronousExecutor() {
@@ -105,8 +110,8 @@ public class ServicesData {
                                                     model.get(position)
                                                             .getCommandForStartingService())
                                             == 0
-                                            ? "[+] Service is running"
-                                            : "[-] Service isn't running");
+                                            ? "[+] Service is running!"
+                                            : "[-] Service isn't running.");
                 }
             }
 
@@ -118,17 +123,17 @@ public class ServicesData {
                 getServicesModels().getValue().addAll(model);
                 getServicesModels().postValue(getServicesModels().getValue());
                 if (!mSwitch.isChecked())
-                    PathsUtil.showSnack(
-                            ServicesActivity._view,
+                    PathsUtil.showSnackBar(
+                            activity,
                             "Failed starting "
-                                    + getServicesModels().getValue().get(position).getServiceName()
+                                    + getServicesModels().getValue().get(position).getLabel()
                                     + " service.",
                             false);
             }
         }.run();
     }
 
-    public void stopServiceforItem(int position, SwitchMaterial mSwitch, Context context) {
+    public void stopServiceForItem(int position, MaterialSwitch mSwitch, Context context) {
         List<ServicesModel> model = getInitCopyOfServicesModelListFull();
 
         new AsynchronousExecutor() {
@@ -148,8 +153,8 @@ public class ServicesData {
                                                     model.get(position)
                                                             .getCommandForStoppingService())
                                             == 0
-                                            ? "[-] Service isn't running"
-                                            : "[+] Service is running");
+                                            ? "[-] Service isn't running."
+                                            : "[+] Service is running!");
                 }
             }
 
@@ -161,10 +166,10 @@ public class ServicesData {
                 getServicesModels().getValue().addAll(model);
                 getServicesModels().postValue(getServicesModels().getValue());
                 if (mSwitch.isChecked())
-                    PathsUtil.showSnack(
-                            ServicesActivity._view,
-                            "Failed stopping "
-                                    + getServicesModels().getValue().get(position).getServiceName()
+                    PathsUtil.showSnackBar(
+                            activity,
+                            "Failed to stop "
+                                    + getServicesModels().getValue().get(position).getLabel()
                                     + " service.",
                             false);
             }
@@ -242,7 +247,7 @@ public class ServicesData {
     }
 
     public void deleteData(
-            ArrayList<Integer> selectedPositionsIndex,
+            ArrayList<Integer> selectedPositionList,
             ArrayList<Integer> selectedTargetIds,
             ServicesSQL servicesSQL) {
         List<ServicesModel> model = getInitCopyOfServicesModelListFull();
@@ -256,10 +261,9 @@ public class ServicesData {
             @Override
             public void doInBackground() {
                 if (model != null) {
-                    selectedPositionsIndex.sort(Collections.reverseOrder());
-                    for (Integer selectedPosition : selectedPositionsIndex) {
-                        int i = selectedPosition;
-                        model.remove(i);
+                    selectedPositionList.sort(Collections.reverseOrder());
+                    for (Integer s : selectedPositionList) {
+                        model.remove(s.intValue());
                     }
                     servicesSQL.deleteData(selectedTargetIds);
                 }
@@ -291,7 +295,7 @@ public class ServicesData {
                     int mTargetPositionIndex = targetPositionIndex;
                     ServicesModel tempServicesModel =
                             new ServicesModel(
-                                    model.get(originalPositionIndex).getServiceName(),
+                                    model.get(originalPositionIndex).getLabel(),
                                     model.get(originalPositionIndex).getCommandForStartingService(),
                                     model.get(originalPositionIndex).getCommandForStoppingService(),
                                     model.get(originalPositionIndex)
@@ -317,11 +321,11 @@ public class ServicesData {
         }.run();
     }
 
-    public String backupData(ServicesSQL servicesSQL, String storedDBpath) {
+    public String backupData(@NonNull ServicesSQL servicesSQL, String storedDBpath) {
         return servicesSQL.backupData(storedDBpath);
     }
 
-    public String restoreData(ServicesSQL servicesSQL, String storedDBpath) {
+    public String restoreData(@NonNull ServicesSQL servicesSQL, String storedDBpath) {
         String returnedResult = servicesSQL.restoreData(storedDBpath);
 
         if (returnedResult == null) {
@@ -385,39 +389,6 @@ public class ServicesData {
         }.run();
     }
 
-    public void updateRunOnChrootStartServices(
-            int position, ArrayList<String> dataArrayList, ServicesSQL servicesSQL) {
-        List<ServicesModel> model = getInitCopyOfServicesModelListFull();
-
-        new AsynchronousExecutor() {
-
-            @Override
-            public void onPreExecute() {
-            }
-
-            @Override
-            public void doInBackground() {
-                if (model != null) {
-                    model.get(position).setServiceName(dataArrayList.get(0));
-                    model.get(position).setCommandForStartingService(dataArrayList.get(1));
-                    model.get(position).setCommandForStoppingService(dataArrayList.get(2));
-                    model.get(position).setCommandForCheckingService(dataArrayList.get(3));
-                    model.get(position).setRunOnChrootStart(dataArrayList.get(4));
-                    servicesSQL.editData(position, dataArrayList);
-                    updateRunOnChrootStartScripts(model);
-                }
-            }
-
-            @Override
-            public void onPostExecute() {
-                updateServicesModelListFull(model);
-                getServicesModels().getValue().clear();
-                getServicesModels().getValue().addAll(model);
-                getServicesModels().postValue(getServicesModels().getValue());
-            }
-        }.run();
-    }
-
     public void updateServicesModelListFull(List<ServicesModel> copyOfServicesModelList) {
         servicesModelListFull.clear();
         servicesModelListFull.addAll(copyOfServicesModelList);
@@ -429,7 +400,7 @@ public class ServicesData {
         return copyOfServicesModelListFull;
     }
 
-    private void updateRunOnChrootStartScripts(List<ServicesModel> servicesModelList) {
+    private void updateRunOnChrootStartScripts(@NonNull List<ServicesModel> servicesModelList) {
         StringBuilder tmpStringBuilder = new StringBuilder();
         for (int i = 0; i < servicesModelList.size(); i++) {
             if (servicesModelList.get(i).getRunOnChrootStart().equals("1")) {
@@ -442,7 +413,7 @@ public class ServicesData {
                 .executeCommandAsRootWithOutput(
                         "cat << 'EOF' > "
                                 + PathsUtil.APP_SCRIPTS_PATH
-                                + "/services"
+                                + "/init-services"
                                 + "\n"
                                 + tmpStringBuilder
                                 + "\nEOF");

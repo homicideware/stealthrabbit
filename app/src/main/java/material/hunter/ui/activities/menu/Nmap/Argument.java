@@ -1,12 +1,12 @@
 package material.hunter.ui.activities.menu.Nmap;
 
-public class NmapArgument {
+public class Argument {
 
     private final String name;
     private final String argument;
     private final boolean enabled;
 
-    public NmapArgument(String name, String argument, boolean enabled) {
+    public Argument(String name, String argument, boolean enabled) {
         this.name = name;
         this.argument = argument;
         this.enabled = enabled;

@@ -3,38 +3,33 @@
 shels=$(readlink -f $0)
 . ${shels%/*}/bootroot_env
 
-# Check busybox functionality
 if [ -z "$BUSYBOX" ]; then
-    echo "[-] Busybox isn't installed or permissions isn't granted to execute it."
-    echo "Check has been made for:"
-    echo "1. /system/xbin"
-    echo "2. /system/bin"
+    echo "[-] BusyBox isn't defined. Please install it. If you have already installed it, but MaterialHunter still couldn't detect it by itself - open the application settings and specify the path to it manually."
     exit 2
 fi
 
 if [ -z "$MNT" ]; then
-    echo "[-] \$MNT variable isn't defined, please run the MaterialHunter app first."
+    echo "[-] \$MNT variable isn't defined, something broken."
     exit 2
 fi
 
 if [ ! -d "$MNT" ]; then
     echo "[-] Chroot directory doesn't exist."
-    echo "[!] Don't do stupid things."
     exit 2
 fi
 
 # Check chroot status
 check_chroot() {
     if [ ! "$($BUSYBOX chroot $MNT /bin/uname)" ]; then
-        echo "[-] Chroot corrupted. This is not a MaterialHunter problem!"
+        echo "[-] Chroot corrupted. This isn't a MaterialHunter problem!"
         echo "Solutions:"
         echo "1. Check the permissions of the chroot directories"
-        echo "2. Try using busybox to login and see errors (busybox chroot $MNT /bin/uname)"
+        echo "2. Try using busybox to login and fix it"
         echo "3. Contact chroot builder"
         return 3
     fi
     if [ ! -x "$MNT/$CHROOT_EXEC" ]; then
-        echo "[-] sudo not installed. This is not a MaterialHunter problem!"
+        echo "[-] sudo not installed. This isn't a MaterialHunter problem!"
         echo "Solutions:"
         echo "1. Try using busybox to login and install it"
         echo "2. Contact chroot builder"
@@ -46,16 +41,16 @@ check_chroot() {
 check_mount(){
     local FS
     FS=(proc sys dev dev/pts)
-    if [ $mount_sdcard == "true" ]; then
+    if [ "$mount_sdcard" == "true" ]; then
         FS[${#FS[@]}]=sdcard
     fi
-    if [ $mount_system == "true" ]; then
+    if [ "$mount_system" == "true" ]; then
         FS[${#FS[@]}]=system
     fi
-    if [ $mount_data == "true" ]; then
+    if [ "$mount_data" == "true" ]; then
         FS[${#FS[@]}]=data
     fi
-    if [ $mount_modules == "true" ]; then
+    if [ "$mount_modules" == "true" ]; then
         FS[${#FS[@]}]=lib/modules
     fi
     for i in "${FS[@]}"; do
@@ -125,7 +120,7 @@ do_mount() {
     fi
 
     ######### SET SYSTEM ########
-    if [ $mount_system == "true" ]; then
+    if [ "$mount_system" == "true" ]; then
         if [ ! "$($BUSYBOX mountpoint $MNT/system 2> /dev/null | grep 'is a')" ]; then
             [ -d $MNT/system ] && rm -rf $MNT/system
             [ ! -d $MNT/system ] && mkdir -p $MNT/system
@@ -134,7 +129,7 @@ do_mount() {
     fi
 
     ######### SET DATA ########
-    if [ $mount_data == "true" ]; then
+    if [ "$mount_data" == "true" ]; then
         if [ ! "$($BUSYBOX mountpoint $MNT/data 2> /dev/null | grep 'is a')" ]; then
             # [ -d $MNT/data ] && rm -rf $MNT/data
             [ ! -d $MNT/data ] && mkdir -p $MNT/data
@@ -143,7 +138,7 @@ do_mount() {
     fi
 
     ######### SET MODULES ########
-    if [ $mount_modules == "true" ]; then
+    if [ "$mount_modules" == "true" ]; then
         if [ ! "$($BUSYBOX mountpoint $MNT/lib/modules 2> /dev/null | grep 'is a')" ]; then
             [ -d $MNT/lib/modules ] && rm -rf $MNT/lib/modules
             [ ! -d $MNT/lib/modules ] && mkdir -p $MNT/lib/modules
@@ -152,7 +147,7 @@ do_mount() {
     fi
 
     ######### SET INTERNAL SDCARD ########
-    if [ $mount_sdcard == "true" ]; then
+    if [ "$mount_sdcard" == "true" ]; then
         if [ ! "$($BUSYBOX mountpoint $MNT/sdcard 2> /dev/null | grep 'is a')" ]; then
             [ ! -d $MNT/sdcard ] && mkdir -p $MNT/sdcard
             for sdcard in \
@@ -175,14 +170,14 @@ do_mount() {
 
     ######### SET NETWORK AND HOSTNAME ########
     $BUSYBOX sysctl -w net.ipv4.ip_forward=1
-    echo "127.0.0.1          localhost $HOSTNAME" > $MNT/etc/hosts
+    echo "127.0.0.1          localhost $HOSTNAME"                  > $MNT/etc/hosts
     echo "::1                localhost ip6-localhost ip6-loopback" >> $MNT/etc/hosts
-    echo "$HOSTNAME" > $MNT/proc/sys/kernel/hostname
+    echo "$HOSTNAME"                                               > $MNT/proc/sys/kernel/hostname
 
-    ######### Start user defined services #########
-    . /data/data/material.hunter/files/etc/init.d/80postservices
+    ######### START USER DEFINED SERVICES #########
+    . /data/data/material.hunter/files/etc/init.d/70services
 
-    ######### Setup done #########
+    ######### SETUP DONE #########
     echo "[+] Chroot mounted and ready to go."
 }
 

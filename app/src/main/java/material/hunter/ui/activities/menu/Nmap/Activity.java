@@ -1,21 +1,22 @@
 package material.hunter.ui.activities.menu.Nmap;
 
+import static material.hunter.utils.Utils.setErrorListener;
+
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
-import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
-import android.widget.ScrollView;
 import android.widget.TextView;
+
+import androidx.core.widget.NestedScrollView;
 
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.card.MaterialCardView;
@@ -28,17 +29,13 @@ import com.google.android.material.textfield.TextInputLayout;
 
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.List;
 import java.util.Locale;
-import java.util.TimeZone;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -50,16 +47,16 @@ import material.hunter.utils.PathsUtil;
 import material.hunter.utils.ShellUtils;
 import material.hunter.utils.TerminalUtil;
 
-public class NmapActivity extends ThemedActivity {
+public class Activity extends ThemedActivity {
 
-    private final ArrayList<NmapArgument> arguments = new ArrayList<>();
+    private final ArrayList<Argument> arguments = new ArrayList<>();
+    private android.app.Activity activity;
     private NmapActivityBinding binding;
-    private View _view;
     private ExecutorService executor;
     private SharedPreferences prefs;
     private TerminalUtil terminalUtil;
     private LinearProgressIndicator progressIndicator;
-    private ScrollView scrollView;
+    private NestedScrollView scrollView;
     private ChipGroup argumentsChip;
     private TextInputLayout interfaceLayout;
     private AutoCompleteTextView mInterface;
@@ -79,9 +76,9 @@ public class NmapActivity extends ThemedActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        activity = this;
         binding = NmapActivityBinding.inflate(getLayoutInflater());
-        _view = binding.getRoot();
-        setContentView(_view);
+        setContentView(binding.getRoot());
 
         executor = Executors.newSingleThreadExecutor();
         prefs = getSharedPreferences(BuildConfig.APPLICATION_ID, Context.MODE_PRIVATE);
@@ -95,13 +92,13 @@ public class NmapActivity extends ThemedActivity {
 
         File usefulDirectory = new File(PathsUtil.APP_SD_PATH + "/Nmap");
         if (!usefulDirectory.exists()) {
-            PathsUtil.showSnack(_view, "Creating directory for reports...", false);
+            PathsUtil.showSnackBar(activity, "Creating directory for reports...", false);
             try {
                 usefulDirectory.mkdir();
             } catch (Exception e) {
                 e.printStackTrace();
-                PathsUtil.showSnack(
-                        _view,
+                PathsUtil.showSnackBar(
+                        activity,
                         "Failed to create directory: " + usefulDirectory,
                         false);
             }
@@ -133,7 +130,7 @@ public class NmapActivity extends ThemedActivity {
         hostsLayout.setEndIconOnClickListener(v -> {
             if (isNmapRunning) {
                 if (!destroyNmap())
-                    PathsUtil.showSnack(_view, "Something wrong...", false);
+                    PathsUtil.showSnackBar(activity, "Something wrong...", false);
             } else {
                 scan();
             }
@@ -153,19 +150,19 @@ public class NmapActivity extends ThemedActivity {
 
         saveReport.setOnClickListener(v -> {
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd-HH-mm", Locale.getDefault());
-            sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
             String utcDate = sdf.format(new Date());
             File report = new File(PathsUtil.APP_SD_PATH + "/Nmap/report_" + utcDate + ".log");
             try {
                 BufferedWriter writer = new BufferedWriter(new FileWriter(report));
                 writer.write(getNmapReport());
                 writer.close();
-                PathsUtil.showSnack(_view, "Report saved to Nmap folder in internal storage.", true);
-            }
-            catch (IOException e) {
-                PathsUtil.showSnack(_view, "Error writing report: " + e.getMessage(), true);
+                PathsUtil.showSnackBar(activity, "Report saved to Nmap folder in internal storage.", true);
+            } catch (IOException e) {
+                PathsUtil.showSnackBar(activity, "Error writing report: " + e.getMessage(), true);
             }
         });
+
+        setErrorListener(ports, portsLayout, "(?:\\d+,)*\\d+", "Usage: <int> or <int>,<int>...");
     }
 
     @Override
@@ -182,16 +179,9 @@ public class NmapActivity extends ThemedActivity {
             new Handler(Looper.getMainLooper()).post(() -> mInterface.setAdapter(adapter));
             String previousWlan = prefs.getString("nmap_interface", "");
             if (previousWlan.isEmpty()) {
-                String preferredInterface = list[0];
-                for (String iInterface : interfaces) {
-                    if (iInterface.startsWith("wl")) {
-                        preferredInterface = iInterface;
-                    }
-                }
-                String finalPreferredInterface = preferredInterface;
                 new Handler(Looper.getMainLooper()).post(() -> {
-                    mInterface.setText(finalPreferredInterface, false);
-                    prefs.edit().putString("nmap_interface", finalPreferredInterface).apply();
+                    mInterface.setText(list[0], false);
+                    prefs.edit().putString("nmap_interface", list[0]).apply();
                 });
             } else {
                 new Handler(Looper.getMainLooper()).post(() -> mInterface.setText(previousWlan, false));
@@ -287,20 +277,20 @@ public class NmapActivity extends ThemedActivity {
     }
 
     private void loadArguments() {
-        arguments.add(new NmapArgument("Treat as online", "-Pn", false));
-        arguments.add(new NmapArgument("OS Detection", "-O", false));
-        arguments.add(new NmapArgument("IPv6 scanning", "-6", false));
-        arguments.add(new NmapArgument("No port scan", "-sn", false));
-        arguments.add(new NmapArgument("service/version info", "-sV", false));
-        arguments.add(new NmapArgument("Fast mode", "-F", false));
-        arguments.add(new NmapArgument("Don't randomize port scan", "-r", false));
+        arguments.add(new Argument("Treat as online", "-Pn", false));
+        arguments.add(new Argument("OS Detection", "-O", false));
+        arguments.add(new Argument("IPv6 scanning", "-6", false));
+        arguments.add(new Argument("No port scan", "-sn", false));
+        arguments.add(new Argument("service/version info", "-sV", false));
+        arguments.add(new Argument("Fast mode", "-F", false));
+        arguments.add(new Argument("Don't randomize port scan", "-r", false));
         for (int i = 0; i < arguments.size(); i++) {
             Chip chip = new Chip(this);
             chip.setText(arguments.get(i).getName());
             chip.setCheckedIconVisible(true);
             chip.setCheckable(true);
             int finalI = i;
-            chip.setOnCheckedChangeListener((view, bool) -> arguments.set(finalI, new NmapArgument(arguments.get(finalI).getName(), arguments.get(finalI).getArgument(), bool)));
+            chip.setOnCheckedChangeListener((view, bool) -> arguments.set(finalI, new Argument(arguments.get(finalI).getName(), arguments.get(finalI).getArgument(), bool)));
             argumentsChip.addView(chip);
         }
     }
@@ -310,7 +300,7 @@ public class NmapActivity extends ThemedActivity {
         command.append("nmap");
         command.append(mInterface.getText().toString().isEmpty() ? "" : " -e " + mInterface.getText().toString());
         command.append(ports.getText().toString().isEmpty() ? "" : " -p " + ports.getText().toString()).append(" ");
-        for (NmapArgument argument : arguments) {
+        for (Argument argument : arguments) {
             if (argument.isEnabled()) {
                 command.append(argument.getArgument()).append(" ");
             }

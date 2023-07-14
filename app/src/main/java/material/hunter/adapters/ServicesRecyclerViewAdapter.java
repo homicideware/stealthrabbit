@@ -1,17 +1,21 @@
 package material.hunter.adapters;
 
+import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Color;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.style.ForegroundColorSpan;
+import android.view.ActionMode;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.Filter;
-import android.widget.Filterable;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -20,240 +24,257 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import com.google.android.material.switchmaterial.SwitchMaterial;
-import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.materialswitch.MaterialSwitch;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import material.hunter.R;
 import material.hunter.SQL.ServicesSQL;
+import material.hunter.databinding.ServicesDialogEditBinding;
 import material.hunter.models.ServicesModel;
+import material.hunter.ui.activities.menu.ServicesActivity;
 import material.hunter.utils.PathsUtil;
 import material.hunter.viewdata.ServicesData;
 
-public class ServicesRecyclerViewAdapter extends RecyclerView.Adapter<ServicesRecyclerViewAdapter.ItemViewHolder> implements Filterable {
+public class ServicesRecyclerViewAdapter extends RecyclerView.Adapter<ServicesRecyclerViewAdapter.ItemViewHolder> {
 
     private final Context context;
-    private final List<ServicesModel> servicesModelList;
-    private final Filter ServicesModelListFilter =
-            new Filter() {
+    private final List<ServicesModel> list;
+    private final ArrayList<Integer> selectedPositionList = new ArrayList<>();
+    private final Activity activity;
+    boolean isSelectingEnable = false;
+    boolean isSelectAll = false;
 
-                @Override
-                protected FilterResults performFiltering(CharSequence constraint) {
-                    FilterResults results = new FilterResults();
-                    if (constraint == null || constraint.length() == 0) {
-                        results.values =
-                                new ArrayList<>(ServicesData.getInstance().servicesModelListFull);
-                    } else {
-                        String filterPattern = constraint.toString().toLowerCase().trim();
-                        List<ServicesModel> tempServicesModelList = new ArrayList<>();
-                        for (ServicesModel servicesModel :
-                                ServicesData.getInstance().servicesModelListFull) {
-                            if (servicesModel
-                                    .getServiceName()
-                                    .toLowerCase()
-                                    .contains(filterPattern)) {
-                                tempServicesModelList.add(servicesModel);
-                            }
-                        }
-                        results.values = tempServicesModelList;
-                    }
-                    return results;
-                }
-
-                @Override
-                protected void publishResults(CharSequence constraint, FilterResults results) {
-                    ServicesData.getInstance().getServicesModels().getValue().clear();
-                    ServicesData.getInstance()
-                            .getServicesModels()
-                            .getValue()
-                            .addAll((List<ServicesModel>) results.values);
-                    ServicesData.getInstance()
-                            .getServicesModels()
-                            .postValue(ServicesData.getInstance().getServicesModels().getValue());
-                }
-            };
-
-    public ServicesRecyclerViewAdapter(Context context, List<ServicesModel> servicesModelList) {
+    public ServicesRecyclerViewAdapter(
+            Activity activity, Context context, List<ServicesModel> list) {
+        this.activity = activity;
         this.context = context;
-        this.servicesModelList = servicesModelList;
+        this.list = list;
     }
 
     @NonNull
     @Override
-    public ServicesRecyclerViewAdapter.ItemViewHolder onCreateViewHolder(
-            @NonNull ViewGroup viewGroup, int i) {
-        View view =
-                LayoutInflater.from(context)
-                        .inflate(R.layout.services_item, viewGroup, false);
+    public ServicesRecyclerViewAdapter.ItemViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
+        View view = LayoutInflater.from(context).inflate(R.layout.services_item, viewGroup, false);
         return new ItemViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull final ItemViewHolder itemViewHolder, int position) {
-        Spannable tempStatusTextView =
-                new SpannableString(servicesModelList.get(position).getStatus());
+        itemViewHolder.label.setText(list.get(position).getLabel());
+        Spannable tempStatusTextView = new SpannableString(list.get(position).getStatus());
         tempStatusTextView.setSpan(
                 new ForegroundColorSpan(
-                        servicesModelList.get(position).getStatus().startsWith("[+]")
+                        list.get(position).getStatus().startsWith("[+]")
                                 ? Color.GREEN
                                 : Color.parseColor("#D81B60")),
                 0,
-                servicesModelList.get(position).getStatus().length(),
+                3,
                 0);
-        itemViewHolder.nametextView.setText(servicesModelList.get(position).getServiceName());
-        itemViewHolder.mSwitch.setChecked(
-                servicesModelList.get(position).getStatus().startsWith("[+]"));
-        itemViewHolder.statustextView.setText(tempStatusTextView);
-        itemViewHolder.card.setOnLongClickListener(
-                v -> {
-                    final ViewGroup nullParent = null;
-                    final LayoutInflater mInflater =
-                            (LayoutInflater)
-                                    context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                    final View promptViewEdit =
-                            mInflater.inflate(R.layout.services_dialog_edit, nullParent);
-                    final TextInputEditText titleEditText =
-                            promptViewEdit.findViewById(R.id.f_services_edit_adb_et_title);
-                    final TextInputEditText startCmdEditText =
-                            promptViewEdit.findViewById(R.id.f_services_edit_adb_et_startcommand);
-                    final TextInputEditText stopCmdEditText =
-                            promptViewEdit.findViewById(R.id.f_services_edit_adb_et_stopcommand);
-                    final TextInputEditText checkstatusCmdEditText =
-                            promptViewEdit.findViewById(
-                                    R.id.f_services_edit_adb_et_checkstatuscommand);
-                    final SwitchMaterial runOnChrootStartSwitch =
-                            promptViewEdit.findViewById(
-                                    R.id.f_services_edit_adb_switch_runonboot);
-
-                    titleEditText.setText(
-                            ServicesData.getInstance()
-                                    .servicesModelListFull
-                                    .get(
-                                            ServicesData.getInstance()
-                                                    .servicesModelListFull
-                                                    .indexOf(servicesModelList.get(position)))
-                                    .getServiceName());
-                    startCmdEditText.setText(
-                            ServicesData.getInstance()
-                                    .servicesModelListFull
-                                    .get(
-                                            ServicesData.getInstance()
-                                                    .servicesModelListFull
-                                                    .indexOf(servicesModelList.get(position)))
-                                    .getCommandForStartingService());
-                    stopCmdEditText.setText(
-                            ServicesData.getInstance()
-                                    .servicesModelListFull
-                                    .get(
-                                            ServicesData.getInstance()
-                                                    .servicesModelListFull
-                                                    .indexOf(servicesModelList.get(position)))
-                                    .getCommandForStoppingService());
-                    checkstatusCmdEditText.setText(
-                            ServicesData.getInstance()
-                                    .servicesModelListFull
-                                    .get(
-                                            ServicesData.getInstance()
-                                                    .servicesModelListFull
-                                                    .indexOf(servicesModelList.get(position)))
-                                    .getCommandForCheckingService());
-                    runOnChrootStartSwitch.setChecked(
-                            ServicesData.getInstance()
-                                    .servicesModelListFull
-                                    .get(
-                                            ServicesData.getInstance()
-                                                    .servicesModelListFull
-                                                    .indexOf(servicesModelList.get(position)))
-                                    .getRunOnChrootStart()
-                                    .equals("1"));
-                    MaterialAlertDialogBuilder adbEdit = new MaterialAlertDialogBuilder(context);
-                    adbEdit.setView(promptViewEdit);
-                    adbEdit.setCancelable(true);
-                    adbEdit.setPositiveButton(android.R.string.ok, (dialog, which) -> {
-                    });
-                    final AlertDialog adEdit = adbEdit.create();
-                    adEdit.setOnShowListener(
-                            dialog -> {
-                                final Button buttonEdit =
-                                        adEdit.getButton(DialogInterface.BUTTON_POSITIVE);
-                                buttonEdit.setOnClickListener(
-                                        v1 -> {
-                                            if (titleEditText.getText().toString().isEmpty()) {
-                                                PathsUtil.showToast(
-                                                        context, "Title cannot be empty", false);
-                                            } else if (startCmdEditText
-                                                    .getText()
-                                                    .toString()
-                                                    .isEmpty()) {
-                                                PathsUtil.showToast(
-                                                        context,
-                                                        "Start Command cannot be empty",
-                                                        false);
-                                            } else if (stopCmdEditText
-                                                    .getText()
-                                                    .toString()
-                                                    .isEmpty()) {
-                                                PathsUtil.showToast(
-                                                        context,
-                                                        "Stop Command cannot be empty",
-                                                        false);
-                                            } else if (checkstatusCmdEditText
-                                                    .getText()
-                                                    .toString()
-                                                    .isEmpty()) {
-                                                PathsUtil.showToast(
-                                                        context, "String cannot be empty", false);
-                                            } else {
-                                                ArrayList<String> dataArrayList = new ArrayList<>();
-                                                dataArrayList.add(
-                                                        titleEditText.getText().toString());
-                                                dataArrayList.add(
-                                                        startCmdEditText.getText().toString());
-                                                dataArrayList.add(
-                                                        stopCmdEditText.getText().toString());
-                                                dataArrayList.add(
-                                                        checkstatusCmdEditText
-                                                                .getText()
-                                                                .toString());
-                                                dataArrayList.add(
-                                                        runOnChrootStartSwitch.isChecked()
-                                                                ? "1"
-                                                                : "0");
-                                                ServicesData.getInstance()
-                                                        .editData(
-                                                                ServicesData.getInstance()
-                                                                        .servicesModelListFull
-                                                                        .indexOf(
-                                                                                servicesModelList
-                                                                                        .get(
-                                                                                                position)),
-                                                                dataArrayList,
-                                                                ServicesSQL.getInstance(context));
-                                                adEdit.dismiss();
-                                            }
-                                        });
-                            });
-                    adEdit.show();
-                    return false;
-                });
-
-        itemViewHolder.mSwitch.setOnClickListener(
-                v -> {
-                    if (itemViewHolder.mSwitch.isChecked()) {
-                        ServicesData.getInstance()
-                                .startServiceforItem(position, itemViewHolder.mSwitch, context);
-                    } else {
-                        ServicesData.getInstance()
-                                .stopServiceforItem(position, itemViewHolder.mSwitch, context);
+        itemViewHolder.status.setText(tempStatusTextView);
+        itemViewHolder.card.setChecked(isSelectAll);
+        itemViewHolder.toggle.setEnabled(!isSelectAll);
+        itemViewHolder.card.setOnLongClickListener(v -> {
+            if (!isSelectingEnable) {
+                ActionMode.Callback callback = new ActionMode.Callback() {
+                    @Override
+                    public boolean onCreateActionMode(@NonNull ActionMode mode, Menu menu) {
+                        MenuInflater menuInflater = mode.getMenuInflater();
+                        menuInflater.inflate(R.menu.recycler_multiselecting, menu);
+                        ServicesActivity.getAddButton().setEnabled(false);
+                        return true;
                     }
+
+                    @Override
+                    public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+                        isSelectingEnable = true;
+                        itemClickListener(itemViewHolder);
+                        return true;
+                    }
+
+                    @SuppressLint({"NonConstantResourceId", "NotifyDataSetChanged"})
+                    @Override
+                    public boolean onActionItemClicked(ActionMode mode, @NonNull MenuItem item) {
+                        switch (item.getItemId()) {
+                            case R.id.delete:
+                                if (selectedPositionList.size() == 0) {
+                                    PathsUtil.showSnackBar(activity, "Nothing to be deleted.", false);
+                                } else {
+                                    ArrayList<Integer> mSelectedPositionList = new ArrayList<>(selectedPositionList);
+                                    ArrayList<Integer> selectedTargetIds = new ArrayList<>(mSelectedPositionList);
+                                    selectedTargetIds.replaceAll(i -> i + 1);
+                                    ServicesData.getInstance().deleteData(
+                                            mSelectedPositionList,
+                                            selectedTargetIds,
+                                            ServicesSQL.getInstance(context));
+                                }
+                                mode.finish();
+                                break;
+                            case R.id.select_all:
+                                if (selectedPositionList.size() == list.size()) {
+                                    isSelectAll = false;
+                                    selectedPositionList.clear();
+                                } else {
+                                    isSelectAll = true;
+                                    selectedPositionList.clear();
+                                    for (int i = 0; i < list.size(); i++) {
+                                        selectedPositionList.add(i);
+                                    }
+                                }
+                                notifyDataSetChanged();
+                                break;
+                            default:
+                                return false;
+                        }
+                        return true;
+                    }
+
+                    @SuppressLint("NotifyDataSetChanged")
+                    @Override
+                    public void onDestroyActionMode(ActionMode mode) {
+                        isSelectingEnable = false;
+                        isSelectAll = false;
+                        selectedPositionList.clear();
+                        itemViewHolder.toggle.setEnabled(true);
+                        itemViewHolder.card.setChecked(false);
+                        ServicesActivity.getAddButton().setEnabled(true);
+                    }
+                };
+                activity.startActionMode(callback);
+            } else {
+                LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                ServicesDialogEditBinding binding = ServicesDialogEditBinding.inflate(inflater);
+
+                binding.runOnBoot.setOnClickListener(v1 -> binding.runOnBootSwitch.toggle());
+                binding.label.setText(
+                        ServicesData.getInstance()
+                                .servicesModelListFull
+                                .get(
+                                        ServicesData.getInstance()
+                                                .servicesModelListFull
+                                                .indexOf(list.get(position)))
+                                .getLabel());
+                binding.commandStart.setText(
+                        ServicesData.getInstance()
+                                .servicesModelListFull
+                                .get(
+                                        ServicesData.getInstance()
+                                                .servicesModelListFull
+                                                .indexOf(list.get(position)))
+                                .getCommandForStartingService());
+                binding.commandStop.setText(
+                        ServicesData.getInstance()
+                                .servicesModelListFull
+                                .get(
+                                        ServicesData.getInstance()
+                                                .servicesModelListFull
+                                                .indexOf(list.get(position)))
+                                .getCommandForStoppingService());
+                binding.commandCheck.setText(
+                        ServicesData.getInstance()
+                                .servicesModelListFull
+                                .get(
+                                        ServicesData.getInstance()
+                                                .servicesModelListFull
+                                                .indexOf(list.get(position)))
+                                .getCommandForCheckingService());
+                binding.runOnBootSwitch.setChecked(
+                        ServicesData.getInstance()
+                                .servicesModelListFull
+                                .get(
+                                        ServicesData.getInstance()
+                                                .servicesModelListFull
+                                                .indexOf(list.get(position)))
+                                .getRunOnChrootStart()
+                                .equals("1"));
+                MaterialAlertDialogBuilder adb = new MaterialAlertDialogBuilder(context);
+                adb.setTitle("Edit");
+                adb.setView(binding.getRoot());
+                adb.setCancelable(true);
+                adb.setPositiveButton(android.R.string.ok, (dialog, which) -> {
                 });
+                AlertDialog ad = adb.create();
+                ad.setOnShowListener(dialog -> {
+                    Button buttonEdit = ad.getButton(DialogInterface.BUTTON_POSITIVE);
+                    buttonEdit.setOnClickListener(v1 -> {
+                        if (binding.label.getText().toString().isEmpty()) {
+                            PathsUtil.showToast(context, "Label cannot be empty!", false);
+                        } else if (binding.commandStart
+                                .getText()
+                                .toString()
+                                .isEmpty()) {
+                            PathsUtil.showToast(
+                                    context,
+                                    "Start command cannot be empty!",
+                                    false);
+                        } else if (binding.commandStop
+                                .getText()
+                                .toString()
+                                .isEmpty()) {
+                            PathsUtil.showToast(
+                                    context,
+                                    "Stop command cannot be empty!",
+                                    false);
+                        } else if (binding.commandCheck
+                                .getText()
+                                .toString()
+                                .isEmpty()) {
+                            PathsUtil.showToast(
+                                    context, "Command for checking status cannot be empty!", false);
+                        } else {
+                            ArrayList<String> dataArrayList = new ArrayList<>();
+                            dataArrayList.add(binding.label.getText().toString());
+                            dataArrayList.add(binding.commandStart.getText().toString());
+                            dataArrayList.add(binding.commandStop.getText().toString());
+                            dataArrayList.add(binding.commandCheck.getText().toString());
+                            dataArrayList.add(binding.runOnBootSwitch.isChecked() ? "1" : "0");
+                            ServicesData.getInstance()
+                                    .editData(
+                                            ServicesData.getInstance()
+                                                    .servicesModelListFull
+                                                    .indexOf(list.get(position)),
+                                            dataArrayList,
+                                            ServicesSQL.getInstance(context));
+                            selectedPositionList.remove(Integer.valueOf(itemViewHolder.getAdapterPosition()));
+                            ad.dismiss();
+                        }
+                    });
+                });
+                ad.show();
+            }
+            return false;
+        });
+        itemViewHolder.card.setOnClickListener(v -> {
+            if (isSelectingEnable) {
+                itemClickListener(itemViewHolder);
+            }
+        });
+        itemViewHolder.toggle.setChecked(list.get(position).getStatus().startsWith("[+]"));
+        itemViewHolder.toggle.setOnClickListener(v -> {
+            if (((MaterialSwitch) v).isChecked()) {
+                ServicesData.getInstance().startServiceForItem(position, itemViewHolder.toggle);
+            } else {
+                ServicesData.getInstance().stopServiceForItem(position, itemViewHolder.toggle, context);
+            }
+        });
+    }
+
+    private void itemClickListener(@NonNull ItemViewHolder holder) {
+        if (holder.card.isChecked()) {
+            holder.card.setChecked(false);
+            holder.toggle.setEnabled(true);
+            selectedPositionList.remove(Integer.valueOf(holder.getAdapterPosition()));
+        } else {
+            holder.card.setChecked(true);
+            holder.toggle.setEnabled(false);
+            selectedPositionList.add(holder.getAdapterPosition());
+        }
     }
 
     @Override
     public int getItemCount() {
-        return servicesModelList.size();
+        return list.size();
     }
 
     @Override
@@ -261,23 +282,19 @@ public class ServicesRecyclerViewAdapter extends RecyclerView.Adapter<ServicesRe
         return super.getItemId(position);
     }
 
-    @Override
-    public Filter getFilter() {
-        return ServicesModelListFilter;
-    }
-
     static class ItemViewHolder extends RecyclerView.ViewHolder {
-        private final TextView nametextView;
-        private final TextView statustextView;
+
         private final MaterialCardView card;
-        private final SwitchMaterial mSwitch;
+        private final TextView label;
+        private final TextView status;
+        private final MaterialSwitch toggle;
 
         private ItemViewHolder(View view) {
             super(view);
-            card = view.findViewById(R.id.service_card);
-            nametextView = view.findViewById(R.id.f_services_recyclerview_servicetitle_tv);
-            mSwitch = view.findViewById(R.id.f_services_recyclerview_switch_toggle);
-            statustextView = view.findViewById(R.id.f_services_recyclerview_serviceresult_tv);
+            card = view.findViewById(R.id.card);
+            label = view.findViewById(R.id.label);
+            status = view.findViewById(R.id.status);
+            toggle = view.findViewById(R.id.toggle);
         }
     }
 }

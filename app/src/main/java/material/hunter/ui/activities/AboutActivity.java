@@ -1,56 +1,42 @@
 package material.hunter.ui.activities;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.view.View;
-import android.widget.Button;
-import android.widget.TextView;
-
-import com.google.android.material.appbar.MaterialToolbar;
 
 import material.hunter.BuildConfig;
 import material.hunter.R;
+import material.hunter.databinding.AboutActivityBinding;
 
 public class AboutActivity extends ThemedActivity {
 
-    MaterialToolbar toolbar;
-    private TextView app_name;
-    private TextView author;
-    private Button open_developers;
-    private Button open_licenses;
-    private Button open_github;
+    private AboutActivityBinding binding;
 
+    @SuppressLint("SetTextI18n")
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.about_activity);
-
-        View included = findViewById(R.id.included);
-        toolbar = included.findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+        binding = AboutActivityBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
+        
+        setSupportActionBar(binding.included.toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        app_name = findViewById(R.id.app_name);
-        author = findViewById(R.id.author);
-        open_developers = findViewById(R.id.open_developers);
-        open_licenses = findViewById(R.id.open_licenses);
-        open_github = findViewById(R.id.open_github);
+        binding.appName.setText(getString(R.string.app_name) + " " + BuildConfig.VERSION_NAME);
+        binding.author.setText("by " + BuildConfig.AUTHOR);
 
-        app_name.setText(getString(R.string.app_name) + " " + BuildConfig.VERSION_NAME);
-        author.setText("by " + BuildConfig.AUTHOR);
-
-        open_developers.setOnClickListener(v -> {
+        binding.openAuthors.setOnClickListener(v -> {
             Intent intent = new Intent(this, AuthorsActivity.class);
             startActivity(intent);
         });
 
-        open_licenses.setOnClickListener(v -> {
+        binding.openLicenses.setOnClickListener(v -> {
             Intent intent = new Intent(this, LicensesActivity.class);
             startActivity(intent);
         });
 
-        open_github.setOnClickListener(v -> {
+        binding.openGithub.setOnClickListener(v -> {
             Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/mirivan/material_hunter"));
             startActivity(intent);
         });

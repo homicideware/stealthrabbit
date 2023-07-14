@@ -10,10 +10,12 @@ import android.content.pm.PackageManager;
 import android.os.Handler;
 import android.os.Looper;
 
+import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 import androidx.lifecycle.MutableLiveData;
 
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -60,7 +62,7 @@ public class CustomCommandsData {
         return data;
     }
 
-    public void runCommandforitem(Activity activity, Context context, int position) {
+    public void runCommandForItem(Activity activity, Context context, int position) {
         List<CustomCommandsModel> model = getInitCopyOfCustomCommandsModelListFull();
 
         new AsynchronousExecutor() {
@@ -77,34 +79,30 @@ public class CustomCommandsData {
                 if (model != null) {
                     if (model.get(position).getMode().equals("interactive")) {
                         String command = model.get(position).getCommand();
-                        new Handler(Looper.getMainLooper())
-                                .post(
-                                        () -> {
-                                            TerminalUtil terminal =
-                                                    new TerminalUtil(activity, context);
-                                            try {
-                                                terminal.runCommand(
-                                                        (model.get(position)
-                                                                .getEnv()
-                                                                .equals("android")
-                                                                ? command
-                                                                : PathsUtil.APP_SCRIPTS_PATH
-                                                                + "/bootroot_exec '"
-                                                                + command + "'"),
-                                                        false);
-                                            } catch (ActivityNotFoundException
-                                                     | PackageManager.NameNotFoundException e) {
-                                                terminal.showTerminalNotInstalledDialog();
-                                            } catch (SecurityException e) {
-                                                terminal.showPermissionDeniedDialog();
-                                            }
-                                        });
+                        new Handler(Looper.getMainLooper()).post(() -> {
+                            TerminalUtil terminal = new TerminalUtil(activity, context);
+                            try {
+                                terminal.runCommand(
+                                        (model.get(position)
+                                                .getEnv()
+                                                .equals("android")
+                                                ? command
+                                                : PathsUtil.APP_SCRIPTS_PATH
+                                                + "/bootroot_exec '"
+                                                + command + "'"),
+                                        false);
+                            } catch (ActivityNotFoundException | PackageManager.NameNotFoundException e) {
+                                terminal.showTerminalNotInstalledDialog();
+                            } catch (SecurityException e) {
+                                terminal.showPermissionDeniedDialog();
+                            }
+                        });
                     } else {
-                        NotificationManagerCompat notificationManagerCompat =
-                                NotificationManagerCompat.from(context);
+                        NotificationManagerCompat notificationManagerCompat = NotificationManagerCompat.from(context);
                         Intent appIntent = new Intent(context, MainActivity.class);
                         PendingIntent pendingIntent =
-                                PendingIntent.getActivity(context, 0, appIntent, NotificationUtil.setPendingIntentFlag());
+                                PendingIntent.getActivity(
+                                        context, 0, appIntent, NotificationUtil.setPendingIntentFlag());
 
                         Notification notification =
                                 new NotificationCompat.Builder(context, "base")
@@ -120,15 +118,12 @@ public class CustomCommandsData {
                                                                 + model.get(position).getEnv()
                                                                 + " environment."
                                                 ))
-                                        .setContentTitle(
-                                                "Custom Commands"
-                                        )
+                                        .setContentTitle("Custom Commands")
                                         .setContentText(
                                                 "Command "
                                                         + "is being run in background and in "
                                                         + model.get(position).getEnv()
-                                                        + " environment."
-                                        )
+                                                        + " environment.")
                                         .setPriority(NotificationCompat.PRIORITY_HIGH)
                                         .setContentIntent(pendingIntent)
                                         .build();
@@ -161,11 +156,11 @@ public class CustomCommandsData {
                 getCustomCommandsModels().getValue().addAll(model);
                 getCustomCommandsModels().postValue(getCustomCommandsModels().getValue());
                 if (returnValue != 0) {
-                    NotificationManagerCompat notificationManagerCompat =
-                            NotificationManagerCompat.from(context);
+                    NotificationManagerCompat notificationManagerCompat = NotificationManagerCompat.from(context);
                     Intent appIntent = new Intent(context, MainActivity.class);
                     PendingIntent pendingIntent =
-                            PendingIntent.getActivity(context, 0, appIntent, NotificationUtil.setPendingIntentFlag());
+                            PendingIntent.getActivity(
+                                    context, 0, appIntent, NotificationUtil.setPendingIntentFlag());
 
                     Notification notification =
                             new NotificationCompat.Builder(context, "base")
@@ -184,12 +179,9 @@ public class CustomCommandsData {
                                                             + (isChroot ? "chroot" : "android")
                                                             + " environment."
                                             ))
-                                    .setContentTitle(
-                                            "Custom Commands"
-                                    )
+                                    .setContentTitle("Custom Commands")
                                     .setContentText(
-                                            "Return " + (returnValue == RETURN_SUCCESS ? "success" : "error") + "."
-                                    )
+                                            "Return " + (returnValue == RETURN_SUCCESS ? "success" : "error") + ".")
                                     .setPriority(NotificationCompat.PRIORITY_HIGH)
                                     .setContentIntent(pendingIntent)
                                     .build();
@@ -271,7 +263,7 @@ public class CustomCommandsData {
     }
 
     public void deleteData(
-            ArrayList<Integer> selectedPositionsIndex,
+            ArrayList<Integer> selectedPositionList,
             ArrayList<Integer> selectedTargetIds,
             CustomCommandsSQL customCommandsSQL) {
         List<CustomCommandsModel> model = getInitCopyOfCustomCommandsModelListFull();
@@ -285,10 +277,9 @@ public class CustomCommandsData {
             @Override
             public void doInBackground() {
                 if (model != null) {
-                    selectedPositionsIndex.sort(Collections.reverseOrder());
-                    for (Integer selectedPosition : selectedPositionsIndex) {
-                        int i = selectedPosition;
-                        model.remove(i);
+                    selectedPositionList.sort(Collections.reverseOrder());
+                    for (Integer s : selectedPositionList) {
+                        model.remove(s.intValue());
                     }
                     customCommandsSQL.deleteData(selectedTargetIds);
                 }
@@ -347,11 +338,11 @@ public class CustomCommandsData {
         }.run();
     }
 
-    public String backupData(CustomCommandsSQL customCommandsSQL, String storedDBpath) {
+    public String backupData(@NonNull CustomCommandsSQL customCommandsSQL, String storedDBpath) {
         return customCommandsSQL.backupData(storedDBpath);
     }
 
-    public String restoreData(CustomCommandsSQL customCommandsSQL, String storedDBpath) {
+    public String restoreData(@NonNull CustomCommandsSQL customCommandsSQL, String storedDBpath) {
         String returnedResult = customCommandsSQL.restoreData(storedDBpath);
 
         if (returnedResult == null) {
@@ -425,7 +416,7 @@ public class CustomCommandsData {
         return copyOfCustomCommandsModelListFull;
     }
 
-    private void updateRunOnBootScripts(List<CustomCommandsModel> model) {
+    private void updateRunOnBootScripts(@NonNull List<CustomCommandsModel> model) {
         StringBuilder tmpStringBuilder = new StringBuilder();
         for (int i = 0; i < model.size(); i++) {
             if (model.get(i).getRunOnBoot().equals("1")) {
@@ -440,7 +431,7 @@ public class CustomCommandsData {
                 .executeCommandAsRootWithOutput(
                         "cat << 'EOF' > "
                                 + PathsUtil.APP_SCRIPTS_PATH
-                                + "/runonboot_services"
+                                + "/init-custom-commands"
                                 + "\n"
                                 + tmpStringBuilder
                                 + "\nEOF");

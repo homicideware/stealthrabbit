@@ -15,6 +15,8 @@ import android.os.Looper;
 import android.text.Html;
 import android.text.Layout;
 import android.text.Spanned;
+import android.text.TextUtils;
+import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -31,16 +33,19 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.google.android.material.card.MaterialCardView;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import material.hunter.BuildConfig;
 import material.hunter.R;
+import material.hunter.databinding.ManagerDialogInstallBusyboxBinding;
 import material.hunter.ui.activities.AboutActivity;
 import material.hunter.ui.activities.MainActivity;
 import material.hunter.ui.activities.SettingsActivity;
@@ -75,25 +80,30 @@ public class HomeFragment extends Fragment {
     private MaterialCardView telegram_card;
     private TextView telegram_title;
     private TextView telegram_description;
+    private boolean primordialBusyboxBroken = false;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setHasOptionsMenu(true);
-        context = getContext();
         activity = getActivity();
+        context = getContext();
         executor = Executors.newSingleThreadExecutor();
         prefs = activity.getSharedPreferences(BuildConfig.APPLICATION_ID, Context.MODE_PRIVATE);
+        setHasOptionsMenu(true);
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.home_fragment, container, false);
     }
 
+    @SuppressLint({"SetTextI18n", "ClickableViewAccessibility"})
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        checkBusybox();
+
         mh_news_card = view.findViewById(R.id.mh_news_card);
         mh_news = view.findViewById(R.id.mh_news);
         expander = view.findViewById(R.id.expander);
@@ -116,10 +126,10 @@ public class HomeFragment extends Fragment {
         executor.execute(() -> {
             String[] res = {""};
             try {
-                res[0] = new Web().getContent("https://raw.githubusercontent.com/Mirivan/dev-root-project/main/.materialhunter");
+                res[0] = new Web().getContent("https://raw.githubusercontent.com/Mirivan/mh-repository/main/changelog");
                 prefs.edit().putString("last_news", res[0]).apply();
             } catch (IOException e) {
-                res[0] = prefs.getString("last_news", "\u0410\u0432\u0442\u043E\u0440 \u043A\u043B\u0438\u0435\u043D\u0442\u0430 \u0443\u0432\u0430\u0436\u0430\u0435\u0442 \u041A\u043E\u043C\u0430\u0440\u0443, \u0431\u043E\u043B\u044C\u0448\u0435 \u043D\u043E\u0432\u043E\u0441\u0442\u0435\u0439 \u043D\u0435\u0442.");
+                new Handler(Looper.getMainLooper()).post(() -> mh_news_card.setVisibility(View.GONE));
             }
             new Handler(Looper.getMainLooper()).post(() -> mh_news.setText(res[0]));
         });
@@ -133,7 +143,7 @@ public class HomeFragment extends Fragment {
 
         executor.execute(() -> {
             try {
-                final JSONObject bubblegum = new JSON().getFromWeb("https://raw.githubusercontent.com/Mirivan/dev-root-project/main/.materialised");
+                final JSONObject bubblegum = new JSON().getFromWeb("https://raw.githubusercontent.com/Mirivan/mh-repository/main/update.json");
 
                 if (bubblegum.has("version") && bubblegum.has("code") && bubblegum.has("url")) {
 
@@ -159,9 +169,7 @@ public class HomeFragment extends Fragment {
         });
 
         executor.execute(() -> {
-            if (magiskPassed()) {
-                // nothing to do
-            } else {
+            if (!magiskPassed()) {
                 if (!prefs.getBoolean("hide_magisk_notification", false)) {
                     new Handler(Looper.getMainLooper()).post(() -> magisk.setVisibility(View.VISIBLE));
                 }
@@ -173,13 +181,13 @@ public class HomeFragment extends Fragment {
                     if (exe.executeCommandAsRootWithReturnCode(PathsUtil.APP_SCRIPTS_BIN_PATH + "/sqlite3 " + PathsUtil.MAGISK_DB_PATH + " \"UPDATE policies SET logging='0',notification='0' WHERE package_name='" + BuildConfig.APPLICATION_ID + "';\"") == 0) {
                         new Handler(Looper.getMainLooper()).post(() -> magisk.setVisibility(View.GONE));
                     } else {
-                        new Handler(Looper.getMainLooper()).post(() -> PathsUtil.showSnack(getView(), "Failed to hide Magisk notifications. Try to do it in Magisk app.", true));
+                        new Handler(Looper.getMainLooper()).post(() -> PathsUtil.showSnackBar(activity, MainActivity.getBnCard(), "Failed to hide Magisk notifications. Try to do it in Magisk app.", true));
                     }
                 } else {
                     if (exe.executeCommandAsRootWithReturnCode(PathsUtil.APP_SCRIPTS_BIN_PATH + "/sqlite3 " + PathsUtil.MAGISK_DB_PATH + " \"UPDATE policies SET logging='0',notification='0' WHERE uid='$(stat -c %u /data/data/" + BuildConfig.APPLICATION_ID + ")';\"") == 0) {
                         new Handler(Looper.getMainLooper()).post(() -> magisk.setVisibility(View.GONE));
                     } else {
-                        new Handler(Looper.getMainLooper()).post(() -> PathsUtil.showSnack(getView(), "Failed to hide Magisk notifications. Try to do it in Magisk app.", true));
+                        new Handler(Looper.getMainLooper()).post(() -> PathsUtil.showSnackBar(activity, MainActivity.getBnCard(), "Failed to hide Magisk notifications. Try to do it in Magisk app.", true));
                     }
                 }
             }
@@ -187,7 +195,7 @@ public class HomeFragment extends Fragment {
         magisk.setOnLongClickListener(v -> {
             prefs.edit().putBoolean("hide_magisk_notification", true).apply();
             magisk.setVisibility(View.GONE);
-            PathsUtil.showSnack(getView(), "Warning hidden.", false);
+            PathsUtil.showSnackBar(activity, MainActivity.getBnCard(), "Warning hidden.", false);
             return true;
         });
 
@@ -196,7 +204,7 @@ public class HomeFragment extends Fragment {
 
             sb.append("Model: ").append(Build.BRAND).append(" ").append(Build.MODEL).append(" (").append(HardwareProps.getProp("ro.build.product")).append(")\n");
             sb.append("OS Version: Android ").append(Build.VERSION.RELEASE).append(", SDK ").append(Build.VERSION.SDK_INT).append("\n");
-            sb.append(PathsUtil.getBusyboxPath() != null ? "Busybox from: " + PathsUtil.getBusyboxPath().getKey() + "\n" : "");
+            sb.append(!TextUtils.isEmpty(PathsUtil.BUSYBOX) ? "Busybox installed in: " + PathsUtil.BUSYBOX + "\n" : "");
 
             String CPU = Utils.matchString("^Hardware.*: (.*)", exe.executeCommandAsRootWithOutput("cat /proc/cpuinfo | grep \"Hardware\""), 1);
             sb.append(!CPU.isEmpty() ? "CPU: " + CPU + "\n" : "");
@@ -206,19 +214,24 @@ public class HomeFragment extends Fragment {
 
             sb.append("System-as-root: ").append(exe.executeCommandAsRootWithOutput("grep ' / ' /proc/mounts | grep -qv 'rootfs' || grep -q ' /system_root ' /proc/mounts && echo true || echo false")).append("\n");
 
-            sb.append("Device is AB: ").append(HardwareProps.deviceIsAB() ? "true" : "false");
+            sb.append("Device is AB: ").append(HardwareProps.deviceIsAB() ? "true" : "false").append("\n");
+
+            boolean usbGadgetSupported = exe.executeCommandAsRootWithReturnCode("test -d /config/usb_gadget") == 0;
+            if (usbGadgetSupported) {
+                sb.append("Enabled USB functions: ").append(getEnabledUSBFunctions());
+            }
 
             new Handler(Looper.getMainLooper()).post(() -> {
-                sys_info.setText(sb.toString());
                 try {
                     MainActivity.setKernelBase(Float.parseFloat(Utils.matchString("^([1-9]\\.[1-9][0-9]{0,2})", kernel_version, 1)));
                 } catch (NumberFormatException e) {
-                    PathsUtil.showSnack(getView(), "Failed to parse kernel base version.", false);
+                    PathsUtil.showSnackBar(activity, MainActivity.getBnCard(), "Failed to parse kernel base version.", false);
                 }
+                sys_info.setText(sb.toString());
             });
         });
 
-        material_info.setText("Made with \u2764\uFE0F by @" + BuildConfig.AUTHOR);
+        material_info.setText("Made with ❤️ by @" + BuildConfig.AUTHOR);
 
         info_card.setOnClickListener(v -> {
             Intent intent = new Intent(context, AboutActivity.class);
@@ -269,6 +282,77 @@ public class HomeFragment extends Fragment {
         });
     }
 
+    private boolean isValidBusybox(@NonNull ShellUtils.ShellObject obj) {
+        if (obj.getReturnCode() == 0)
+            return obj.getStdout().contains("busybox")
+                    && obj.getStdout().contains("arp")
+                    && obj.getStdout().contains("cat");
+        return false;
+    }
+
+    private void checkBusybox() {
+        executor.execute(() -> {
+            String busyboxPath = prefs.getString("busybox", "");
+            if (TextUtils.isEmpty(busyboxPath) && primordialBusyboxBroken) {
+                ArrayList<String> arrayList = new ArrayList<>();
+                arrayList.add("/data/adb/magisk/busybox");
+                arrayList.add("/system/xbin/busybox");
+                arrayList.add("/system/bin/busybox");
+                for (String path : arrayList) {
+                    if (isValidBusybox(new ShellUtils().executeCommandAsRootAndGetObject(path))) {
+                        prefs.edit().putString("busybox", path).apply();
+                        new Handler(Looper.getMainLooper()).post(() -> new MaterialAlertDialogBuilder(context)
+                                .setTitle("Warning!")
+                                .setMessage("BusyBox has been found, a restart is required for the stable operation of the application.")
+                                .setCancelable(false)
+                                .setPositiveButton(android.R.string.ok, (di, i) -> {
+                                    getActivity().finishAffinity();
+                                    Intent intent = getContext().getPackageManager().getLaunchIntentForPackage(BuildConfig.APPLICATION_ID);
+                                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                                    getActivity().getApplicationContext().startActivity(intent);
+                                    System.exit(0);
+                                })
+                                .show());
+                        return;
+                    }
+                }
+                new Handler(Looper.getMainLooper()).post(() -> {
+                    ManagerDialogInstallBusyboxBinding binding1 = ManagerDialogInstallBusyboxBinding.inflate(getLayoutInflater());
+                    binding1.message.setText(Html.fromHtml("Busybox isn't installed, please install <a href=\"https://github.com/zgfg/BuiltIn-BusyBox\">busybox</a>. You can use <a href=\"https://github.com/Fox2Code/FoxMagiskModuleManager\">Fox's MMM</a> if you wish. If you already have basibox installed, open the app settings and configure it.", Html.FROM_HTML_MODE_LEGACY));
+                    binding1.message.setMovementMethod(new LinkMovementMethod());
+                    new MaterialAlertDialogBuilder(context)
+                            .setTitle("Warning!")
+                            .setView(binding1.getRoot())
+                            .setPositiveButton(android.R.string.ok, (di, i) -> {
+                            })
+                            .setNegativeButton("Settings", (di, i) -> {
+                                Intent intent = new Intent(getContext(), SettingsActivity.class);
+                                startActivity(intent);
+                            })
+                            .show();
+                });
+            } else {
+                if (!isValidBusybox(new ShellUtils().executeCommandAsRootAndGetObject(busyboxPath))) {
+                    primordialBusyboxBroken = true;
+                    prefs.edit().putString("busybox", "").apply();
+                    new Handler(Looper.getMainLooper()).post(this::checkBusybox);
+                }
+            }
+        });
+    }
+
+    @NonNull
+    private String getEnabledUSBFunctions() {
+        String result =
+                exe.executeCommandAsRootWithOutput(
+                        "for i in $(find /config/usb_gadget/g1/configs/b.1 -type l -exec readlink -e {} \\;); do basename $i; done | xargs");
+        if (result.isEmpty()) {
+            return "Nothing.";
+        } else {
+            return result.replace("ffs.adb", "adb");
+        }
+    }
+
     @Override
     public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
         inflater.inflate(R.menu.home, menu);
@@ -276,12 +360,10 @@ public class HomeFragment extends Fragment {
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.settings:
-                Intent intent = new Intent(context, SettingsActivity.class);
-                startActivity(intent);
-                break;
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (item.getItemId() == R.id.settings) {
+            Intent intent = new Intent(context, SettingsActivity.class);
+            startActivity(intent);
         }
         return super.onOptionsItemSelected(item);
     }
@@ -329,9 +411,6 @@ public class HomeFragment extends Fragment {
                     if (link.length != 0) {
                         if (action == MotionEvent.ACTION_UP) {
                             link[0].onClick(widget);
-                        } else if (action == MotionEvent.ACTION_DOWN) {
-                            // Selection only works on Spannable text. In our case setSelection doesn't work on spanned text
-                            // Selection.setSelection(buffer, buffer.getSpanStart(link[0]), buffer.getSpanEnd(link[0]));
                         }
                         return true;
                     }

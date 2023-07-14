@@ -1,0 +1,20 @@
+#!/system/bin/sh
+
+if [ ! $? -eq 0 ]; then
+    exit 1
+fi
+
+. /data/data/material.hunter/files/scripts/bootroot_env
+
+if [ -f "/data/data/material.hunter/files/scripts/init-services" ]; then
+    echo "[!] Starting user defined services..."
+    while IFS= read -r line; do
+        if [ ! -z "$line" ]; then
+            echo "[!] Executing in chroot: $line"
+            $BUSYBOX chroot $MNT $CHROOT_EXEC -E PATH=$PATH su -c "$line"
+        fi
+    done < /data/data/material.hunter/files/scripts/init-services
+    echo "[+] User defined services should be all started."
+else
+    echo "[!] User services isn't defined."
+fi

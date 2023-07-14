@@ -1,4 +1,5 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -10,135 +11,293 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
-    <ScrollView
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:scrollbars="none">
+        android:scrollbars="none"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:paddingLeft="16dp"
-            android:paddingRight="16dp">
+            android:orientation="vertical">
 
-            <com.google.android.material.switchmaterial.SwitchMaterial
-                android:id="@+id/settings_run_on_boot"
+            <LinearLayout
+                android:id="@+id/run_on_boot"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Run on boot receive"
-                android:textSize="15dp"
-                android:textStyle="bold"
-                app:useMaterialThemeColors="false" />
+                android:background="?android:attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center_vertical"
+                android:minHeight="?listPreferredItemHeight"
+                android:orientation="horizontal"
+                android:paddingStart="24dp"
+                android:paddingEnd="24dp">
 
-            <com.google.android.material.divider.MaterialDivider
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="5dp"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Run on boot receive"
+                        android:textAppearance="?textAppearanceListItem" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Initialize chroot environment on device startup"
+                        android:textAppearance="?textAppearanceListItemSecondary"
+                        android:textColor="?android:textColorSecondary" />
+                </LinearLayout>
+
+                <com.google.android.material.materialswitch.MaterialSwitch
+                    android:id="@+id/run_on_boot_switch"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:clickable="false"
+                    android:focusable="false" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/show_wallpaper"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:dividerInsetEnd="16dp"
-                app:dividerInsetStart="16dp" />
+                android:background="?android:attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center_vertical"
+                android:minHeight="?listPreferredItemHeight"
+                android:orientation="horizontal"
+                android:paddingStart="24dp"
+                android:paddingEnd="24dp">
 
-            <com.google.android.material.switchmaterial.SwitchMaterial
-                android:id="@+id/settings_show_wallpaper"
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="5dp"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Show wallpaper as background"
+                        android:textAppearance="?textAppearanceListItem" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Use launcher wallpaper as app background"
+                        android:textAppearance="?textAppearanceListItemSecondary"
+                        android:textColor="?android:textColorSecondary" />
+                </LinearLayout>
+
+                <com.google.android.material.materialswitch.MaterialSwitch
+                    android:id="@+id/show_wallpaper_switch"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:clickable="false"
+                    android:focusable="false" />
+            </LinearLayout>
+
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Show wallpaper as background"
-                android:textSize="15dp"
-                android:textStyle="bold"
-                app:useMaterialThemeColors="false" />
+                android:orientation="vertical"
+                android:paddingStart="24dp"
+                android:paddingEnd="24dp">
 
-            <TextView
-                android:layout_width="wrap_content"
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="Background blackout level:"
+                    android:textAppearance="?textAppearanceListItem"
+                    android:textSize="15dp" />
+
+                <com.google.android.material.slider.Slider
+                    android:id="@+id/background_blackout_level"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginBottom="8dp"
+                    android:stepSize="1.0"
+                    android:valueFrom="1.0"
+                    android:valueTo="10.0" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:text="Background diming level:"
-                android:textColor="?attr/colorOnSurface"
-                android:textSize="15dp"
-                android:textStyle="bold" />
+                android:orientation="vertical"
+                android:paddingStart="24dp"
+                android:paddingEnd="24dp">
 
-            <com.google.android.material.slider.Slider
-                android:id="@+id/settings_background_diming_level"
+                <TextView
+                    android:id="@+id/theme"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="Theme:"
+                    android:textAppearance="?textAppearanceListItem"
+                    android:textSize="15dp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/change_theme"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:layout_marginBottom="12dp"
+                    android:text="Change theme"
+                    app:icon="@drawable/ic_nightlight"
+                    app:iconGravity="textStart" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/hide_magisk_notification"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:layout_marginBottom="8dp"
-                android:stepSize="1.0"
-                android:valueFrom="1.0"
-                android:valueTo="10.0" />
+                android:background="?android:attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center_vertical"
+                android:minHeight="?listPreferredItemHeight"
+                android:orientation="horizontal"
+                android:paddingStart="24dp"
+                android:paddingEnd="24dp">
 
-            <com.google.android.material.divider.MaterialDivider
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="5dp"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Hide Magisk reminder"
+                        android:textAppearance="?textAppearanceListItem" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Hides the card about the mention of Magisk notifications"
+                        android:textAppearance="?textAppearanceListItemSecondary"
+                        android:textColor="?android:textColorSecondary" />
+                </LinearLayout>
+
+                <com.google.android.material.materialswitch.MaterialSwitch
+                    android:id="@+id/hide_magisk_notification_switch"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:clickable="false"
+                    android:focusable="false" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/enable_monet"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:dividerInsetEnd="16dp"
-                app:dividerInsetStart="16dp" />
+                android:background="?android:attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center_vertical"
+                android:minHeight="?listPreferredItemHeight"
+                android:orientation="horizontal"
+                android:paddingStart="24dp"
+                android:paddingEnd="24dp">
 
-            <TextView
-                android:id="@+id/settings_theme"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:text="Theme:"
-                android:textColor="?attr/colorOnSurface"
-                android:textSize="15dp"
-                android:textStyle="bold" />
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="5dp"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/settings_change_theme"
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Enable Monet"
+                        android:textAppearance="?textAppearanceListItem" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Android 12 Theme engine"
+                        android:textAppearance="?textAppearanceListItemSecondary"
+                        android:textColor="?android:textColorSecondary" />
+                </LinearLayout>
+
+                <com.google.android.material.materialswitch.MaterialSwitch
+                    android:id="@+id/enable_monet_switch"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:clickable="false"
+                    android:focusable="false" />
+            </LinearLayout>
+
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:layout_marginBottom="12dp"
-                android:text="Change theme"
-                app:icon="@drawable/ic_nightlight"
-                app:iconGravity="textStart" />
+                android:orientation="vertical"
+                android:paddingStart="24dp"
+                android:paddingEnd="24dp">
 
-            <com.google.android.material.divider.MaterialDivider
+                <TextView
+                    android:id="@+id/terminal_emulator"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="Terminal emulator:"
+                    android:textColor="?attr/colorOnSurface"
+                    android:textSize="15dp"
+                    android:textStyle="bold" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/change_terminal_emulator"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:text="Change Terminal emulator"
+                    app:icon="@drawable/ic_termux"
+                    app:iconGravity="textStart" />
+            </LinearLayout>
+
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:dividerInsetEnd="16dp"
-                app:dividerInsetStart="16dp" />
+                android:orientation="vertical"
+                android:paddingStart="24dp"
+                android:paddingEnd="24dp">
 
-            <com.google.android.material.switchmaterial.SwitchMaterial
-                android:id="@+id/settings_hide_magisk_notification"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Hide Magisk information"
-                android:textSize="15dp"
-                android:textStyle="bold" />
+                <TextView
+                    android:id="@+id/busybox"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="Busybox:"
+                    android:textColor="?attr/colorOnSurface"
+                    android:textSize="15dp"
+                    android:textStyle="bold" />
 
-            <com.google.android.material.switchmaterial.SwitchMaterial
-                android:id="@+id/settings_enable_monet"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Enable Monet (Android 12 Theme engine)"
-                android:textSize="15dp"
-                android:textStyle="bold"
-                app:useMaterialThemeColors="false" />
-
-            <com.google.android.material.divider.MaterialDivider
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:dividerInsetEnd="16dp"
-                app:dividerInsetStart="16dp" />
-
-            <TextView
-                android:id="@+id/settings_terminal_emulator"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:text="Terminal emulator:"
-                android:textColor="?attr/colorOnSurface"
-                android:textSize="15dp"
-                android:textStyle="bold" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/settings_change_terminal_emulator"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:text="Change Terminal emulator"
-                app:icon="@drawable/ic_termux"
-                app:iconGravity="textStart" />
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/change_busybox"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:text="Change busybox"
+                    app:icon="@drawable/ic_build"
+                    app:iconGravity="textStart" />
+            </LinearLayout>
         </LinearLayout>
-    </ScrollView>
+    </androidx.core.widget.NestedScrollView>
 
-</LinearLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

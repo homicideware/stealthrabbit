@@ -3,36 +3,19 @@
 shels=$(readlink -f $0)
 . ${shels%/*}/bootroot_env
 
-#################################
-#### DEFINE GLOBAL VARIABLES ####
-#################################
-
-# Check busybox functionality
 if [ -z $BUSYBOX ]; then
-    echo "[-] Busybox isn't installed or permissions isn't granted to execute it."
-    echo "Check has been made for:"
-    echo "1. /system/xbin"
-    echo "2. /system/bin"
+    echo "[-] BusyBox isn't defined. Please install it. If you have already installed it, but MaterialHunter still couldn't detect it by itself - open the application settings and specify the path to it manually."
     exit 2
 fi
 
-##########################
-#### DEFINE FUNCTIONS ####
-##########################
-
 f_chroot_usage(){
     echo "[!] Usage:"
-    echo "[!] chrootmgr [-p <your chroot folder>] -c \"getchtpath\" ---> return the string of current chroot container path."
-    echo "[!] chrootmgr [-p <your chroot folder>] -c \"status\" ---> return 0 if chroot is mounted, return 1 if choot is not yet mounted, return 2 if no chroot is found, return 3 if chroot corrupted."
+    echo "[!] chrootmgr [-p <your chroot folder>] -c \"status\" ---> return 0 if chroot is mounted, return 1 if chroot isn't yet mounted, return 2 if no chroot is found, return 3 if chroot corrupted."
     echo "[!] chrootmgr [-p <your chroot folder>] -c \"backup <full_path_of_your_chroot_folder> <full_path_with_desired_name.tar.[gx]z>\""
     echo "[!] chrootmgr [-p <your chroot folder>] -c \"restore <full_path_of_your_.tar.[gx]z> <chroot_system_path/>\""
-    echo "[!] chrootmgr [-p <your chroot folder>] -c \"remove <full_path_of_your_chroot_folder>\" ---> Delete your chroot folder without rebooting the device, but not 100% guranteed success"
-    echo "[!] If -p option is not specified, then the script will find the chroot path according to the app sharepreference."
+    echo "[!] chrootmgr [-p <your chroot folder>] -c \"remove <full_path_of_your_chroot_folder>\" ---> delete your chroot folder without rebooting the device, but not 100% guaranteed success."
+    echo "[!] If -p option isn't specified, then the script will use the chroot path according to the app SharedPreferences."
 }
-
-###################
-#### MAIN PART ####
-###################
 
 while getopts "p:c:" OPTS; do
     case $OPTS in
@@ -50,7 +33,7 @@ fi
 if [ -z "$MNT" ]; then
     set -- ${COMMAND[@]}
     if [ -z "$MNT" -a ! "$COMMAND" = "findchroot"  ]; then
-        echo "[-] \$MNT variable isn't defined, please run the MaterialHunter app first."
+        echo "[-] \$MNT variable isn't defined, something broken."
         exit 2
     fi
 else
@@ -60,17 +43,6 @@ fi
 
 if [ ! $# -eq 0 ]; then
     case "$1" in
-        getchtpath)
-            shift 1
-            case $# in
-                0)
-                    echo $MNT
-                    ;;
-                *)
-                    f_chroot_usage
-                    ;;
-            esac
-            ;;
         status)
             shift 1
             case $# in
@@ -86,7 +58,7 @@ if [ ! $# -eq 0 ]; then
                     if [ "$($BUSYBOX chroot $MNT /bin/uname -n)" ]; then
                         echo "[+] Seems you have chroot installed already!"
                         if [ ! -x "$MNT/$CHROOT_EXEC" ]; then
-                            echo "[-] sudo not installed. This is not a MaterialHunter problem!"
+                            echo "[-] sudo not installed. This isn't a MaterialHunter problem!"
                             if [ -z $(cat $MNT/etc/resolv.conf) ]; then
                                 echo "[-] An attempt was made to install sudo, but it failed, because resolv.conf is empty."
                                 echo "[!] Hint: you can set Google DNS manually for normal internet inside chroot:"
@@ -114,16 +86,16 @@ if [ ! $# -eq 0 ]; then
                         fi
                         IsAllReady=0
                         FS=(proc sys dev dev/pts)
-                        if [ $mount_sdcard == "true" ]; then
+                        if [ "$mount_sdcard" == "true" ]; then
                             FS[${#FS[@]}]=sdcard
                         fi
-                        if [ $mount_system == "true" ]; then
+                        if [ "$mount_system" == "true" ]; then
                             FS[${#FS[@]}]=system
                         fi
-                        if [ $mount_data == "true" ]; then
+                        if [ "$mount_data" == "true" ]; then
                             FS[${#FS[@]}]=data
                         fi
-                        if [ $mount_modules == "true" ]; then
+                        if [ "$mount_modules" == "true" ]; then
                             FS[${#FS[@]}]=lib/modules
                         fi
                         for i in "${FS[@]}"; do
@@ -145,11 +117,11 @@ if [ ! $# -eq 0 ]; then
                             return 1
                         fi
                     else
-                        echo "[-] Chroot corrupted. This is not a MaterialHunter problem!"
+                        echo "[-] Chroot corrupted. This isn't a MaterialHunter problem!"
                         echo "[!] If the error occurs..."
                         echo "Solutions:"
                         echo "1. Check the permissions of the chroot directories"
-                        echo "2. Try using busybox to login and see errors (busybox chroot $MNT /bin/uname)"
+                        echo "2. Try using busybox to login and fix it"
                         echo "3. Contact chroot builder"
                         return 3
                     fi
@@ -214,7 +186,7 @@ if [ ! $# -eq 0 ]; then
                     [ ! -e $TARGET_TARBALL_PATH ] && echo "[-] $TARGET_TARBALL_PATH not found, please check again." && exit 1;
                     if [ -d $TARGET_CHROOT_DIR_NAME ]; then
                         if [ "$(ls -A $TARGET_CHROOT_DIR_NAME)" ]; then
-                            echo "[-] $TARGET_CHROOT_DIR_NAME is not a empty directory, please either delete the whole folder or all the files in it first."
+                            echo "[-] $TARGET_CHROOT_DIR_NAME isn't a empty directory, please either delete the whole folder or all the files in it first."
                             exit 1
                         fi
                         rmdir $TARGET_CHROOT_DIR_NAME
@@ -247,7 +219,7 @@ if [ ! $# -eq 0 ]; then
                             $BUSYBOX sync
                             mv "$TEMP_EXTRACT_DIR" "$TARGET_CHROOT_DIR_NAME"
                         else
-                            echo "[-] $TARGET_TARBALL_PATH is not a valid tarball file for chroot, make sure there is only one root directory at the top level of the tarball file."
+                            echo "[-] $TARGET_TARBALL_PATH isn't a valid tarball file for chroot, make sure there is only one root directory at the top level of the tarball file."
                             exit 1
                         fi
                     fi
@@ -264,16 +236,16 @@ if [ ! $# -eq 0 ]; then
             shift 1
             case $# in
                 1)
-                    [ ! -d $MNT ] && echo "[-] Chroot directory doesn't exist..aborted." && exit 1
+                    [ ! -d $MNT ] && echo "[-] Chroot directory doesn't exist?" && exit 1
                     $SOURCE_PATH/killroot
-                    [ $? -eq 1 ] && echo "[-] Failed to unmount the chroot environment..aborted." && exit 1
-                    [ ! -z "$(ls -A $MNT/sdcard)" ] && echo "[-] Internal storage partition isn't unmounted..aborted." && exit 1
+                    [ $? -eq 1 ] && echo "[-] Failed to unmount the chroot environment...aborted." && exit 1
+                    [ ! -z "$(ls -A $MNT/sdcard)" ] && echo "[-] Internal storage partition isn't unmounted...aborted." && exit 1
                     echo "[!] Removing chroot now..."
                     echo "[!] It may take a while, be patient."
                     rm -rf $MNT
                     $BUSYBOX sync
                     echo "[+] Chroot has been removed successfully."
-                    [ -z "$(ls $CHROOT_SYSTEM_PATH)" ] && echo "[!] Chroot system path is empty..removing now." && rm -rf $CHROOT_SYSTEM_PATH
+                    [ -z "$(ls $CHROOT_SYSTEM_PATH)" ] && echo "[!] Chroot system path is empty...removing now." && rm -rf $CHROOT_SYSTEM_PATH
                     ;;
                 *)
                     f_chroot_usage

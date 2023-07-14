@@ -6,6 +6,8 @@
         <item name="snackbarTextViewStyle">@style/Widget.Mirivan.Snackbar.TextView</item>
         <item name="android:navigationBarColor">?attr/colorSurface</item>
         <item name="android:statusBarColor">?attr/colorSurface</item>
+        <item name="windowActionModeOverlay">true</item>
+        <item name="actionModeBackground">?attr/colorSurface</item>
     </style>
 
     <style name="Theme.MaterialHunter.Transparent" parent="Theme.MaterialHunter">

@@ -1,7 +1,10 @@
 package material.hunter.utils;
 
+import androidx.annotation.NonNull;
+
 public class TransparentQ {
 
+    @NonNull
     public static String p2c(String defColor, int percent) {
         String alpha;
         alpha = Integer.toHexString(Math.round(255 * percent / 100));

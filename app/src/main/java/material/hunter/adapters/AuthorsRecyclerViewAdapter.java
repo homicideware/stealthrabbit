@@ -22,8 +22,7 @@ import java.util.List;
 import material.hunter.R;
 import material.hunter.models.AuthorsModel;
 
-public class AuthorsRecyclerViewAdapter
-        extends RecyclerView.Adapter<AuthorsRecyclerViewAdapter.ViewHolder> {
+public class AuthorsRecyclerViewAdapter extends RecyclerView.Adapter<AuthorsRecyclerViewAdapter.ViewHolder> {
 
     private final Context context;
     private final List<AuthorsModel> list;

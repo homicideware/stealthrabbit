@@ -1,4 +1,3 @@
 #!/system/bin/sh
 
-shels=$(readlink -f $0)
-sh ${shels%/*/*/*}/scripts/bootroot
+sh /data/data/material.hunter/files/scripts/bootroot

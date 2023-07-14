@@ -1,10 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/item_card"
     style="@style/Widget.Mirivan.NewsCardView"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginTop="2dp"
     android:layout_marginBottom="2dp"
+    android:clickable="true"
+    android:focusable="true"
     android:orientation="vertical"
     android:padding="4dp">
 
@@ -37,8 +40,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:ellipsize="marquee"
-                android:singleLine="true"
                 android:fontFamily="monospace"
+                android:singleLine="true"
                 android:textSize="14dp" />
 
             <TextView

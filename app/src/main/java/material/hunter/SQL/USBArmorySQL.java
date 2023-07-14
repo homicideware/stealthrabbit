@@ -21,7 +21,7 @@ public class USBArmorySQL extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "USBArmoryFragment";
     private static final String TAG = "USBArmorySQL";
-    private static final String USBSWITCH_TABLE_NAME = "USBSwitch";
+    private static final String TABLE_NAME = DATABASE_NAME;
     private static final ArrayList<String> COLUMNS_USBSWITCH = new ArrayList<>();
     private static USBArmorySQL instance;
 
@@ -47,55 +47,55 @@ public class USBArmorySQL extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
         final String[][] USBSwitchData = {
-                {"Windows", "reset", "0x1234", "0x5678", "", "", ""},
-                {"Windows", "hid", "0x046d", "0xc316", "", "", ""},
-                {"Windows", "hid,adb", "0x046d", "0xc317", "", "", ""},
-                {"Windows", "mass_storage", "0x9051", "0x168a", "", "", ""},
-                {"Windows", "mass_storage,adb", "0x9051", "0x168b", "", "", ""},
-                {"Windows", "rndis", "0x0525", "0xa4a2", "", "", ""},
-                {"Windows", "rndis,adb", "0x0525", "0xa4a3", "", "", ""},
-                {"Windows", "hid,mass_storage", "0x046d", "0xc318", "", "", ""},
-                {"Windows", "hid,mass_storage,adb", "0x046d", "0xc319", "", "", ""},
-                {"Windows", "rndis,hid", "0x0525", "0xa4a6", "", "", ""},
-                {"Windows", "rndis,hid,adb", "0x0525", "0xa4a7", "", "", ""},
-                {"Windows", "rndis,mass_storage", "0x0525", "0xa4a4", "", "", ""},
-                {"Windows", "rndis,mass_storage,adb", "0x0525", "0xa4a5", "", "", ""},
-                {"Windows", "rndis,hid,mass_storage", "0x0525", "0xa4a8", "", "", ""},
-                {"Windows", "rndis,hid,mass_storage,adb", "0x0525", "0xa4a9", "", "", ""},
-                {"Linux", "reset", "0x1234", "0x5678", "", "", ""},
-                {"Linux", "hid", "0x046d", "0xc316", "", "", ""},
-                {"Linux", "hid,adb", "0x046d", "0xc317", "", "", ""},
-                {"Linux", "mass_storage", "0x9051", "0x168a", "", "", ""},
-                {"Linux", "mass_storage,adb", "0x9051", "0x168b", "", "", ""},
-                {"Linux", "rndis", "0x0525", "0xa4a2", "", "", ""},
-                {"Linux", "rndis,adb", "0x0525", "0xa4a3", "", "", ""},
-                {"Linux", "hid,mass_storage", "0x046d", "0xc318", "", "", ""},
-                {"Linux", "hid,mass_storage,adb", "0x046d", "0xc319", "", "", ""},
-                {"Linux", "rndis,hid", "0x0525", "0xa4a6", "", "", ""},
-                {"Linux", "rndis,hid,adb", "0x0525", "0xa4a7", "", "", ""},
-                {"Linux", "rndis,mass_storage", "0x0525", "0xa4a4", "", "", ""},
-                {"Linux", "rndis,mass_storage,adb", "0x0525", "0xa4a5", "", "", ""},
-                {"Linux", "rndis,hid,mass_storage", "0x0525", "0xa4a8", "", "", ""},
-                {"Linux", "rndis,hid,mass_storage,adb", "0x0525", "0xa4a9", "", "", ""},
-                {"Mac OS", "reset", "0x1234", "0x5678", "", "", ""},
-                {"Mac OS", "hid", "0x05ac", "0x0201", "", "", ""},
-                {"Mac OS", "hid,adb", "0x05ac", "0x0201", "", "", ""},
-                {"Mac OS", "mass_storage", "0x0930", "0x6545", "", "", ""},
-                {"Mac OS", "mass_storage,adb", "0x0930", "0x6545", "", "", ""},
-                {"Mac OS", "acm,ecm", "0x1d6b", "0x0105", "", "", ""},
-                {"Mac OS", "acm,ecm,adb", "0x1d6b", "0x0105", "", "", ""},
-                {"Mac OS", "hid,mass_storage", "0x05ac", "0x0201", "", "", ""},
-                {"Mac OS", "hid,mass_storage,adb", "0x05ac", "0x0201", "", "", ""},
-                {"Mac OS", "acm,ecm,hid", "0x05ac", "0x0201", "", "", ""},
-                {"Mac OS", "acm,ecm,hid,adb", "0x05ac", "0x0201", "", "", ""},
-                {"Mac OS", "acm,ecm,mass_storage", "0x1d6b", "0x0105", "", "", ""},
-                {"Mac OS", "acm,ecm,mass_storage,adb", "0x1d6b", "0x0105", "", "", ""},
-                {"Mac OS", "acm,ecm,hid,mass_storage", "0x05ac", "0x0201", "", "", ""},
-                {"Mac OS", "acm,ecm,hid,mass_storage,adb", "0x05ac", "0x0201", "", "", ""}
+                {"Windows", "reset", "1234", "5678", "", "", ""},
+                {"Windows", "hid", "046d", "c316", "", "", ""},
+                {"Windows", "hid,adb", "046d", "c317", "", "", ""},
+                {"Windows", "mass_storage", "9051", "168a", "", "", ""},
+                {"Windows", "mass_storage,adb", "9051", "168b", "", "", ""},
+                {"Windows", "rndis", "0525", "a4a2", "", "", ""},
+                {"Windows", "rndis,adb", "0525", "a4a3", "", "", ""},
+                {"Windows", "hid,mass_storage", "046d", "c318", "", "", ""},
+                {"Windows", "hid,mass_storage,adb", "046d", "c319", "", "", ""},
+                {"Windows", "hid,rndis", "0525", "a4a6", "", "", ""},
+                {"Windows", "hid,rndis,adb", "0525", "a4a7", "", "", ""},
+                {"Windows", "mass_storage,rndis", "0525", "a4a4", "", "", ""},
+                {"Windows", "mass_storage,rndis,adb", "0525", "a4a5", "", "", ""},
+                {"Windows", "hid,mass_storage,rndis", "0525", "a4a8", "", "", ""},
+                {"Windows", "hid,mass_storage,rndis,adb", "0525", "a4a9", "", "", ""},
+                {"Linux", "reset", "1234", "5678", "", "", ""},
+                {"Linux", "hid", "046d", "c316", "", "", ""},
+                {"Linux", "hid,adb", "046d", "c317", "", "", ""},
+                {"Linux", "mass_storage", "9051", "168a", "", "", ""},
+                {"Linux", "mass_storage,adb", "9051", "168b", "", "", ""},
+                {"Linux", "rndis", "0525", "a4a2", "", "", ""},
+                {"Linux", "rndis,adb", "0525", "a4a3", "", "", ""},
+                {"Linux", "hid,mass_storage", "046d", "c318", "", "", ""},
+                {"Linux", "hid,mass_storage,adb", "046d", "c319", "", "", ""},
+                {"Linux", "hid,rndis", "0525", "a4a6", "", "", ""},
+                {"Linux", "hid,rndis,adb", "0525", "a4a7", "", "", ""},
+                {"Linux", "mass_storage,rndis", "0525", "a4a4", "", "", ""},
+                {"Linux", "mass_storage,rndis,adb", "0525", "a4a5", "", "", ""},
+                {"Linux", "hid,mass_storage,rndis", "0525", "a4a8", "", "", ""},
+                {"Linux", "hid,mass_storage,rndis,adb", "0525", "a4a9", "", "", ""},
+                {"Mac OS", "reset", "1234", "5678", "", "", ""},
+                {"Mac OS", "hid", "05ac", "0201", "", "", ""},
+                {"Mac OS", "hid,adb", "05ac", "0201", "", "", ""},
+                {"Mac OS", "mass_storage", "0930", "6545", "", "", ""},
+                {"Mac OS", "mass_storage,adb", "0930", "6545", "", "", ""},
+                {"Mac OS", "acm,ecm", "1d6b", "0105", "", "", ""},
+                {"Mac OS", "acm,ecm,adb", "1d6b", "0105", "", "", ""},
+                {"Mac OS", "hid,mass_storage", "05ac", "0201", "", "", ""},
+                {"Mac OS", "hid,mass_storage,adb", "05ac", "0201", "", "", ""},
+                {"Mac OS", "hid,acm,ecm", "05ac", "0201", "", "", ""},
+                {"Mac OS", "hid,acm,ecm,adb", "05ac", "0201", "", "", ""},
+                {"Mac OS", "mass_storage,acm,ecm", "1d6b", "0105", "", "", ""},
+                {"Mac OS", "mass_storage,acm,ecm,adb", "1d6b", "0105", "", "", ""},
+                {"Mac OS", "hid,mass_storage,acm,ecm", "05ac", "0201", "", "", ""},
+                {"Mac OS", "hid,mass_storage,acm,ecm,adb", "05ac", "0201", "", "", ""}
         };
         db.execSQL(
                 "CREATE TABLE "
-                        + USBSWITCH_TABLE_NAME
+                        + TABLE_NAME
                         + " ("
                         + COLUMNS_USBSWITCH.get(0)
                         + " TEXT, "
@@ -121,7 +121,7 @@ public class USBArmorySQL extends SQLiteOpenHelper {
             initialValues.put(COLUMNS_USBSWITCH.get(4), data[4]);
             initialValues.put(COLUMNS_USBSWITCH.get(5), data[5]);
             initialValues.put(COLUMNS_USBSWITCH.get(6), data[6]);
-            db.insert(USBSWITCH_TABLE_NAME, null, initialValues);
+            db.insert(TABLE_NAME, null, initialValues);
             initialValues.clear();
         }
         db.setTransactionSuccessful();
@@ -140,7 +140,7 @@ public class USBArmorySQL extends SQLiteOpenHelper {
         Cursor cursor =
                 db.rawQuery(
                         "SELECT * FROM "
-                                + USBSWITCH_TABLE_NAME
+                                + TABLE_NAME
                                 + " WHERE "
                                 + COLUMNS_USBSWITCH.get(0)
                                 + "='"
@@ -174,7 +174,7 @@ public class USBArmorySQL extends SQLiteOpenHelper {
             SQLiteDatabase db = this.getWritableDatabase();
             db.execSQL(
                     "UPDATE "
-                            + USBSWITCH_TABLE_NAME
+                            + TABLE_NAME
                             + " SET "
                             + COLUMNS_USBSWITCH.get(targetColumnIndex)
                             + " = '"
@@ -200,7 +200,7 @@ public class USBArmorySQL extends SQLiteOpenHelper {
     public boolean resetData() {
         try {
             SQLiteDatabase db = this.getWritableDatabase();
-            db.execSQL("DROP TABLE IF EXISTS " + USBSWITCH_TABLE_NAME);
+            db.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME);
             this.onCreate(db);
         } catch (Exception e) {
             e.printStackTrace();

@@ -2,14 +2,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="24dp">
-
-    <TextView
-        style="@style/Widget.Mirivan.Title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:padding="4dp"
-        android:text="Backup environment" />
+    android:padding="26dp">
 
     <TextView
         style="@style/Widget.Mirivan.Subtitle"
@@ -17,13 +10,14 @@
         android:layout_height="wrap_content"
         android:padding="8dp"
         android:text="Allowed type:\n• path to file"
+        android:textAppearance="?textAppearanceListItemSecondary"
+        android:textColor="?android:textColorSecondary"
         android:textSize="14dp" />
 
     <com.google.android.material.textfield.TextInputLayout
         style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp">
+        android:layout_height="wrap_content">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/input"

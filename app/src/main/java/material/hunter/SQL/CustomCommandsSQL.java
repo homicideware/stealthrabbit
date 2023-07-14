@@ -10,6 +10,8 @@ import android.os.Environment;
 import android.text.TextUtils;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -20,18 +22,17 @@ import material.hunter.models.CustomCommandsModel;
 
 public class CustomCommandsSQL extends SQLiteOpenHelper {
 
+    public static final String TAG = "CustomCommandsSQL";
     private static final String DATABASE_NAME = "CustomCommandsFragment";
-    private static final String TAG = "CustomCommandsSQL";
     private static final String TABLE_NAME = DATABASE_NAME;
     private static final ArrayList<String> COLUMNS = new ArrayList<>();
-    private static final String[][] customcommandsData = {
+    private static final String[][] customCommandsData = {
             {"1", "Whoami", "whoami", "chroot", "interactive", "0"}
     };
     private static CustomCommandsSQL instance;
 
     private CustomCommandsSQL(Context context) {
         super(context, DATABASE_NAME, null, 3);
-        // Add your default column here;
         COLUMNS.add("id");
         COLUMNS.add("label");
         COLUMNS.add("cmd");
@@ -48,7 +49,7 @@ public class CustomCommandsSQL extends SQLiteOpenHelper {
     }
 
     @Override
-    public void onCreate(SQLiteDatabase db) {
+    public void onCreate(@NonNull SQLiteDatabase db) {
         db.execSQL(
                 "CREATE TABLE "
                         + TABLE_NAME
@@ -67,7 +68,7 @@ public class CustomCommandsSQL extends SQLiteOpenHelper {
                         + " INTEGER)");
         ContentValues initialValues = new ContentValues();
         db.beginTransaction();
-        for (String[] data : customcommandsData) {
+        for (String[] data : customCommandsData) {
             initialValues.put(COLUMNS.get(0), data[0]);
             initialValues.put(COLUMNS.get(1), data[1]);
             initialValues.put(COLUMNS.get(2), data[2]);
@@ -85,8 +86,7 @@ public class CustomCommandsSQL extends SQLiteOpenHelper {
     }
 
     @SuppressLint("Range")
-    public ArrayList<CustomCommandsModel> bindData(
-            ArrayList<CustomCommandsModel> customCommandsModelArrayList) {
+    public ArrayList<CustomCommandsModel> bindData(ArrayList<CustomCommandsModel> customCommandsModelArrayList) {
         SQLiteDatabase db = getWritableDatabase();
         Cursor cursor =
                 db.rawQuery(
@@ -105,7 +105,7 @@ public class CustomCommandsSQL extends SQLiteOpenHelper {
         return customCommandsModelArrayList;
     }
 
-    public void addData(int targetPositionId, ArrayList<String> Data) {
+    public void addData(int targetPositionId, @NonNull ArrayList<String> Data) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues initialValues = new ContentValues();
         db.execSQL(
@@ -133,7 +133,7 @@ public class CustomCommandsSQL extends SQLiteOpenHelper {
         db.close();
     }
 
-    public void deleteData(ArrayList<Integer> selectedTargetIds) {
+    public void deleteData(ArrayList<Integer> selectedPositionList) {
         SQLiteDatabase db = this.getWritableDatabase();
         db.execSQL(
                 "DELETE FROM "
@@ -141,7 +141,7 @@ public class CustomCommandsSQL extends SQLiteOpenHelper {
                         + " WHERE "
                         + COLUMNS.get(0)
                         + " in ("
-                        + TextUtils.join(",", selectedTargetIds)
+                        + TextUtils.join(",", selectedPositionList)
                         + ");");
         Cursor cursor =
                 db.rawQuery(
@@ -225,7 +225,7 @@ public class CustomCommandsSQL extends SQLiteOpenHelper {
         db.close();
     }
 
-    public void editData(Integer targetPosition, ArrayList<String> editData) {
+    public void editData(Integer targetPosition, @NonNull ArrayList<String> editData) {
         SQLiteDatabase db = this.getWritableDatabase();
         db.execSQL(
                 "UPDATE "
@@ -279,7 +279,7 @@ public class CustomCommandsSQL extends SQLiteOpenHelper {
                         + " INTEGER)");
         ContentValues initialValues = new ContentValues();
         db.beginTransaction();
-        for (String[] data : customcommandsData) {
+        for (String[] data : customCommandsData) {
             initialValues.put(COLUMNS.get(0), data[0]);
             initialValues.put(COLUMNS.get(1), data[1]);
             initialValues.put(COLUMNS.get(2), data[2]);
@@ -293,7 +293,7 @@ public class CustomCommandsSQL extends SQLiteOpenHelper {
         db.close();
     }
 
-    public String backupData(String storedDBpath) {
+    public String backupData(String storedDBPath) {
         try {
             String currentDBPath =
                     Environment.getDataDirectory()
@@ -301,7 +301,7 @@ public class CustomCommandsSQL extends SQLiteOpenHelper {
                             + getDatabaseName();
             if (Environment.getExternalStorageDirectory().canWrite()) {
                 File currentDB = new File(currentDBPath);
-                File backupDB = new File(storedDBpath);
+                File backupDB = new File(storedDBPath);
                 if (currentDB.exists()) {
                     FileChannel src = new FileInputStream(currentDB).getChannel();
                     FileChannel dst = new FileOutputStream(backupDB).getChannel();
@@ -317,11 +317,11 @@ public class CustomCommandsSQL extends SQLiteOpenHelper {
         return null;
     }
 
-    public String restoreData(String storedDBpath) {
-        if (!new File(storedDBpath).exists()) {
+    public String restoreData(String storedDBPath) {
+        if (!new File(storedDBPath).exists()) {
             return "db file not found.";
         }
-        if (SQLiteDatabase.openDatabase(storedDBpath, null, SQLiteDatabase.OPEN_READONLY)
+        if (SQLiteDatabase.openDatabase(storedDBPath, null, SQLiteDatabase.OPEN_READONLY)
                 .getVersion()
                 > this.getReadableDatabase().getVersion()) {
             return "db cannot be restored.\n"
@@ -335,7 +335,7 @@ public class CustomCommandsSQL extends SQLiteOpenHelper {
                             + getDatabaseName();
             if (Environment.getExternalStorageDirectory().canWrite()) {
                 File currentDB = new File(currentDBPath);
-                File backupDB = new File(storedDBpath);
+                File backupDB = new File(storedDBPath);
                 if (backupDB.exists()) {
                     FileChannel src = new FileInputStream(backupDB).getChannel();
                     FileChannel dst = new FileOutputStream(currentDB).getChannel();

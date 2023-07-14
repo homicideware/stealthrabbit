@@ -1,6 +1,9 @@
 package material.hunter.adapters;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.view.LayoutInflater;
@@ -12,6 +15,7 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.card.MaterialCardView;
@@ -19,13 +23,12 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
-import java.util.Arrays;
 import java.util.List;
 
 import material.hunter.BuildConfig;
 import material.hunter.R;
 import material.hunter.databinding.OneshotItemBinding;
-import material.hunter.ui.activities.menu.OneShot.OneShotItem;
+import material.hunter.ui.activities.menu.OneShot.Item;
 import material.hunter.utils.PathsUtil;
 import material.hunter.utils.ShellUtils;
 import material.hunter.utils.Utils;
@@ -33,15 +36,15 @@ import material.hunter.utils.Utils;
 public class OneShotRecyclerViewAdapter
         extends RecyclerView.Adapter<OneShotRecyclerViewAdapter.ViewHolder> {
 
+    private final Activity activity;
     private final Context context;
     private final SharedPreferences prefs;
-    private final List<OneShotItem> oneShotItems;
-    private final View view;
+    private final List<Item> items;
 
-    public OneShotRecyclerViewAdapter(@NonNull Context context, List<OneShotItem> oneShotItems, View view) {
+    public OneShotRecyclerViewAdapter(Activity activity, @NonNull Context context, List<Item> items) {
         this.context = context;
-        this.oneShotItems = oneShotItems;
-        this.view = view;
+        this.items = items;
+        this.activity = activity;
         prefs = context.getSharedPreferences(BuildConfig.APPLICATION_ID, Context.MODE_PRIVATE);
     }
 
@@ -52,18 +55,50 @@ public class OneShotRecyclerViewAdapter
         return new ViewHolder(binding.getRoot());
     }
 
+    private void copyTextToClipboard(String text) {
+        ClipboardManager clipboard = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
+        ClipData clip = ClipData.newPlainText("OneShot", text);
+        clipboard.setPrimaryClip(clip);
+    }
+
     @SuppressLint("SetTextI18n")
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        OneShotItem oneShotItem = oneShotItems.get(position);
-        holder.ssid.setText(oneShotItem.getESSID());
-        holder.ssid.setSelected(true);
-        holder.bssid.setText(oneShotItem.getBSSID());
-        holder.bssid.setSelected(true);
-        holder.additionalInfo.setText(getNetworkAdditionalInfo(oneShotItem));
-        holder.additionalInfo.setSelected(true);
-        if (!oneShotItem.isWpsLocked()) {
-            holder.openAttackDialog.setOnClickListener(v -> {
+        Item item = items.get(position);
+        holder.getItemCard().setOnLongClickListener(v -> {
+            View itemDialog = ((LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.oneshot_item_dialog, null);
+            Button copyEssid = itemDialog.findViewById(R.id.oneshot_copy_essid);
+            Button copyBssid = itemDialog.findViewById(R.id.oneshot_copy_bssid);
+            Button copyAdditionalInfo = itemDialog.findViewById(R.id.oneshot_copy_additional_info);
+            AlertDialog alertDialog = new MaterialAlertDialogBuilder(context)
+                    .setTitle(item.getESSID())
+                    .setView(itemDialog)
+                    .setNegativeButton(android.R.string.cancel, (di, i) -> {
+                    })
+                    .create();
+            copyEssid.setOnClickListener(v2 -> {
+                copyTextToClipboard(item.getESSID());
+                alertDialog.cancel();
+            });
+            copyBssid.setOnClickListener(v2 -> {
+                copyTextToClipboard(item.getBSSID());
+                alertDialog.cancel();
+            });
+            copyAdditionalInfo.setOnClickListener(v2 -> {
+                copyTextToClipboard(getNetworkAdditionalInfo(item));
+                alertDialog.cancel();
+            });
+            alertDialog.show();
+            return false;
+        });
+        holder.getSsid().setText(item.getESSID());
+        holder.getSsid().setSelected(true);
+        holder.getBssid().setText(item.getBSSID());
+        holder.getBssid().setSelected(true);
+        holder.getAdditionalInfo().setText(getNetworkAdditionalInfo(item));
+        holder.getAdditionalInfo().setSelected(true);
+        if (!item.isWpsLocked()) {
+            holder.getOpenAttackDialog().setOnClickListener(v -> {
                 View attackDialog = ((LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.oneshot_arguments_dialog, null);
                 Button customPin = attackDialog.findViewById(R.id.oneshot_custom_pin);
                 Button offlineBruteforce = attackDialog.findViewById(R.id.oneshot_offline_bruteforce);
@@ -140,7 +175,7 @@ public class OneShotRecyclerViewAdapter
                                 public void onFinished(int code) {
                                     pinLayout.setEnabled(true);
                                 }
-                            }.exec("python3 -u /usr/sbin/oneshot.py -i " + prefs.getString("macchanger_interface", "") + " -b " + oneShotItem.getBSSID() + " -p " + pin.getText().toString() + (ifaceDown ? " --iface-down" : "") + (isMtkWifi ? " --mtk-wifi" : ""));
+                            }.exec("python3 -u /usr/sbin/oneshot.py -i " + prefs.getString("macchanger_interface", "") + " -b " + item.getBSSID() + " -p " + pin.getText().toString() + (ifaceDown ? " --iface-down" : "") + (isMtkWifi ? " --mtk-wifi" : ""));
                         } else {
                             outputCard.setVisibility(View.VISIBLE);
                             outputTextView.append("[-] Pin length must be: 8!\n");
@@ -150,7 +185,6 @@ public class OneShotRecyclerViewAdapter
                 pixieDust.setOnClickListener(v2 -> {
                     View pixieDustDialog = ((LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.oneshot_only_output_dialog, null);
                     ScrollView scrollView = pixieDustDialog.findViewById(R.id.scrollView);
-                    MaterialCardView outputCard = pixieDustDialog.findViewById(R.id.outputCard);
                     TextView outputTextView = pixieDustDialog.findViewById(R.id.outputTextView);
                     final Process[] process = {null};
                     new MaterialAlertDialogBuilder(context)
@@ -168,7 +202,7 @@ public class OneShotRecyclerViewAdapter
 
                         @Override
                         public void onPrepare() {
-                            outputCard.setVisibility(View.VISIBLE);
+
                         }
 
                         @Override
@@ -202,12 +236,11 @@ public class OneShotRecyclerViewAdapter
                         public void onFinished(int code) {
 
                         }
-                    }.exec("python3 -u /usr/sbin/oneshot.py -i " + prefs.getString("macchanger_interface", "") + " -b " + oneShotItem.getBSSID() + " -K" + (ifaceDown ? " --iface-down" : "") + (isMtkWifi ? " --mtk-wifi" : ""));
+                    }.exec("python3 -u /usr/sbin/oneshot.py -i " + prefs.getString("macchanger_interface", "") + " -b " + item.getBSSID() + " -K" + (ifaceDown ? " --iface-down" : "") + (isMtkWifi ? " --mtk-wifi" : ""));
                 });
                 pushButton.setOnClickListener(v2 -> {
                     View pushButtonDialog = ((LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.oneshot_only_output_dialog, null);
                     ScrollView scrollView = pushButtonDialog.findViewById(R.id.scrollView);
-                    MaterialCardView outputCard = pushButtonDialog.findViewById(R.id.outputCard);
                     TextView outputTextView = pushButtonDialog.findViewById(R.id.outputTextView);
                     final Process[] process = {null};
                     new MaterialAlertDialogBuilder(context)
@@ -219,13 +252,14 @@ public class OneShotRecyclerViewAdapter
                                     process[0].destroy();
                             })
                             .show();
-                    new ShellUtils.YetAnotherActiveShellExecutor(true) {;
+                    new ShellUtils.YetAnotherActiveShellExecutor(true) {
+                        ;
 
                         final double[] attempt = {0};
 
                         @Override
                         public void onPrepare() {
-                            outputCard.setVisibility(View.VISIBLE);
+
                         }
 
                         @Override
@@ -259,26 +293,26 @@ public class OneShotRecyclerViewAdapter
                         public void onFinished(int code) {
 
                         }
-                    }.exec("python3 -u /usr/sbin/oneshot.py -i " + prefs.getString("macchanger_interface", "") + " -b " + oneShotItem.getBSSID() + " --push-button-connect" + (ifaceDown ? " --iface-down" : "") + (isMtkWifi ? " --mtk-wifi" : ""));
+                    }.exec("python3 -u /usr/sbin/oneshot.py -i " + prefs.getString("macchanger_interface", "") + " -b " + item.getBSSID() + " --push-button-connect" + (ifaceDown ? " --iface-down" : "") + (isMtkWifi ? " --mtk-wifi" : ""));
                 });
             });
         } else {
-            holder.openAttackDialog.setOnClickListener(v -> PathsUtil.showSnack(view, "WPS Locked!", false));
-            holder.openAttackDialog.setImageResource(R.drawable.ic_lock);
+            holder.getOpenAttackDialog().setOnClickListener(v -> PathsUtil.showSnackBar(activity, "WPS Locked!", false));
+            holder.getOpenAttackDialog().setImageResource(R.drawable.ic_lock);
         }
     }
 
     @NonNull
-    private String getNetworkAdditionalInfo(@NonNull OneShotItem oneShotItem) {
+    private String getNetworkAdditionalInfo(@NonNull Item item) {
         StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append(oneShotItem.getSecurity());
-        if (!oneShotItem.getWsc_model().isEmpty()) {
-            stringBuilder.append(", ").append(oneShotItem.getWsc_model());
+        stringBuilder.append(item.getSecurity());
+        if (!item.getWsc_model().isEmpty()) {
+            stringBuilder.append(", ").append(item.getWsc_model());
         }
-        if (!oneShotItem.getWsc_device_name().isEmpty()) {
-            stringBuilder.append(" (").append(oneShotItem.getWsc_device_name()).append(")");
+        if (!item.getWsc_device_name().isEmpty()) {
+            stringBuilder.append(" (").append(item.getWsc_device_name()).append(")");
         }
-        stringBuilder.append(", ").append(oneShotItem.getSignal()).append(" dBm");
+        stringBuilder.append(", ").append(item.getSignal()).append(" dBm");
         return stringBuilder.toString();
     }
 
@@ -302,7 +336,7 @@ public class OneShotRecyclerViewAdapter
 
     @Override
     public int getItemCount() {
-        return oneShotItems.size();
+        return items.size();
     }
 
     @Override
@@ -317,17 +351,39 @@ public class OneShotRecyclerViewAdapter
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
 
-        public TextView ssid;
-        public TextView bssid;
-        public TextView additionalInfo;
-        public ImageView openAttackDialog;
+        private MaterialCardView itemCard;
+        private TextView ssid;
+        private TextView bssid;
+        private TextView additionalInfo;
+        private ImageView openAttackDialog;
 
         public ViewHolder(View v) {
             super(v);
+            itemCard = v.findViewById(R.id.item_card);
             ssid = v.findViewById(R.id.ssid);
             bssid = v.findViewById(R.id.bssid);
             additionalInfo = v.findViewById(R.id.additional_info);
             openAttackDialog = v.findViewById(R.id.open_attack_dialog);
+        }
+
+        public MaterialCardView getItemCard() {
+            return itemCard;
+        }
+
+        public TextView getSsid() {
+            return ssid;
+        }
+
+        public TextView getBssid() {
+            return bssid;
+        }
+
+        public TextView getAdditionalInfo() {
+            return additionalInfo;
+        }
+
+        public ImageView getOpenAttackDialog() {
+            return openAttackDialog;
         }
     }
 }

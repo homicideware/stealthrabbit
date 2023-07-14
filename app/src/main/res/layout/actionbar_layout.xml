@@ -9,6 +9,8 @@
         android:id="@+id/toolbar"
         style="@style/Widget.Mirivan.Toolbar"
         android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        app:layout_scrollFlags="scroll|enterAlways"
         app:subtitleCentered="true"
         app:titleCentered="true" />
 

@@ -15,10 +15,14 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.PowerManager;
+import android.text.TextUtils;
 import android.view.MenuItem;
 import android.view.View;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
@@ -26,7 +30,10 @@ import androidx.fragment.app.FragmentTransaction;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.badge.BadgeDrawable;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+
+import org.jetbrains.annotations.Contract;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -39,6 +46,7 @@ import material.hunter.R;
 import material.hunter.ui.fragments.HomeFragment;
 import material.hunter.ui.fragments.ManagerFragment;
 import material.hunter.ui.fragments.MenuFragment;
+import material.hunter.utils.BottomNavigationCardBehavior;
 import material.hunter.utils.PathsUtil;
 import material.hunter.utils.ShellUtils;
 import material.hunter.utils.TerminalUtil;
@@ -48,12 +56,14 @@ public class MainActivity extends ThemedActivity {
 
     private static ActionBar actionBar;
     private static MenuItem lastSelectedMenuItem;
+    private static MaterialCardView bnCard;
     private static BottomNavigationView bn;
     private static boolean chroot_installed = false;
     private static float kernel_base = 1.0f;
     private static boolean busybox_installed = false;
     private static boolean selinux_enforcing = false;
     private final ShellUtils exe = new ShellUtils();
+
     MaterialToolbar toolbar;
     HomeFragment _home;
     ManagerFragment _manager;
@@ -62,13 +72,14 @@ public class MainActivity extends ThemedActivity {
     private Context context;
     private SharedPreferences prefs;
 
-    public static boolean notifyManagerBadge() {
+    public static MaterialCardView getBnCard() {
+        return bnCard;
+    }
+
+    public static void notifyManagerBadge() {
         if (getLastSelectedMenuItem().getItemId() != R.id.manager) {
             BadgeDrawable badge = bn.getOrCreateBadge(R.id.manager);
             if (!badge.isVisible()) badge.setVisible(true);
-            return true;
-        } else {
-            return false;
         }
     }
 
@@ -113,7 +124,7 @@ public class MainActivity extends ThemedActivity {
         selinux_enforcing = _selinux_enforcing;
     }
 
-    public static void openPage(String pageName) {
+    public static void openPage(@NonNull String pageName) {
         switch (pageName) {
             case "home":
                 bn.setSelectedItemId(R.id.home);
@@ -128,16 +139,15 @@ public class MainActivity extends ThemedActivity {
     }
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        prefs = getSharedPreferences(BuildConfig.APPLICATION_ID, Context.MODE_PRIVATE);
-
-        context = this;
         activity = this;
+        context = this;
+        prefs = getSharedPreferences(BuildConfig.APPLICATION_ID, Context.MODE_PRIVATE);
 
         // Setup utils
         PathsUtil.getInstance(context);
-        busybox_installed = PathsUtil.getBusyboxPath() != null;
+        busybox_installed = !TextUtils.isEmpty(PathsUtil.BUSYBOX);
         selinux_enforcing = Utils.isEnforcing();
 
         // Setup rootView content
@@ -187,7 +197,10 @@ public class MainActivity extends ThemedActivity {
         actionBar = getSupportActionBar();
         actionBar.setTitle("Home");
 
+        bnCard = findViewById(R.id.bottomNavigationCard);
         bn = findViewById(R.id.bottomNavigation);
+        CoordinatorLayout.LayoutParams layoutParams = (CoordinatorLayout.LayoutParams) bnCard.getLayoutParams();
+        layoutParams.setBehavior(new BottomNavigationCardBehavior());
 
         bn.setOnItemSelectedListener(item -> changeFragment(item.getItemId(), item));
 
@@ -299,10 +312,8 @@ public class MainActivity extends ThemedActivity {
         // copy (recursive) of the assets/{scripts, etc, wallpapers} folders to /data/data/...
         assetsToFiles(PathsUtil.APP_PATH, "", "data");
         exe.executeCommandAsRoot(
-                new String[]{
-                        "chmod -R 700 " + PathsUtil.APP_SCRIPTS_PATH + "/*",
-                        "chmod -R 700 " + PathsUtil.APP_INITD_PATH + "/*"
-                });
+                "chmod -R 700 " + PathsUtil.APP_SCRIPTS_PATH + "/*",
+                "chmod -R 700 " + PathsUtil.APP_INITD_PATH + "/*");
 
         File mh_folder = new File(PathsUtil.APP_SD_PATH);
         if (!mh_folder.exists()) {
@@ -381,7 +392,8 @@ public class MainActivity extends ThemedActivity {
         }
     }
 
-    private Boolean pathIsAllowed(String path, String copyType) {
+    @NonNull
+    private Boolean pathIsAllowed(@NonNull String path, String copyType) {
         if (!path.matches("^(authors|licenses|images|sounds|webkit)")) {
             if (copyType.equals("data")) {
                 if (path.equals("")) {
@@ -446,7 +458,7 @@ public class MainActivity extends ThemedActivity {
             out.flush();
             out.close();
         } catch (Exception e) {
-            exe.executeCommandAsRoot(new String[]{"cp " + filename + " " + TARGET_BASE_PATH});
+            exe.executeCommandAsRoot("cp " + filename + " " + TARGET_BASE_PATH);
         }
     }
 
@@ -468,6 +480,8 @@ public class MainActivity extends ThemedActivity {
         return asset;
     }
 
+    @Nullable
+    @Contract(pure = true)
     private String getArch() {
         for (String androidArch : Build.SUPPORTED_ABIS) {
             switch (androidArch) {

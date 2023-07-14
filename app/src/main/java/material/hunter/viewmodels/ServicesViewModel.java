@@ -1,5 +1,6 @@
 package material.hunter.viewmodels;
 
+import android.app.Activity;
 import android.content.Context;
 
 import androidx.lifecycle.LiveData;
@@ -15,7 +16,7 @@ public class ServicesViewModel extends ViewModel {
 
     private MutableLiveData<List<ServicesModel>> mutableLiveDataServicesModelList;
 
-    public void init(Context context) {
+    public void init(Activity activity, Context context) {
         if (mutableLiveDataServicesModelList != null) {
             return;
         }
@@ -23,7 +24,7 @@ public class ServicesViewModel extends ViewModel {
         if (ServicesData.isDataInitiated) {
             mutableLiveDataServicesModelList = servicesData.getServicesModels();
         } else {
-            mutableLiveDataServicesModelList = servicesData.getServicesModels(context);
+            mutableLiveDataServicesModelList = servicesData.getServicesModels(activity, context);
         }
     }
 

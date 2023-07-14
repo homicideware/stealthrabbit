@@ -3,13 +3,8 @@
 shels=$(readlink -f $0)
 . ${shels%/*}/bootroot_env
 
-isAllunmounted=0
+isAllUmounted=0
 
-#######################
-#### DEFINE FUNCTIONS ####
-#######################
-
-# Kill all chroot processes
 kill_processes() {
     echo "[!] Killing all running processes..."
     local lsof_full=$($BUSYBOX lsof | awk '{print $1}' | grep -c '^lsof')
@@ -29,15 +24,11 @@ kill_processes() {
     return 0
 }
 
-# Restoring the device to its original state
 restore_state() {
     echo "[!] Restoring the device to it's original state..."
-
-    # Restore shared memory
     $BUSYBOX sysctl -w kernel.shmmax=134217728
 }
 
-# Unbinding filesystem
 do_unmount() {
     sync
     kill_processes
@@ -71,12 +62,12 @@ do_unmount() {
                         echo "[+] $MNT/$i is removed."
                     else
                         echo "[-] Failed to remove $MNT/$i"
-                        isAllunmounted=1
+                        isAllUmounted=1
                     fi
                 fi
             else
                 echo "[-] Failed to unmount $i partition."
-                isAllunmounted=1
+                isAllUmounted=1
             fi
         else
             if [ -d $MNT/$i ]; then
@@ -85,24 +76,19 @@ do_unmount() {
                     echo "[+] $MNT/$i is removed."
                 else
                     echo "[-] Failed to remove $MNT/$i"
-                    isAllunmounted=1
+                    isAllUmounted=1
                 fi
             fi
         fi
     done
 }
 
-# Check chroot is mountpoint
 check_chroot() {
     if [ -d "$MNT" ]; then
         $BUSYBOX mountpoint -q "$MNT" && return 0
         return 1
     fi
 }
-
-################################
-########### MAIN PART ##########
-################################
 
 check_chroot
 res=$?
@@ -118,11 +104,11 @@ esac
 
 if [ -z "$(cat /proc/mounts | grep $MNT)" ]; then
     echo "[+] Chroot unmounted successfully."
-    isAllunmounted=0
+    isAllUmounted=0
 else
     echo "[-] There are still mounted points not unmounted yet."
     echo "[-] Try run this script again and see if they can be unmounted now."
-    isAllunmounted=1
+    isAllUmounted=1
 fi
 
-return $isAllunmounted
+return $isAllUmounted

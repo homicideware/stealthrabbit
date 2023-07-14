@@ -4,13 +4,12 @@ shels=$(readlink -f $0)
 . ${shels%/*}/bootroot
 
 if [ -z "$MNT" ]; then
-    echo "[-] \$MNT variable isn't defined, please run the MaterialHunter app first."
+    echo "[-] \$MNT variable isn't defined, something broken."
     exit 2
 fi
 
 if [ ! -d "$MNT" ]; then
     echo "[-] Chroot directory doesn't exist."
-    echo "[!] Don't do stupid things."
     exit 2
 fi
 

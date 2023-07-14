@@ -49,7 +49,7 @@
         app:layout_constraintTop_toBottomOf="@+id/author">
 
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/open_developers"
+            android:id="@+id/open_authors"
             style="@style/Widget.Material3.Button.ElevatedButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

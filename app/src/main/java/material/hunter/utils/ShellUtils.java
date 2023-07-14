@@ -9,6 +9,8 @@ import android.text.style.ForegroundColorSpan;
 import android.util.Log;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -29,7 +31,7 @@ public class ShellUtils {
 
     }
 
-    public void executeCommandAsRoot(String... command) {
+    public void executeCommandAsRoot(@NonNull String... command) {
         try {
             Process process = Runtime.getRuntime().exec("su -mm");
             DataOutputStream os = new DataOutputStream(process.getOutputStream());
@@ -136,7 +138,7 @@ public class ShellUtils {
         return resultCode;
     }
 
-    public void executeCommandAsChroot(String... command) {
+    public void executeCommandAsChroot(@NonNull String... command) {
         try {
             Process process = Runtime.getRuntime().exec("su -mm");
             DataOutputStream os = new DataOutputStream(process.getOutputStream());
@@ -330,10 +332,6 @@ public class ShellUtils {
 
         }
 
-        public void setReturnCode(int returnCode) {
-            this.returnCode = returnCode;
-        }
-
         public void appendStdout(String stdout) {
             this.stdout.append(stdout).append("\n");
         }
@@ -344,6 +342,10 @@ public class ShellUtils {
 
         public int getReturnCode() {
             return returnCode;
+        }
+
+        public void setReturnCode(int returnCode) {
+            this.returnCode = returnCode;
         }
 
         public String getStdout() {

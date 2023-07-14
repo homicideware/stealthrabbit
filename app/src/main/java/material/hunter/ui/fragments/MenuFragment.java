@@ -1,6 +1,5 @@
 package material.hunter.ui.fragments;
 
-import android.app.Activity;
 import android.app.BackgroundServiceStartNotAllowedException;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
@@ -36,8 +35,7 @@ import material.hunter.ui.activities.TerminalRunActivity;
 import material.hunter.ui.activities.menu.CustomCommandsActivity;
 import material.hunter.ui.activities.menu.MACChangerActivity;
 import material.hunter.ui.activities.menu.NetworkingActivity;
-import material.hunter.ui.activities.menu.Nmap.NmapActivity;
-import material.hunter.ui.activities.menu.OneShot.OneShotActivity;
+import material.hunter.ui.activities.menu.OneShot.Activity;
 import material.hunter.ui.activities.menu.ServicesActivity;
 import material.hunter.ui.activities.menu.USBArmoryActivity;
 import material.hunter.utils.PathsUtil;
@@ -56,7 +54,7 @@ public class MenuFragment extends Fragment {
     private static MaterialCardView nmap;
     private static MaterialCardView oneshot;
     private MenuFragmentBinding binding;
-    private Activity activity;
+    private android.app.Activity activity;
     private Context context;
     private SharedPreferences prefs;
     private TerminalUtil terminalUtil;
@@ -177,12 +175,12 @@ public class MenuFragment extends Fragment {
         });
 
         nmap.setOnClickListener(v -> {
-            Intent intent = new Intent(context, NmapActivity.class);
+            Intent intent = new Intent(context, material.hunter.ui.activities.menu.Nmap.Activity.class);
             startActivity(intent);
         });
 
         oneshot.setOnClickListener(v -> {
-            Intent intent = new Intent(context, OneShotActivity.class);
+            Intent intent = new Intent(context, Activity.class);
             startActivity(intent);
         });
     }

@@ -19,8 +19,8 @@ public class App extends Application {
                 theme == 0
                         ? AppCompatDelegate.MODE_NIGHT_YES
                         : theme == 1
-                                ? AppCompatDelegate.MODE_NIGHT_NO
-                                : AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
+                        ? AppCompatDelegate.MODE_NIGHT_NO
+                        : AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
         );
         boolean useDynamicColors = prefs.getBoolean("enable_monet", true);
         if (useDynamicColors) {

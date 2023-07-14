@@ -12,7 +12,7 @@ SCRIPT_PATH=$(readlink -f $0)
 
 ## First to check if the kernel is supporting usb configfs. ##
 if [ ! -d /config/usb_gadget -o -f /sys/devices/virtual/android_usb/android0/enable ]; then
-    echo "[-] You device doesn't support usb configfs. Make sure your kernel is using ConfigFS Composite Gadget but not GadgetFS."
+    echo "[-] You device doesn't support usb ConfigFS. Make sure your kernel is using ConfigFS Composite Gadget, not GadgetFS."
     exit 1
 fi
 
@@ -31,7 +31,7 @@ ORI_FUNCS=($(printf '%s\n' "${ORI_FUNCS_UNSORT[@]}" | $BUSYBOX sort -n))
 ## Make sure user at least has one usb functions enabled,
 ## otherwise it cannot be determined what prefix name and the first instance number should be used.
 if [ -z "$ORI_FUNCS" ]; then
-    echo "[-] No symlinked function is found in $DIR_CUR_FUNCS, something is wrong, aborting.."
+    echo "[-] No symlinked function is found in $DIR_CUR_FUNCS, something is wrong, aborting..."
     exit 1
 fi
 
@@ -250,12 +250,12 @@ function switch_funcs(){
     for i in ${ARRAY_TARGET_FUNCS[@]}; do
         if [ ! "$(echo $i | grep -E '^adb$|^hid$|^mass_storage$|^rndis$|^acm$|^ecm$')" ]; then
             if [ "$i" = "reset" ]; then
-                echo "[-] $i cannot be used with other functions"; exit 1
+                echo "[-] $i cannot be used with other functions."; exit 1
             else
                 echo "[-] $i is not a valid function, please check your input again."; exit 1
             fi
         elif [ "$(echo ${ARRAY_TARGET_FUNCS[@]} | grep -E 'acm|ecm')" -a ! "$TARGET_OS" = "mac" ]; then
-            echo "[-] acm and ecm should not be used with Windows."; exit 1
+            echo "[-] acm and ecm should not be used with OS other than Mac."; exit 1
         elif [ "$(echo ${ARRAY_TARGET_FUNCS[@]} | grep -E 'rndis')" -a "$TARGET_OS" = "mac" ]; then
             echo "[-] rndis should not be used with Mac OS."; exit 1
         else

@@ -1,13 +1,15 @@
 package material.hunter.utils;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.content.res.Resources;
 import android.os.Environment;
-import android.util.DisplayMetrics;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
 
 import com.google.android.material.snackbar.Snackbar;
 
@@ -37,7 +39,7 @@ public class PathsUtil {
     private static PathsUtil instance;
     private static SharedPreferences prefs;
 
-    private PathsUtil(Context context) {
+    private PathsUtil(@NonNull Context context) {
         PathsUtil.context = context;
         prefs = context.getSharedPreferences(BuildConfig.APPLICATION_ID, Context.MODE_PRIVATE);
         APP_PATH = context.getFilesDir().getPath();
@@ -50,7 +52,7 @@ public class PathsUtil {
         APP_SD_SQLBACKUP_PATH = APP_SD_PATH + "/Databases";
         APP_SD_FILES_IMG_PATH = APP_SD_PATH + "/Images";
         CHROOT_SUDO = "/usr/bin/sudo";
-        BUSYBOX = getBusyboxPath() != null ? getBusyboxPath().getValue() : "";
+        BUSYBOX = prefs.getString("busybox", "");
         MAGISK_DB_PATH = "/data/adb/magisk.db";
     }
 
@@ -72,55 +74,43 @@ public class PathsUtil {
     }
 
     // Full path to chroot directory
+    @NonNull
     public static String CHROOT_PATH() {
         return SYSTEM_PATH() + "/" + ARCH_FOLDER();
     }
 
-    public static Map.Entry<String, String> getBusyboxPath() {
-        HashMap<String, String> busybox = new HashMap<>();
-        //busybox.put("Magisk", "/data/adb/magisk/busybox");
-        busybox.put("xbin", "/system/xbin/busybox");
-        busybox.put("bin", "/system/bin/busybox");
-        for (Map.Entry<String, String> entry : busybox.entrySet()) {
-            File file = new File(entry.getValue());
-            if (file.exists()) {
-                return entry;
-            } else if (new ShellUtils().executeCommandAsRootWithReturnCode("[ -f " + file + " ]") == 0) {
-                return entry;
-            }
-        }
-        return null;
+    public static void showSnackBar(@NonNull Activity activity, String msg, boolean is_long) {
+        View view = activity.findViewById(android.R.id.content);
+        Snackbar.make(view, msg, is_long ? Snackbar.LENGTH_LONG : Snackbar.LENGTH_SHORT).show();
     }
 
-    public static float dpToPx(float dp) {
-        return dp * ((float) context.getResources().getDisplayMetrics().densityDpi / DisplayMetrics.DENSITY_DEFAULT);
+    public static void showSnackBar(@NonNull Activity activity, String msg, String actionText, View.OnClickListener listener, boolean is_long) {
+        View view = activity.findViewById(android.R.id.content);
+        Snackbar snackbar = Snackbar.make(view, msg, is_long ? Snackbar.LENGTH_LONG : Snackbar.LENGTH_SHORT);
+        if (!TextUtils.isEmpty(actionText) && listener != null)
+            snackbar.setAction(actionText, listener);
+        snackbar.show();
     }
 
-    public static int getNavigationBarHeight() {
-        Resources resources = context.getResources();
-        @SuppressLint({"InternalInsetResource", "DiscouragedApi"}) int resourceId = resources.getIdentifier("navigation_bar_height", "dimen", "android");
-        return resourceId > 0 ? resources.getDimensionPixelSize(resourceId) : 0;
+    public static void showSnackBar(@NonNull Activity activity, View anchorView, String msg, boolean is_long) {
+        View view = activity.findViewById(android.R.id.content);
+        Snackbar snackbar = Snackbar.make(view, msg, is_long ? Snackbar.LENGTH_LONG : Snackbar.LENGTH_SHORT);
+        if (anchorView != null)
+            snackbar.setAnchorView(anchorView);
+        snackbar.show();
+    }
+
+    public static void showSnackBar(@NonNull Activity activity, View anchorView, String msg, String actionText, View.OnClickListener listener, boolean is_long) {
+        View view = activity.findViewById(android.R.id.content);
+        Snackbar snackbar = Snackbar.make(view, msg, is_long ? Snackbar.LENGTH_LONG : Snackbar.LENGTH_SHORT);
+        if (anchorView != null)
+            snackbar.setAnchorView(anchorView);
+        if (!TextUtils.isEmpty(actionText) && listener != null)
+            snackbar.setAction(actionText, listener);
+        snackbar.show();
     }
 
     public static void showToast(Context context, String msg, boolean is_long) {
-        if (is_long) Toast.makeText(context, msg, Toast.LENGTH_LONG).show();
-        else Toast.makeText(context, msg, Toast.LENGTH_SHORT).show();
-    }
-
-    public static void showSnack(View view, String msg, boolean is_long) {
-        Snackbar snackbar = Snackbar.make(view, msg, is_long ? Snackbar.LENGTH_LONG : Snackbar.LENGTH_SHORT);
-        View mView = snackbar.getView();
-        mView.setTranslationY(dpToPx(-(getNavigationBarHeight())));
-        snackbar.show();
-    }
-
-    public static void showSnack(View view, String msg, boolean is_long, String actionText, View.OnClickListener listener) {
-        Snackbar snackbar = Snackbar.make(view, msg, is_long ? Snackbar.LENGTH_LONG : Snackbar.LENGTH_SHORT);
-        if (actionText != null && listener != null) {
-            snackbar.setAction(actionText, listener);
-        }
-        View mView = snackbar.getView();
-        mView.setTranslationY(dpToPx(-(getNavigationBarHeight())));
-        snackbar.show();
+        Toast.makeText(context, msg, is_long ? Toast.LENGTH_LONG : Toast.LENGTH_SHORT).show();
     }
 }

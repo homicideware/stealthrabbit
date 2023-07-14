@@ -1,5 +1,7 @@
 package android;
 
+import android.annotation.SuppressLint;
+
 import java.lang.reflect.Method;
 
 public class HardwareProps {
@@ -8,7 +10,7 @@ public class HardwareProps {
         String value = "";
 
         try {
-            final Class<?> sp = Class.forName("android.os.SystemProperties");
+            @SuppressLint("PrivateApi") final Class<?> sp = Class.forName("android.os.SystemProperties");
             final Method get = sp.getMethod("get", String.class);
             value = (String) get.invoke(null, prop);
         } catch (Exception ignored) {
@@ -16,18 +18,12 @@ public class HardwareProps {
         return value;
     }
 
-    // setProp will be here!
-
     public static boolean deviceIsAB() {
         if (getProp("ro.virtual_ab.enabled").equals("true") && getProp("ro.virtual_ab.retrofit").equals("false")) {
             return true;
         }
 
-        /** Checks if the device supports the conventional A/B partition */
-        if (!getProp("ro.boot.slot_suffix").isEmpty() || getProp("ro.build.ab_update").equals("true")) {
-            return false;
-        }
-
-        return false;
+        /* Checks if the device supports the conventional A/B partition */
+        return !getProp("ro.boot.slot_suffix").isEmpty() || getProp("ro.build.ab_update").equals("true");
     }
 }

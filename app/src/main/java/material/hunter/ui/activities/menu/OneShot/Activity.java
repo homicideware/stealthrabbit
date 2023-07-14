@@ -15,6 +15,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -25,7 +26,6 @@ import com.google.android.material.textfield.TextInputEditText;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ExecutorService;
@@ -41,11 +41,11 @@ import material.hunter.utils.ShellUtils;
 import material.hunter.utils.TerminalUtil;
 import material.hunter.utils.Utils;
 
-public class OneShotActivity extends ThemedActivity {
+public class Activity extends ThemedActivity {
 
     private static RecyclerView recyclerView;
+    private final ArrayList<Item> networks = new ArrayList<>();
     private OneshotActivityBinding binding;
-    private View _view;
     private ExecutorService executor;
     private SharedPreferences prefs;
     private TerminalUtil terminalUtil;
@@ -54,7 +54,6 @@ public class OneShotActivity extends ThemedActivity {
     private TextInputEditText mInterface;
     private Button networking;
     private Button settings;
-    private final ArrayList<OneShotItem> networks = new ArrayList<>();
     private OneShotRecyclerViewAdapter adapter;
     private Timer timer = new Timer();
     private boolean isScanning = false;
@@ -64,26 +63,24 @@ public class OneShotActivity extends ThemedActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = OneshotActivityBinding.inflate(getLayoutInflater());
-        _view = binding.getRoot();
-        setContentView(_view);
+        setContentView(binding.getRoot());
 
         executor = Executors.newSingleThreadExecutor();
         prefs = getSharedPreferences(BuildConfig.APPLICATION_ID, Context.MODE_PRIVATE);
         terminalUtil = new TerminalUtil(this, this);
 
-        MaterialToolbar toolbar = binding.included.toolbar;
-        setSupportActionBar(toolbar);
+        setSupportActionBar(binding.included.toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         File usefulDirectory = new File(PathsUtil.APP_SD_PATH + "/OneShot");
         if (!usefulDirectory.exists()) {
-            PathsUtil.showSnack(_view, "Creating directory for saved networks and logs...", false);
+            PathsUtil.showSnackBar(this, "Creating directory for saved networks and logs...", false);
             try {
                 usefulDirectory.mkdir();
             } catch (Exception e) {
                 e.printStackTrace();
-                PathsUtil.showSnack(
-                        _view,
+                PathsUtil.showSnackBar(
+                        this,
                         "Failed to create directory: " + usefulDirectory,
                         false);
             }
@@ -105,7 +102,7 @@ public class OneShotActivity extends ThemedActivity {
             Intent intent = new Intent(this, NetworkingActivity.class);
             startActivity(intent);
         });
-        adapter = new OneShotRecyclerViewAdapter(this, networks, _view);
+        adapter = new OneShotRecyclerViewAdapter(this, this, networks);
         recyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
         recyclerView.setAdapter(adapter);
 
@@ -113,6 +110,7 @@ public class OneShotActivity extends ThemedActivity {
             String[] items = new String[]{
                     "Down network interface when the work is finished",
                     "Activate MediaTek Wi-Fi interface driver on startup and deactivate it on exit",
+                    "Hide hidden networks from list",
                     "Sort networks list by signal",
                     "Sort networks list by enabled WPS",
                     "Compact stdout"
@@ -120,6 +118,7 @@ public class OneShotActivity extends ThemedActivity {
             String[] preferences = new String[]{
                     "oneshot_iface_down",
                     "oneshot_mtk_wifi",
+                    "oneshot_hide_hidden_networks",
                     "oneshot_sort_by_signal",
                     "oneshot_sort_by_enabled_wps",
                     "oneshot_compact_stdout"
@@ -127,6 +126,7 @@ public class OneShotActivity extends ThemedActivity {
             final boolean[] itemsBooleans = new boolean[]{
                     prefs.getBoolean("oneshot_iface_down", false),
                     prefs.getBoolean("oneshot_mtk_wifi", false),
+                    prefs.getBoolean("oneshot_hide_hidden_networks", true),
                     prefs.getBoolean("oneshot_sort_by_signal", true),
                     prefs.getBoolean("oneshot_sort_by_enabled_wps", true),
                     prefs.getBoolean("oneshot_compact_stdout", true)
@@ -136,7 +136,7 @@ public class OneShotActivity extends ThemedActivity {
                     .setTitle("Settings")
                     .setMultiChoiceItems(items, itemsBooleans, (di, position, bool) -> itemsBooleans[position] = bool)
                     .setPositiveButton(android.R.string.ok, (di, i) -> {
-                        for (int f = 0; f < itemsBooleans.length; f++) {
+                        for (int f = 0; f < items.length; f++) {
                             prefs.edit().putBoolean(preferences[f], itemsBooleans[f]).apply();
                         }
                         sortNetworks();
@@ -210,6 +210,7 @@ public class OneShotActivity extends ThemedActivity {
                 .show();
     }
 
+    @NonNull
     private ArrayList<String> compactScanResult(String mInterface) {
         String output = new ShellUtils().executeCommandAsChrootWithOutput("iw dev " + mInterface + " scan");
         String[] lines = output.split("\n", 0);
@@ -248,7 +249,7 @@ public class OneShotActivity extends ThemedActivity {
             isScanning = true;
             progressIndicator.setIndeterminate(true);
             progressIndicator.setVisibility(View.VISIBLE);
-            ArrayList<OneShotItem> newNetworks = new ArrayList<>();
+            ArrayList<Item> newNetworks = new ArrayList<>();
             executor.execute(() -> {
                 for (String line : compactScanResult(mInterface)) {
                     try {
@@ -265,11 +266,11 @@ public class OneShotActivity extends ThemedActivity {
                             String model = Utils.matchString("[*] Model: (.*)", line, 1);
                             String modelNumber = Utils.matchString("[*] Model Number: (.*)", line, 1);
                             String deviceName = Utils.matchString("[*] Device name: (.*)", line, 1);
-                            newNetworks.add(new OneShotItem(ESSID, BSSID, security, power, isWpsLocked, deviceName, model, modelNumber));
+                            newNetworks.add(new Item(ESSID, BSSID, security, power, isWpsLocked, deviceName, model, modelNumber));
                         }
                     } catch (Exception ignored) {
                         new Handler(Looper.getMainLooper()).post(() ->
-                                PathsUtil.showSnack(_view, "Failed to load network information...", false));
+                                PathsUtil.showSnackBar(this, "Failed to load network information...", false));
                     }
                 }
                 networks.clear();
@@ -285,15 +286,10 @@ public class OneShotActivity extends ThemedActivity {
         }
     }
 
-    private boolean getRandomBoolean() {
-        return Math.random() < 0.5;
-    }
-
-    private float random(int min, int max) {
-        return new Random().nextFloat() * (max - min) + min;
-    }
-
     private void sortNetworks() {
+        if (prefs.getBoolean("oneshot_hide_hidden_networks", true)) {
+            networks.removeIf(item -> item.getESSID().isEmpty());
+        }
         if (prefs.getBoolean("oneshot_sort_by_signal", true)) {
             networks.sort((network, network2) -> (int) (network2.getSignal() - network.getSignal()));
         }
@@ -301,8 +297,8 @@ public class OneShotActivity extends ThemedActivity {
             networks.sort((network, network2) -> Boolean.compare(!network2.isWpsLocked(), !network.isWpsLocked()));
         }
     }
-    
-    private String decodeESSID(String ESSID) {
+
+    private String decodeESSID(@NonNull String ESSID) {
         if (ESSID.contains("\\x")) {
             return new ShellUtils().executeCommandWithOutput("echo -e '" + ESSID + "'");
         } else {
@@ -310,7 +306,8 @@ public class OneShotActivity extends ThemedActivity {
         }
     }
 
-    private String handleSecurity(String matches, String security) {
+    @NonNull
+    private String handleSecurity(@NonNull String matches, String security) {
         if (matches.contains("capability")) {
             if (security.contains("Privacy")) {
                 return "WEP";

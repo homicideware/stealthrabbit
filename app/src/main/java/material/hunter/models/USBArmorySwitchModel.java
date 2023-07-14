@@ -50,4 +50,15 @@ public class USBArmorySwitchModel {
     public void setSerialNumber(String serialnumber) {
         this.serialnumber = serialnumber;
     }
+
+    @Override
+    public String toString() {
+        return "USBArmoryModel{" +
+                "idVendor='" + idVendor + '\'' +
+                ", idProduct='" + idProduct + '\'' +
+                ", manufacturer='" + manufacturer + '\'' +
+                ", product='" + product + '\'' +
+                ", serialnumber='" + serialnumber + '\'' +
+                '}';
+    }
 }

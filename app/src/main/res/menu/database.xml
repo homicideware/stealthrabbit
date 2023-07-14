@@ -2,19 +2,23 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
-        android:id="@+id/f_usbarmory_menu_backupDB"
+        android:id="@+id/backup_db"
         android:orderInCategory="100"
         android:title="Backup"
         app:showAsAction="never" />
     <item
-        android:id="@+id/f_usbarmory_menu_restoreDB"
+        android:id="@+id/restore_db"
         android:orderInCategory="100"
         android:title="Restore"
         app:showAsAction="never" />
     <item
-        android:id="@+id/f_usbarmory_menu_ResetToDefault"
+        android:id="@+id/reset_db"
         android:orderInCategory="100"
         android:title="Reset"
         app:showAsAction="never" />
-
+    <item
+        android:id="@+id/move_item"
+        android:orderInCategory="100"
+        android:title="Move item"
+        app:showAsAction="never" />
 </menu>

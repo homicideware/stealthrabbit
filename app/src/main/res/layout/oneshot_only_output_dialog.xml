@@ -8,27 +8,13 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="16dp">
+        android:padding="26dp">
 
-        <com.google.android.material.card.MaterialCardView
-            android:id="@+id/outputCard"
-            style="@style/Widget.Mirivan.NewsCardView"
+        <TextView
+            android:id="@+id/outputTextView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:clickable="true"
-            android:focusable="true"
-
-            android:visibility="gone">
-
-            <TextView
-                android:id="@+id/outputTextView"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:fontFamily="monospace"
-                android:padding="16dp"
-                android:textIsSelectable="true" />
-        </com.google.android.material.card.MaterialCardView>
+            android:fontFamily="monospace"
+            android:textIsSelectable="true" />
     </LinearLayout>
 </ScrollView>
