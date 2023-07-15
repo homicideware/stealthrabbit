@@ -14,7 +14,7 @@
 Remastered Kali NetHunter app with [Material You Design](https://m3.material.io/)
 
 # Supporting
-- Android 7-12 (Also 13 partially)
+- Android 7-13
 
 # Requires
 - Termux/NetHunter Terminal
