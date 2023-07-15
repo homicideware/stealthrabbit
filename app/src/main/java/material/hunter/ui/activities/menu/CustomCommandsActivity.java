@@ -80,11 +80,11 @@ public class CustomCommandsActivity extends ThemedActivity {
             try {
                 if (sql_folder.mkdir()) ;
                 PathsUtil.showSnackBar(
-                        this,"Created directory for backing up config.", false);
+                        this, binding.add, "Created directory for backing up config.", false);
             } catch (Exception e) {
                 e.printStackTrace();
                 PathsUtil.showSnackBar(
-                        this, "Failed to create directory " + PathsUtil.APP_SD_SQLBACKUP_PATH, false);
+                        this, binding.add, "Failed to create directory " + PathsUtil.APP_SD_SQLBACKUP_PATH, false);
             }
         }
 
@@ -145,6 +145,7 @@ public class CustomCommandsActivity extends ThemedActivity {
                         if (returnedResult == null) {
                             PathsUtil.showSnackBar(
                                     activity,
+                                    this.binding.add,
                                     "db is successfully backup to "
                                             + binding.editText
                                             .getText()
@@ -186,6 +187,7 @@ public class CustomCommandsActivity extends ThemedActivity {
                         if (returnedResult == null) {
                             PathsUtil.showSnackBar(
                                     activity,
+                                    this.binding.add,
                                     "db is successfully restored to "
                                             + binding.editText
                                             .getText()
@@ -406,7 +408,7 @@ public class CustomCommandsActivity extends ThemedActivity {
                                     originalPositionIndex,
                                     targetPositionIndex,
                                     CustomCommandsSQL.getInstance(context));
-                    PathsUtil.showSnackBar(activity,  "Successfully moved item.", false);
+                    PathsUtil.showSnackBar(activity, this.binding.add,  "Successfully moved item.", false);
                     ad.dismiss();
                 }
             });

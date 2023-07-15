@@ -12,6 +12,7 @@ import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
 
+import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -44,7 +45,7 @@ public class TerminalUtil {
             "com.offsec.nhterm.permission.RUN_SCRIPT_SU"
     };
 
-    public TerminalUtil(Activity activity, Context context) {
+    public TerminalUtil(Activity activity, @NonNull Context context) {
         this.activity = activity;
         this.context = context;
         executor = Executors.newSingleThreadExecutor();
@@ -58,26 +59,34 @@ public class TerminalUtil {
     public void runCommand(String command, boolean in_background) throws ActivityNotFoundException, PackageManager.NameNotFoundException, SecurityException {
         String terminalType = getTerminalType();
         if (terminalType.equals(TERMINAL_TYPE_TERMUX)) {
-            Intent intent = new Intent();
-            intent.setClassName("com.termux", "com.termux.app.RunCommandService");
-            intent.setAction("com.termux.RUN_COMMAND");
-            intent.putExtra(
-                    "com.termux.RUN_COMMAND_PATH", "/data/data/com.termux/files/usr/bin/su");
-            intent.putExtra(
-                    "com.termux.RUN_COMMAND_ARGUMENTS", new String[]{"-mm", "-c", command});
-            intent.putExtra("com.termux.RUN_COMMAND_WORKDIR", "/data/data/com.termux/files/home");
-            intent.putExtra("com.termux.RUN_COMMAND_BACKGROUND", in_background);
-            intent.putExtra("com.termux.RUN_COMMAND_SESSION_ACTION", "0");
-            context.startService(intent);
-        } else if (terminalType.equals(TERMINAL_TYPE_NETHUNTER)) {
-            if (in_background) {
-                executor.execute(() -> exe.executeCommandAsRoot(command));
+            if (isTermuxInstalled()) {
+                Intent intent = new Intent();
+                intent.setClassName("com.termux", "com.termux.app.RunCommandService");
+                intent.setAction("com.termux.RUN_COMMAND");
+                intent.putExtra(
+                        "com.termux.RUN_COMMAND_PATH", "/data/data/com.termux/files/usr/bin/su");
+                intent.putExtra(
+                        "com.termux.RUN_COMMAND_ARGUMENTS", new String[]{"-mm", "-c", command});
+                intent.putExtra("com.termux.RUN_COMMAND_WORKDIR", "/data/data/com.termux/files/home");
+                intent.putExtra("com.termux.RUN_COMMAND_BACKGROUND", in_background);
+                intent.putExtra("com.termux.RUN_COMMAND_SESSION_ACTION", "0");
+                context.startService(intent);
             } else {
-                Intent intent = new Intent("com.offsec.nhterm.RUN_SCRIPT_SU");
-                intent.addCategory(Intent.CATEGORY_DEFAULT);
-                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                intent.putExtra("com.offsec.nhterm.iInitialCommand", command);
-                context.startActivity(intent);
+                throw new PackageManager.NameNotFoundException();
+            }
+        } else if (terminalType.equals(TERMINAL_TYPE_NETHUNTER)) {
+            if (isNetHunterTerminalInstalled()) {
+                if (in_background) {
+                    executor.execute(() -> exe.executeCommandAsRoot(command));
+                } else {
+                    Intent intent = new Intent("com.offsec.nhterm.RUN_SCRIPT_SU");
+                    intent.addCategory(Intent.CATEGORY_DEFAULT);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    intent.putExtra("com.offsec.nhterm.iInitialCommand", command);
+                    context.startActivity(intent);
+                }
+            } else {
+                throw new PackageManager.NameNotFoundException();
             }
         }
     }

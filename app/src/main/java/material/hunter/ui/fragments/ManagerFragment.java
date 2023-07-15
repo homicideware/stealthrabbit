@@ -337,6 +337,7 @@ public class ManagerFragment extends Fragment {
                 Button db = rootView.findViewById(R.id.downloadButton);
                 Button r = rootView.findViewById(R.id.repositoryButton);
                 Button rb = rootView.findViewById(R.id.restoreButton);
+                adb.setTitle("Install");
                 adb.setView(rootView);
                 AlertDialog ad = adb.create();
                 db.setOnClickListener(view1 -> {
@@ -345,6 +346,7 @@ public class ManagerFragment extends Fragment {
                     View promtDownloadView = getLayoutInflater().inflate(R.layout.manager_dialog_download, null);
                     final TextInputEditText input = promtDownloadView.findViewById(R.id.input);
                     input.setText(prefs.getString("chroot_download_url_prev", ""));
+                    adb1.setTitle("Download");
                     adb1.setView(promtDownloadView);
                     adb1.setPositiveButton("Setup", (dialogInterface, i) -> {
                     });
@@ -451,10 +453,12 @@ public class ManagerFragment extends Fragment {
                     int[] position = {0};
                     instruction.setText(
                             Html.fromHtml("Create your own repository:\n"
-                                            + "<a href='https://github.com/Mirivan/dev-root-project/blob/main/REPOSITORY.md'>according to this instruction</a>",
+                                            + "<a href='https://github.com/Mirivan/dev-root-project/blob/main/" +
+                                            "REPOSITORY.md'>according to this instruction</a>.",
                                     Html.FROM_HTML_MODE_LEGACY));
                     instruction.setMovementMethod(LinkMovementMethod.getInstance());
-                    input.setText(prefs.getString("chroot_prev_repository", context.getResources().getString(R.string.mh_repository)));
+                    input.setText(prefs.getString(
+                            "chroot_prev_repository", context.getResources().getString(R.string.mh_repository)));
 
                     ExecutorService executor = Executors.newSingleThreadExecutor();
 
@@ -486,6 +490,7 @@ public class ManagerFragment extends Fragment {
 
                     selector.setOnItemClickListener((parent, v, p, l) -> position[0] = p);
 
+                    adb2.setTitle("Repository");
                     adb2.setView(repov);
                     adb2.setPositiveButton("Download", (dialogInterface, i) -> {
                     });
@@ -525,7 +530,7 @@ public class ManagerFragment extends Fragment {
                                 PathsUtil.showSnackBar(activity, MainActivity.getBnCard(), "Bad repository skeleton.", true);
                                 return;
                             } catch (NullPointerException e) {
-                                PathsUtil.showSnackBar(activity, MainActivity.getBnCard(), "Chroot url must not be empty.", true);
+                                PathsUtil.showSnackBar(activity, MainActivity.getBnCard(), "Chroot isn't selected.", true);
                                 return;
                             }
 
@@ -608,6 +613,7 @@ public class ManagerFragment extends Fragment {
                     View rootViewR = getLayoutInflater().inflate(R.layout.manager_dialog_restore, null);
                     final TextInputEditText et = rootViewR.findViewById(R.id.input);
                     et.setText(prefs.getString("chroot_restore_path", ""));
+                    adb3.setTitle("Restore");
                     adb3.setView(rootViewR);
                     adb3.setPositiveButton("Restore", (dialogInterface, i) -> {
                     });
@@ -665,6 +671,7 @@ public class ManagerFragment extends Fragment {
                 TextView message = dialogView.findViewById(R.id.message);
                 message.setText(Html.fromHtml("Busybox isn't installed, chroot installation cannot be done, please install <a href=\"https://github.com/zgfg/BuiltIn-BusyBox\">busybox</a>. You can use <a href=\"https://github.com/Fox2Code/FoxMagiskModuleManager\">Fox's MMM</a> if you wish.", Html.FROM_HTML_MODE_LEGACY));
                 message.setMovementMethod(new LinkMovementMethod());
+                adb.setTitle("Error");
                 adb.setView(dialogView);
                 adb.setPositiveButton(android.R.string.ok, (di, i) -> {
                 });

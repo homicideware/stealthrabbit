@@ -38,6 +38,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;
@@ -122,6 +123,20 @@ public class HomeFragment extends Fragment {
 
         version_installed.setText(BuildConfig.VERSION_NAME);
         mh_news.setOnTouchListener(new LinkMovementMethodOverride());
+
+        File mh_folder = new File(PathsUtil.APP_SD_PATH);
+        if (!mh_folder.exists()) {
+            try {
+                mh_folder.mkdir();
+            } catch (Exception e) {
+                e.printStackTrace();
+                PathsUtil.showSnackBar(
+                        activity,
+                        "Failed to create MaterialHunter directory.",
+                        false);
+                return;
+            }
+        }
 
         executor.execute(() -> {
             String[] res = {""};

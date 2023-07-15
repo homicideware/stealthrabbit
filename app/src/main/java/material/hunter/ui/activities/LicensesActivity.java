@@ -26,7 +26,7 @@ public class LicensesActivity extends ThemedActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = LicensesActivityBinding.inflate(getLayoutInflater());
-        setContentView(R.layout.licenses_activity);
+        setContentView(binding.getRoot());
 
         setSupportActionBar(binding.included.toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);

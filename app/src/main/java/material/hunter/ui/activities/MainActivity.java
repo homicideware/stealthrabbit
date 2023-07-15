@@ -315,20 +315,6 @@ public class MainActivity extends ThemedActivity {
                 "chmod -R 700 " + PathsUtil.APP_SCRIPTS_PATH + "/*",
                 "chmod -R 700 " + PathsUtil.APP_INITD_PATH + "/*");
 
-        File mh_folder = new File(PathsUtil.APP_SD_PATH);
-        if (!mh_folder.exists()) {
-            try {
-                mh_folder.mkdir();
-            } catch (Exception e) {
-                e.printStackTrace();
-                PathsUtil.showToast(
-                        context,
-                        "Failed to create MaterialHunter directory.",
-                        false);
-                return;
-            }
-        }
-
         // Setup the default SharePreference value.
         if (prefs.getString("chroot_backup_path", null) == null) {
             prefs.edit()

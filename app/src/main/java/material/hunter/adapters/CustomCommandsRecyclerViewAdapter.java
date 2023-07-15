@@ -92,7 +92,7 @@ public class CustomCommandsRecyclerViewAdapter extends RecyclerView.Adapter<Cust
                         switch (item.getItemId()) {
                             case R.id.delete:
                                 if (selectedPositionList.size() == 0) {
-                                    PathsUtil.showSnackBar(activity, "Nothing to be deleted.", false);
+                                    PathsUtil.showSnackBar(activity, CustomCommandsActivity.getAddButton(), "Nothing to be deleted.", false);
                                 } else {
                                     ArrayList<Integer> mSelectedPositionList = new ArrayList<>(selectedPositionList);
                                     ArrayList<Integer> selectedTargetIds = new ArrayList<>(mSelectedPositionList);
