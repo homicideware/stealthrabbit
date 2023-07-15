@@ -311,6 +311,7 @@ public class HomeFragment extends Fragment {
             if (TextUtils.isEmpty(busyboxPath) && primordialBusyboxBroken) {
                 ArrayList<String> arrayList = new ArrayList<>();
                 arrayList.add("/data/adb/magisk/busybox");
+                arrayList.add("/system/sbin/busybox");
                 arrayList.add("/system/xbin/busybox");
                 arrayList.add("/system/bin/busybox");
                 for (String path : arrayList) {

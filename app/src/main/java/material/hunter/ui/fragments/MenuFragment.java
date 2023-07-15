@@ -1,5 +1,6 @@
 package material.hunter.ui.fragments;
 
+import android.app.Activity;
 import android.app.BackgroundServiceStartNotAllowedException;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
@@ -21,7 +22,6 @@ import androidx.annotation.RequiresApi;
 import androidx.core.content.pm.ShortcutManagerCompat;
 import androidx.fragment.app.Fragment;
 
-import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import java.io.File;
@@ -30,31 +30,21 @@ import java.util.ArrayList;
 import material.hunter.BuildConfig;
 import material.hunter.R;
 import material.hunter.databinding.MenuFragmentBinding;
+import material.hunter.databinding.UsbarmoryActivityBinding;
 import material.hunter.ui.activities.MainActivity;
 import material.hunter.ui.activities.TerminalRunActivity;
 import material.hunter.ui.activities.menu.CustomCommandsActivity;
 import material.hunter.ui.activities.menu.MACChangerActivity;
 import material.hunter.ui.activities.menu.NetworkingActivity;
-import material.hunter.ui.activities.menu.OneShot.Activity;
 import material.hunter.ui.activities.menu.ServicesActivity;
-import material.hunter.ui.activities.menu.USBArmoryActivity;
 import material.hunter.utils.PathsUtil;
 import material.hunter.utils.TerminalUtil;
 
 public class MenuFragment extends Fragment {
 
     private static final String SHORTCUT_ID = BuildConfig.APPLICATION_ID + ".shortcut";
-    private static MaterialCardView help;
-    private static MaterialCardView usbarmory;
-    private static MaterialCardView terminal;
-    private static MaterialCardView custom_commands;
-    private static MaterialCardView services;
-    private static MaterialCardView macchanger;
-    private static MaterialCardView netwroking;
-    private static MaterialCardView nmap;
-    private static MaterialCardView oneshot;
-    private MenuFragmentBinding binding;
-    private android.app.Activity activity;
+    private static MenuFragmentBinding binding;
+    private Activity activity;
     private Context context;
     private SharedPreferences prefs;
     private TerminalUtil terminalUtil;
@@ -62,19 +52,19 @@ public class MenuFragment extends Fragment {
     public static void compatVerified(boolean is) {
         ArrayList<View> views = new ArrayList<>();
         // views.add(view);
-        views.add(terminal);
-        views.add(custom_commands);
-        views.add(services);
-        views.add(macchanger);
-        views.add(netwroking);
-        views.add(nmap);
-        views.add(oneshot);
+        views.add(binding.terminal);
+        views.add(binding.customCommands);
+        views.add(binding.services);
+        views.add(binding.macchanger);
+        views.add(binding.networking);
+        views.add(binding.nmap);
+        views.add(binding.oneshot);
         for (int i = 0; i < views.size(); i++) {
             View view = views.get(i);
             view.setEnabled(is);
             view.setVisibility(is ? View.VISIBLE : View.GONE);
         }
-        help.setVisibility(is ? View.GONE : View.VISIBLE);
+        binding.help.setVisibility(is ? View.GONE : View.VISIBLE);
     }
 
     @Override
@@ -94,18 +84,9 @@ public class MenuFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        help = binding.help;
-        usbarmory = binding.usbarmory;
-        terminal = binding.terminal;
-        custom_commands = binding.customCommands;
-        services = binding.services;
-        macchanger = binding.macchanger;
-        netwroking = binding.networking;
-        nmap = binding.nmap;
-        oneshot = binding.oneshot;
         terminalUtil = new TerminalUtil(activity, context);
 
-        help.setOnClickListener(v -> {
+        binding.help.setOnClickListener(v -> {
             MaterialAlertDialogBuilder adb = new MaterialAlertDialogBuilder(context);
             adb.setTitle("Menu");
             adb.setMessage(
@@ -116,18 +97,18 @@ public class MenuFragment extends Fragment {
             adb.show();
         });
 
-        usbarmory.setOnClickListener(v -> {
+        binding.usbarmory.setOnClickListener(v -> {
             MaterialAlertDialogBuilder adb = new MaterialAlertDialogBuilder(context);
             adb.setTitle("USB Armory");
             if (MainActivity.isSelinuxEnforcing()) {
                 adb.setMessage(
-                        "Selinux is enforcing, MaterialHunter cannot fully verify that your device is compatible with the functionality of this item.");
+                        "Selinux is enforcing, MaterialHunter cannot fully verify that your device is compatible with " +
+                                "the functionality of this item.");
             } else if (!new File("/config/usb_gadget").exists()) {
                 adb.setMessage(
                         "Not supported by the kernel.");
             } else {
-                Intent intent = new Intent(context, USBArmoryActivity.class);
-                startActivity(intent);
+                openActivity(UsbarmoryActivityBinding.class);
                 return;
             }
             adb.setPositiveButton(android.R.string.ok, (di, i) -> {
@@ -135,63 +116,46 @@ public class MenuFragment extends Fragment {
             adb.show();
         });
 
-        terminal.setOnClickListener(v -> {
+        binding.terminal.setOnClickListener(v -> {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 if (isShortcutPinned()) {
-                    runTerminalInChroot();
+                    runTerminalFromApp();
                 } else {
                     MaterialAlertDialogBuilder adb = new MaterialAlertDialogBuilder(context);
                     adb.setTitle("MaterialHunter");
                     adb.setMessage("We recommend creating a shortcut on your desktop to quickly launch the Terminal.");
                     adb.setPositiveButton("Create", (di, i) -> createShortcut());
-                    adb.setNeutralButton("Open in app", (di, i) -> runTerminalInChroot());
+                    adb.setNeutralButton("Open in app", (di, i) -> runTerminalFromApp());
                     adb.setNegativeButton(android.R.string.cancel, (di, i) -> {
                     });
                     adb.show();
                 }
             } else {
-                runTerminalInChroot();
+                runTerminalFromApp();
             }
         });
 
-        custom_commands.setOnClickListener(v -> {
-            Intent intent = new Intent(context, CustomCommandsActivity.class);
-            startActivity(intent);
-        });
+        binding.customCommands.setOnClickListener(v -> openActivity(CustomCommandsActivity.class));
 
-        services.setOnClickListener(v -> {
-            Intent intent = new Intent(context, ServicesActivity.class);
-            startActivity(intent);
-        });
+        binding.services.setOnClickListener(v -> openActivity(ServicesActivity.class));
 
-        macchanger.setOnClickListener(v -> {
-            Intent intent = new Intent(context, MACChangerActivity.class);
-            startActivity(intent);
-        });
+        binding.macchanger.setOnClickListener(v -> openActivity(MACChangerActivity.class));
 
-        netwroking.setOnClickListener(v -> {
-            Intent intent = new Intent(context, NetworkingActivity.class);
-            startActivity(intent);
-        });
+        binding.networking.setOnClickListener(v -> openActivity(NetworkingActivity.class));
 
-        nmap.setOnClickListener(v -> {
-            Intent intent = new Intent(context, material.hunter.ui.activities.menu.Nmap.Activity.class);
-            startActivity(intent);
-        });
+        binding.nmap.setOnClickListener(v ->
+                openActivity(material.hunter.ui.activities.menu.Nmap.Activity.class));
 
-        oneshot.setOnClickListener(v -> {
-            Intent intent = new Intent(context, Activity.class);
-            startActivity(intent);
-        });
+        binding.oneshot.setOnClickListener(v ->
+                openActivity(material.hunter.ui.activities.menu.OneShot.Activity.class));
     }
 
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        binding = null;
+    private void openActivity(Class<?> activity) {
+        Intent intent = new Intent(context, activity);
+        startActivity(intent);
     }
 
-    private void runTerminalInChroot() {
+    private void runTerminalFromApp() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             try {
                 runTerminalInChrootThrow();

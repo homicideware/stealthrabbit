@@ -210,6 +210,7 @@ public class SettingsActivity extends ThemedActivity {
                     .setNegativeButton("Select", (di, i) -> executor.execute(() -> {
                         ArrayList<String> arrayList = new ArrayList<>();
                         arrayList.add("/data/adb/magisk/busybox");
+                        arrayList.add("/system/sbin/busybox");
                         arrayList.add("/system/xbin/busybox");
                         arrayList.add("/system/bin/busybox");
                         ArrayList<String> newArrayList = new ArrayList<>();

@@ -270,7 +270,7 @@ public class MACChangerActivity extends ThemedActivity {
 
     private void loadInterfaces() {
         executor.execute(() -> {
-            String[] list = new ShellUtils().executeCommandAsRootWithOutput("iw dev | grep \"Interface\" | sed -r 's/Interface//g' | xargs | sed -r 's/ /\n/g'").split("\n");
+            String[] list = new ShellUtils().executeCommandAsChrootWithOutput("iw dev | grep \"Interface\" | sed -r \"s/Interface//g\" | xargs").split(" ");
             ArrayList<String> mInterfaces = new ArrayList<>(Arrays.asList(list));
             ArrayAdapter<String> adapter = new ArrayAdapter<>(this, R.layout.mh_spinner_item, mInterfaces);
             new Handler(Looper.getMainLooper()).post(() -> interfaces.setAdapter(adapter));
@@ -344,7 +344,7 @@ public class MACChangerActivity extends ThemedActivity {
                 .setCancelable(false)
                 .setPositiveButton("Install", (di, i) -> {
                     try {
-                        terminalUtil.runCommand(PathsUtil.APP_SCRIPTS_PATH + "/bootroot_exec 'apt update && apt install iw macchanger'", false);
+                        terminalUtil.runCommand(PathsUtil.APP_SCRIPTS_PATH + "/bootroot_exec 'apt update && apt install iw macchanger -y'", false);
                     } catch (ActivityNotFoundException e) {
                         if (prefs.getString("terminal_type", TerminalUtil.TERMINAL_TYPE_TERMUX).equals(TerminalUtil.TERMINAL_TYPE_TERMUX)) {
                             terminalUtil.checkIsTermuxApiSupported();

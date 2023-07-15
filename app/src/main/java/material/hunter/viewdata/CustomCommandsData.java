@@ -129,7 +129,6 @@ public class CustomCommandsData {
                                         .build();
                         notificationManagerCompat.notify(1001, notification);
                         if (model.get(position).getEnv().equals("android")) {
-                            isChroot = false;
                             returnValue =
                                     new ShellUtils()
                                             .executeCommandAsRootWithReturnCode(model.get(position).getCommand());

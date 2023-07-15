@@ -1,5 +1,7 @@
 package material.hunter.utils.contract;
 
+import androidx.annotation.NonNull;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -20,7 +22,7 @@ public class JSON {
         return result;
     }
 
-    public ArrayList<String> getKeys(JSONObject json) {
+    public ArrayList<String> getKeys(@NonNull JSONObject json) {
         ArrayList<String> result = new ArrayList<String>();
         Iterator<String> keys = json.keys();
         while (keys.hasNext()) {
