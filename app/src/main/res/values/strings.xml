@@ -1,6 +1,5 @@
 <resources>
 
-    <string name="app_name">MaterialHunter</string>
     <string name="home">Home</string>
     <string name="manager">Manager</string>
     <string name="menu">Menu</string>

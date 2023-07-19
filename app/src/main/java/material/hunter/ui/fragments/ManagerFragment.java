@@ -19,23 +19,14 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
-import android.widget.LinearLayout;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
-import androidx.core.widget.NestedScrollView;
-import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import com.google.android.material.materialswitch.MaterialSwitch;
-import com.google.android.material.progressindicator.LinearProgressIndicator;
 import com.google.android.material.textfield.TextInputEditText;
-import com.google.android.material.textfield.TextInputLayout;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -48,8 +39,10 @@ import java.util.concurrent.Executors;
 
 import material.hunter.BuildConfig;
 import material.hunter.R;
-import material.hunter.databinding.ManagerDialogEditBinding;
-import material.hunter.databinding.ManagerDialogSettingsChangeSystemPathBinding;
+import material.hunter.databinding.ManagerDialogBackupBinding;
+import material.hunter.databinding.ManagerDialogInstallBusyboxBinding;
+import material.hunter.databinding.ManagerDialogRepositoryBinding;
+import material.hunter.databinding.ManagerDialogRestoreBinding;
 import material.hunter.databinding.ManagerDialogSettingsSecurityBinding;
 import material.hunter.databinding.ManagerFragmentBinding;
 import material.hunter.ui.activities.MainActivity;
@@ -444,27 +437,22 @@ public class ManagerFragment extends Fragment {
                 r.setOnClickListener(view1 -> {
                     ad.dismiss();
                     MaterialAlertDialogBuilder adb2 = new MaterialAlertDialogBuilder(context);
-                    View repov = getLayoutInflater().inflate(R.layout.manager_dialog_repository, null);
-                    TextView instruction = repov.findViewById(R.id.repository_instruction);
-                    TextInputLayout layout = repov.findViewById(R.id.repository_input_layout);
-                    final TextInputEditText input = repov.findViewById(R.id.repository_input);
-                    final LinearLayout selector_layout = repov.findViewById(R.id.selector_layout);
-                    final AutoCompleteTextView selector = repov.findViewById(R.id.chroot_selector);
+                    ManagerDialogRepositoryBinding binding1 = ManagerDialogRepositoryBinding.inflate(getLayoutInflater());
                     int[] position = {0};
-                    instruction.setText(
+                    binding1.instruction.setText(
                             Html.fromHtml("Create your own repository:\n"
                                             + "<a href='https://github.com/Mirivan/dev-root-project/blob/main/" +
                                             "REPOSITORY.md'>according to this instruction</a>.",
                                     Html.FROM_HTML_MODE_LEGACY));
-                    instruction.setMovementMethod(LinkMovementMethod.getInstance());
-                    input.setText(prefs.getString(
+                    binding1.instruction.setMovementMethod(LinkMovementMethod.getInstance());
+                    binding1.input.setText(prefs.getString(
                             "chroot_prev_repository", context.getResources().getString(R.string.mh_repository)));
 
                     ExecutorService executor = Executors.newSingleThreadExecutor();
 
-                    layout.setEndIconOnClickListener(v -> executor.execute(() -> {
+                    binding1.inputLayout.setEndIconOnClickListener(v -> executor.execute(() -> {
                         try {
-                            String repositoryUrl = input.getText().toString();
+                            String repositoryUrl = binding1.input.getText().toString();
                             if (repositoryUrl.equals(""))
                                 throw new NullPointerException();
                             if (!repositoryUrl.matches("^(http|https):\\/\\/.*$"))
@@ -472,12 +460,12 @@ public class ManagerFragment extends Fragment {
 
                             JSONObject repo = new JSON().getFromWeb(repositoryUrl);
                             if (!MHRepo.setRepo(repo))
-                                throw new JSONException("Bad MaterialHunter repository.");
+                                throw new JSONException("Bad StealthRabbit repository.");
                             ArrayAdapter<String> adapter = new ArrayAdapter<>(getActivity(), R.layout.mh_spinner_item, MHRepo.getMainKeys());
                             new Handler(Looper.getMainLooper()).post(() -> {
-                                selector.setText(adapter.getItem(0));
-                                selector.setAdapter(adapter);
-                                selector_layout.setVisibility(View.VISIBLE);
+                                binding1.selector.setText(adapter.getItem(0));
+                                binding1.selector.setAdapter(adapter);
+                                binding1.selectorLayout.setVisibility(View.VISIBLE);
                             });
                         } catch (IOException e) {
                             PathsUtil.showSnackBar(activity, MainActivity.getBnCard(), "No internet connection, please try again later.", true);
@@ -488,17 +476,17 @@ public class ManagerFragment extends Fragment {
                         }
                     }));
 
-                    selector.setOnItemClickListener((parent, v, p, l) -> position[0] = p);
+                    binding1.selector.setOnItemClickListener((parent, v, p, l) -> position[0] = p);
 
                     adb2.setTitle("Repository");
-                    adb2.setView(repov);
+                    adb2.setView(binding1.getRoot());
                     adb2.setPositiveButton("Download", (dialogInterface, i) -> {
                     });
                     adb2.setNegativeButton(android.R.string.cancel, (dialogInterface, i) -> {
                     });
-                    final AlertDialog adb2Ad = adb2.create();
-                    adb2Ad.setOnShowListener(dialog -> {
-                        final Button download = adb2Ad.getButton(DialogInterface.BUTTON_POSITIVE);
+                    AlertDialog ad2 = adb2.create();
+                    ad2.setOnShowListener(dialog -> {
+                        Button download = ad2.getButton(DialogInterface.BUTTON_POSITIVE);
                         download.setOnClickListener(v -> {
                             String chroot_url = "";
                             String[] chroot_author = {""};
@@ -510,7 +498,7 @@ public class ManagerFragment extends Fragment {
                                 if (chroot_json.has("url"))
                                     chroot_url = chroot_json.getString("url");
                                 else if (chroot_json.has("file")) {
-                                    String inputText = input.getText().toString();
+                                    String inputText = binding1.input.getText().toString();
                                     chroot_url = inputText.substring(inputText.lastIndexOf('/') + 1) + "/" + chroot_json.getString("file");
                                 } else throw new NullPointerException();
                                 chroot_author[0] = chroot_json.getString("author");
@@ -534,7 +522,7 @@ public class ManagerFragment extends Fragment {
                                 return;
                             }
 
-                            prefs.edit().putString("chroot_prev_repository", input.getText().toString()).apply();
+                            prefs.edit().putString("chroot_prev_repository", binding1.input.getText().toString()).apply();
                             String filename = chroot_url.substring(chroot_url.lastIndexOf('/') + 1);
                             File chroot = new File(PathsUtil.APP_PATH + "/" + filename);
 
@@ -542,7 +530,7 @@ public class ManagerFragment extends Fragment {
 
                                 @Override
                                 public void onPrepare() {
-                                    adb2Ad.dismiss();
+                                    ad2.dismiss();
                                     disableToolbarMenu(true);
                                     setAllButtonEnable(false);
                                     PathsUtil.showSnackBar(activity, MainActivity.getBnCard(), "Downloading chroot by: " + chroot_author[0], false);
@@ -605,74 +593,69 @@ public class ManagerFragment extends Fragment {
                             }.exec(chroot_url, chroot, binding.report);
                         });
                     });
-                    adb2Ad.show();
+                    ad2.show();
                 });
                 rb.setOnClickListener(view1 -> {
                     ad.dismiss();
                     MaterialAlertDialogBuilder adb3 = new MaterialAlertDialogBuilder(context);
-                    View rootViewR = getLayoutInflater().inflate(R.layout.manager_dialog_restore, null);
-                    final TextInputEditText et = rootViewR.findViewById(R.id.input);
-                    et.setText(prefs.getString("chroot_restore_path", ""));
+                    ManagerDialogRestoreBinding binding1 = ManagerDialogRestoreBinding.inflate(getLayoutInflater());
+                    binding1.input.setText(prefs.getString("chroot_restore_path", ""));
                     adb3.setTitle("Restore");
-                    adb3.setView(rootViewR);
+                    adb3.setView(binding1.input);
                     adb3.setPositiveButton("Restore", (dialogInterface, i) -> {
                     });
                     adb3.setNegativeButton(android.R.string.cancel, (dialogInterface, i) -> {
                     });
-                    final AlertDialog adb3Ad = adb3.create();
-                    adb3Ad.setOnShowListener(dialog -> {
-                        final Button restore = adb3Ad.getButton(DialogInterface.BUTTON_POSITIVE);
-                        restore.setOnClickListener(v -> {
-                            prefs
-                                    .edit()
-                                    .putString("chroot_restore_path", et.getText().toString())
-                                    .apply();
+                    AlertDialog ad3 = adb3.create();
+                    ad3.setOnShowListener(dialog -> {
+                        Button restore = ad3.getButton(DialogInterface.BUTTON_POSITIVE);
+                        restore.setOnClickListener(v -> new ShellUtils.ActiveShellExecutor(prefs.getBoolean("print_timestamp", false)) {
 
-                            new ShellUtils.ActiveShellExecutor(prefs.getBoolean("print_timestamp", false)) {
+                            @Override
+                            public void onPrepare() {
+                                prefs
+                                        .edit()
+                                        .putString("chroot_restore_path", binding1.input.getText().toString())
+                                        .apply();
+                                ad3.dismiss();
+                                disableToolbarMenu(true);
+                                setAllButtonEnable(false);
+                                binding.progressbar.show();
+                                binding.progressbar.setIndeterminate(true);
+                            }
 
-                                @Override
-                                public void onPrepare() {
-                                    adb3Ad.dismiss();
-                                    disableToolbarMenu(true);
-                                    setAllButtonEnable(false);
-                                    binding.progressbar.show();
-                                    binding.progressbar.setIndeterminate(true);
-                                }
+                            @Override
+                            public void onNewLine(String line) {
+                                MainActivity.notifyManagerBadge();
+                                binding.scrollView.fullScroll(View.FOCUS_DOWN);
+                            }
 
-                                @Override
-                                public void onNewLine(String line) {
-                                    MainActivity.notifyManagerBadge();
-                                    binding.scrollView.fullScroll(View.FOCUS_DOWN);
-                                }
-
-                                @Override
-                                public void onFinished(int code) {
-                                    disableToolbarMenu(false);
-                                    setAllButtonEnable(true);
-                                    compatCheck();
-                                    binding.progressbar.hide();
-                                    binding.progressbar.setIndeterminate(false);
-                                }
-                            }.exec(
-                                    PathsUtil.APP_SCRIPTS_PATH
-                                            + "/chrootmgr -c \"restore "
-                                            + et.getText().toString()
-                                            + " "
-                                            + PathsUtil.CHROOT_PATH()
-                                            + "\"",
-                                    binding.report);
-                        });
+                            @Override
+                            public void onFinished(int code) {
+                                disableToolbarMenu(false);
+                                setAllButtonEnable(true);
+                                compatCheck();
+                                binding.progressbar.hide();
+                                binding.progressbar.setIndeterminate(false);
+                            }
+                        }.exec(
+                                PathsUtil.APP_SCRIPTS_PATH
+                                        + "/chrootmgr -c \"restore "
+                                        + binding1.input.getText().toString()
+                                        + " "
+                                        + PathsUtil.CHROOT_PATH()
+                                        + "\"",
+                                binding.report));
                     });
-                    adb3Ad.show();
+                    ad3.show();
                 });
                 ad.show();
             } else {
-                @SuppressLint("InflateParams") View dialogView = getLayoutInflater().inflate(R.layout.manager_dialog_install_busybox, null);
-                TextView message = dialogView.findViewById(R.id.message);
-                message.setText(Html.fromHtml("Busybox isn't installed, chroot installation cannot be done, please install <a href=\"https://github.com/zgfg/BuiltIn-BusyBox\">busybox</a>. You can use <a href=\"https://github.com/Fox2Code/FoxMagiskModuleManager\">Fox's MMM</a> if you wish.", Html.FROM_HTML_MODE_LEGACY));
-                message.setMovementMethod(new LinkMovementMethod());
+                ManagerDialogInstallBusyboxBinding binding1 = ManagerDialogInstallBusyboxBinding.inflate(getLayoutInflater());
+                binding1.message.setText(Html.fromHtml("Busybox isn't installed, chroot installation cannot be done, please install <a href=\"https://github.com/zgfg/BuiltIn-BusyBox\">busybox</a>. You can use <a href=\"https://github.com/Fox2Code/FoxMagiskModuleManager\">Fox's MMM</a> if you wish.", Html.FROM_HTML_MODE_LEGACY));
+                binding1.message.setMovementMethod(new LinkMovementMethod());
                 adb.setTitle("Error");
-                adb.setView(dialogView);
+                adb.setView(binding1.getRoot());
                 adb.setPositiveButton(android.R.string.ok, (di, i) -> {
                 });
                 adb.show();
@@ -736,14 +719,13 @@ public class ManagerFragment extends Fragment {
     private void setBackupButton() {
         binding.backup.setOnClickListener(view -> {
             MaterialAlertDialogBuilder adb = new MaterialAlertDialogBuilder(context);
-            View v = getLayoutInflater().inflate(R.layout.manager_dialog_backup, null);
-            TextInputEditText path = v.findViewById(R.id.input);
-            path.setText(prefs.getString("chroot_backup_path", ""));
-            adb.setView(v);
+            ManagerDialogBackupBinding binding1 = ManagerDialogBackupBinding.inflate(getLayoutInflater());
+            binding1.input.setText(prefs.getString("chroot_backup_path", ""));
+            adb.setView(binding1.getRoot());
             adb.setPositiveButton("Do", (dialogInterface, i) -> new ShellUtils.ActiveShellExecutor(prefs.getBoolean("print_timestamp", false)) {
                 @Override
                 public void onPrepare() {
-                    prefs.edit().putString("chroot_backup_path", path.getText().toString()).apply();
+                    prefs.edit().putString("chroot_backup_path", binding1.input.getText().toString()).apply();
                     disableToolbarMenu(true);
                     setAllButtonEnable(false);
                     binding.progressbar.show();
@@ -766,7 +748,7 @@ public class ManagerFragment extends Fragment {
             }.exec(
                     PathsUtil.APP_SCRIPTS_PATH
                             + "/chrootmgr -c \"backup "
-                            + PathsUtil.CHROOT_PATH() + " " + path.getText().toString() + "\"", binding.report));
+                            + PathsUtil.CHROOT_PATH() + " " + binding1.input.getText().toString() + "\"", binding.report));
             adb.show();
         });
     }

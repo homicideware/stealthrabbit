@@ -27,7 +27,7 @@ public class Web {
                 "User-Agent",
                 "Mozilla/5.0 (Linux; Android " + Build.VERSION.RELEASE + "; " + Build.DEVICE + ")" +
                         " AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.131 Mobile Safari/537.36"
-                        + " MaterialHunter/" + BuildConfig.VERSION_CODE);
+                        + " StealthRabbit/" + BuildConfig.VERSION_CODE);
         connection.connect();
 
         BufferedReader r = new BufferedReader(new InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_8));

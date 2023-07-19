@@ -17,7 +17,7 @@
         android:textSize="14dp" />
 
     <TextView
-        android:id="@+id/repository_instruction"
+        android:id="@+id/instruction"
         style="@style/Widget.Mirivan.Subtitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -27,7 +27,7 @@
         android:textSize="14dp" />
 
     <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/repository_input_layout"
+        android:id="@+id/input_layout"
         style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -35,7 +35,7 @@
         app:endIconMode="custom">
 
         <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/repository_input"
+            android:id="@+id/input"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:singleLine="true" />
@@ -64,7 +64,7 @@
             android:layout_height="wrap_content">
 
             <AutoCompleteTextView
-                android:id="@+id/chroot_selector"
+                android:id="@+id/selector"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 tools:ignore="LabelFor" />

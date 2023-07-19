@@ -102,7 +102,7 @@ public class MenuFragment extends Fragment {
             adb.setTitle("USB Armory");
             if (MainActivity.isSelinuxEnforcing()) {
                 adb.setMessage(
-                        "Selinux is enforcing, MaterialHunter cannot fully verify that your device is compatible with " +
+                        "Selinux is enforcing, StealthRabbit cannot fully verify that your device is compatible with " +
                                 "the functionality of this item.");
             } else if (!new File("/config/usb_gadget").exists()) {
                 adb.setMessage(
@@ -122,7 +122,7 @@ public class MenuFragment extends Fragment {
                     runTerminalFromApp();
                 } else {
                     MaterialAlertDialogBuilder adb = new MaterialAlertDialogBuilder(context);
-                    adb.setTitle("MaterialHunter");
+                    adb.setTitle("StealthRabbit");
                     adb.setMessage("We recommend creating a shortcut on your desktop to quickly launch the Terminal.");
                     adb.setPositiveButton("Create", (di, i) -> createShortcut());
                     adb.setNeutralButton("Open in app", (di, i) -> runTerminalFromApp());
@@ -148,6 +148,9 @@ public class MenuFragment extends Fragment {
 
         binding.oneshot.setOnClickListener(v ->
                 openActivity(material.hunter.ui.activities.menu.OneShot.Activity.class));
+
+        binding.otgArmory.setOnClickListener(v ->
+                openActivity(material.hunter.ui.activities.menu.OTGArmory.Activity.class));
     }
 
     private void openActivity(Class<?> activity) {

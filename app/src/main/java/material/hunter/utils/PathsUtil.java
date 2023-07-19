@@ -48,7 +48,7 @@ public class PathsUtil {
         APP_SCRIPTS_PATH = APP_PATH + "/scripts";
         APP_SCRIPTS_BIN_PATH = APP_SCRIPTS_PATH + "/bin";
         SD_PATH = Environment.getExternalStorageDirectory().toString();
-        APP_SD_PATH = SD_PATH + "/MaterialHunter";
+        APP_SD_PATH = SD_PATH + "/StealthRabbit";
         APP_SD_SQLBACKUP_PATH = APP_SD_PATH + "/Databases";
         APP_SD_FILES_IMG_PATH = APP_SD_PATH + "/Images";
         CHROOT_SUDO = "/usr/bin/sudo";

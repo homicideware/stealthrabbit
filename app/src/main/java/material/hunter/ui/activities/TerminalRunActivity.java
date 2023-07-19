@@ -7,6 +7,7 @@ import android.os.Bundle;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
+import material.hunter.BuildConfig;
 import material.hunter.utils.PathsUtil;
 import material.hunter.utils.TerminalUtil;
 
@@ -23,7 +24,7 @@ public class TerminalRunActivity extends Activity {
         } catch (Exception e) {
             new MaterialAlertDialogBuilder(this)
                     .setTitle("Terminal")
-                    .setMessage("Something wrong, try to open terminal in MaterialHunter.")
+                    .setMessage("Something wrong, try to open terminal in StealthRabbit.")
                     .setPositiveButton("Open", (di, i) -> {
                         finish();
                         Intent intent = new Intent(this, MainActivity.class);

@@ -51,7 +51,7 @@ public abstract class DownloadChroot {
                         "User-Agent",
                         "Mozilla/5.0 (Linux; Android " + Build.VERSION.RELEASE + "; " + Build.DEVICE + ")" +
                                 " AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.131 Mobile Safari/537.36"
-                                + " MaterialHunter/" + BuildConfig.VERSION_NAME);
+                                + " StealthRabbit/" + BuildConfig.VERSION_NAME);
                 int lengthOfFile = connection.getContentLength();
                 connection.setConnectTimeout(10000);
                 connection.setReadTimeout(10000);

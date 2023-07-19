@@ -32,6 +32,7 @@ public class Activity extends ThemedActivity {
     private LocalScannerActivityBinding binding;
     private ExecutorService executor;
     private SharedPreferences prefs;
+    private LocalScannerRecyclerViewAdapter adapter;
     private boolean isScanning = false;
 
     @Override
@@ -62,10 +63,11 @@ public class Activity extends ThemedActivity {
 
         loadInterfaces();
 
+        adapter = new LocalScannerRecyclerViewAdapter(this, this, devices);
         binding.scanInterface.setText(prefs.getString("local_scanner_interface", ""));
         binding.recyclerView.setLayoutManager(
                 new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
-        binding.recyclerView.setAdapter(new LocalScannerRecyclerViewAdapter(this, this, devices));
+        binding.recyclerView.setAdapter(adapter);
 
         binding.reScan.setOnClickListener(v -> {
 
@@ -89,7 +91,6 @@ public class Activity extends ThemedActivity {
             } else {
                 new Handler(Looper.getMainLooper()).post(() -> binding.scanInterface.setText(previousWlan, false));
             }
-
         });
     }
 }

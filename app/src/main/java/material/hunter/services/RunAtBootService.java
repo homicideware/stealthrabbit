@@ -36,7 +36,7 @@ public class RunAtBootService extends Service {
     private void doNotification(String contents) {
         NotificationCompat.Builder notification = new NotificationCompat.Builder(context, "base")
                 .setStyle(new NotificationCompat.BigTextStyle().bigText(contents))
-                .setContentTitle("MaterialHunter: Startup")
+                .setContentTitle("StealthRabbit: Startup")
                 .setSmallIcon(R.drawable.ic_stat_mh_notification)
                 .setOnlyAlertOnce(true)
                 .setAutoCancel(true);

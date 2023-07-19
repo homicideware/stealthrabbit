@@ -2,9 +2,6 @@ plugins {
     id 'com.android.application'
 }
 
-def globalVersionCode = 51
-def globalVersionName = "5.1"
-
 android {
     compileSdk 33
 
@@ -13,8 +10,8 @@ android {
         minSdk 24
         resConfigs 'en'
         targetSdk 33
-        versionCode globalVersionCode
-        versionName globalVersionName
+        versionCode 51
+        versionName "5.1"
         multiDexEnabled true
     }
 
@@ -24,12 +21,16 @@ android {
             shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             buildConfigField("String", "AUTHOR", "\"${System.env.USERNAME}\"")
+            resValue "string", "app_name", "Stealth Rabbit"
+            signingConfig signingConfigs.debug
+            buildConfigField("int", "APP_NAME", "R.string.app_name")
         }
         debug {
-            minifyEnabled true
-            shrinkResources true
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            minifyEnabled false
+            shrinkResources false
             buildConfigField("String", "AUTHOR", "\"${System.env.USERNAME}\"")
+            resValue "string", "app_name", "SR: Debug"
+            buildConfigField("int", "APP_NAME", "R.string.app_name")
         }
     }
     buildFeatures {

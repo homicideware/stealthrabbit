@@ -1,7 +1,4 @@
-<h1>MaterialHunter</h1>
-<p align="center">
-  <img src="https://raw.githubusercontent.com/Mirivan/material_hunter/master/app/src/main/res/drawable/mh_logo.png">
-</p>
+<h1>StealthRabbit (prev: MaterialHunter)</h1>
 
 <p align="center">
   <a href="https://materialhunterapp.t.me/"><img src="https://img.shields.io/badge/Channel-%2326A5E4?style=for-the-badge&logo=telegram"></a>

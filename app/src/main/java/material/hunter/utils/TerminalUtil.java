@@ -203,7 +203,7 @@ public class TerminalUtil {
                                     + " the prop to the appropriate value so that"
                                     + " Termux allows third-party applications to"
                                     + " run commands, this is also necessary for"
-                                    + " MaterialHunter.");
+                                    + " StealthRabbit.");
                     adb.setPositiveButton(
                             "Set prop",
                             (di, i) -> exe.executeCommandAsRoot(TERMUX_SET_EXTERNAL_APPS_TRUE_CMD));

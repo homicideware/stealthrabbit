@@ -132,7 +132,7 @@ public class HomeFragment extends Fragment {
                 e.printStackTrace();
                 PathsUtil.showSnackBar(
                         activity,
-                        "Failed to create MaterialHunter directory.",
+                        "Failed to create StealthRabbit directory.",
                         false);
                 return;
             }

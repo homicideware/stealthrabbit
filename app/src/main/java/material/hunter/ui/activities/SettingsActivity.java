@@ -204,7 +204,10 @@ public class SettingsActivity extends ThemedActivity {
         binding.changeBusybox.setOnClickListener(v -> {
             new MaterialAlertDialogBuilder(this)
                     .setTitle("Change busybox")
-                    .setMessage("BusyBox is a software suite that combines several Unix utilities into a single executable file. It is commonly used on embedded systems and in Linux distributions for basic system management tasks. It is required for most MaterialHunter components to work.")
+                    .setMessage("BusyBox is a software suite that combines several Unix utilities into a single executable" +
+                            " file. It is commonly used on embedded systems and in Linux distributions for basic system" +
+                            " management tasks. It is required for most StealthRabbit components" +
+                            " to work.")
                     .setNeutralButton(android.R.string.cancel, (di, i) -> {
                     })
                     .setNegativeButton("Select", (di, i) -> executor.execute(() -> {
