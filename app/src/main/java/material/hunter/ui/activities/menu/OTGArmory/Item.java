@@ -3,12 +3,12 @@ package material.hunter.ui.activities.menu.OTGArmory;
 public class Item {
 
     private final String deviceName;
-    private final int vendorId;
+    private final String vendorId;
     private final String vendorName;
-    private final int productId;
+    private final String productId;
     private final String productName;
 
-    public Item(String deviceName, int vendorId, String vendorName, int productId, String productName) {
+    public Item(String deviceName, String vendorId, String vendorName, String productId, String productName) {
         this.deviceName = deviceName;
         this.vendorId = vendorId;
         this.vendorName = vendorName;
@@ -20,7 +20,7 @@ public class Item {
         return deviceName;
     }
 
-    public int getVendorId() {
+    public String getVendorId() {
         return vendorId;
     }
 
@@ -28,7 +28,7 @@ public class Item {
         return vendorName;
     }
 
-    public int getProductId() {
+    public String getProductId() {
         return productId;
     }
 

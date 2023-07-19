@@ -1,5 +1,6 @@
 package material.hunter.adapters;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -39,12 +40,22 @@ public class OTGArmoryRecyclerViewAdapter extends RecyclerView.Adapter<OTGArmory
         return new ViewHolder(v);
     }
 
+    @SuppressLint("SetTextI18n")
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Item item = devices.get(position);
-        holder.deviceName.setText(item.getDeviceName());
+        holder.deviceName.setText("Loading...");
+        new Thread(() -> {
+            String deviceName = material.hunter.ui.activities.menu.OTGArmory.Activity.getDeviceNameByVendorAndProductId(
+                    item.getVendorId() + ":" + item.getProductId()
+            );
+            activity.runOnUiThread(() -> holder.deviceName.setText(deviceName));
+        }).start();
+        holder.deviceName.setSelected(true);
         holder.vendorInfo.setText("Vendor: " + item.getVendorName() + " (ID: " + item.getVendorId() + ")");
+        holder.vendorInfo.setSelected(true);
         holder.productInfo.setText("Product: " + item.getProductName() + " (ID: " + item.getProductId() + ")");
+        holder.productInfo.setSelected(true);
     }
 
     @Override

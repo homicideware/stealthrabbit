@@ -380,7 +380,7 @@ public class MainActivity extends ThemedActivity {
 
     @NonNull
     private Boolean pathIsAllowed(@NonNull String path, String copyType) {
-        if (!path.matches("^(authors|licenses|images|sounds|webkit)")) {
+        if (!path.matches("^(authors|extensions|licenses|images|sounds|webkit)")) {
             if (copyType.equals("data")) {
                 if (path.equals("")) {
                     return true;
