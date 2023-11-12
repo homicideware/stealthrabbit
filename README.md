@@ -3,7 +3,6 @@
 Development has been suspended due to lack of funds.
 You can support developers at these addresses:
 - 2200700527655137 (RU, Tinkoff, Kompot Kompot)
-- 2200700888127957 (RU, Tinkoff, Ivan Tretyakov)
 
 <p align="center">
   <a href="https://materialhunterapp.t.me/"><img src="https://img.shields.io/badge/Channel-%2326A5E4?style=for-the-badge&logo=telegram"></a>
