@@ -13,7 +13,7 @@ f_chroot_usage(){
     echo "[!] chrootmgr [-p <your chroot folder>] -c \"status\" ---> return 0 if chroot is mounted, return 1 if chroot isn't yet mounted, return 2 if no chroot is found, return 3 if chroot corrupted."
     echo "[!] chrootmgr [-p <your chroot folder>] -c \"backup <full_path_of_your_chroot_folder> <full_path_with_desired_name.tar.[gx]z>\""
     echo "[!] chrootmgr [-p <your chroot folder>] -c \"restore <full_path_of_your_.tar.[gx]z> <chroot_system_path/>\""
-    echo "[!] chrootmgr [-p <your chroot folder>] -c \"remove <full_path_of_your_chroot_folder>\" ---> delete your chroot folder without rebooting the device, but not 100% guaranteed success. Check this link for more information: https://github.com/FerryAr/lhroot/issues/10"
+    echo "[!] chrootmgr [-p <your chroot folder>] -c \"remove <full_path_of_your_chroot_folder>\" ---> delete your chroot folder without rebooting the device, but not 100% guaranteed success. Something like this may happen: https://github.com/FerryAr/lhroot/issues/10"
     echo "[!] If -p option isn't specified, then the script will use the chroot path according to the app SharedPreferences."
 }
 

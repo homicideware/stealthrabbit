@@ -36,13 +36,13 @@
     },
     "7": {
 	"name": "Debian 12 Bookworm (arm64)",
-	"url": "NO LINK AVAILABLE",
-	"author": ""
+	"url": "https://codeberg.org/satan/linux-tarballs/raw/branch/main/debian/debian-12-rootfs-arm64.tar.xz",
+	"author": "westpain"
     },
     "8": {
         "name": "Debian 12 Bookworm (armhf)",
-	"url": "NO LINK AVAILABLE",
-	"author": ""
+	"url": "https://codeberg.org/satan/linux-tarballs/raw/branch/main/debian/debian-12-rootfs-armhf.tar.xz",
+	"author": "westpain"
     },
     "9": {
 	"name": "Ubuntu 22.04 Jammy (arm64)",

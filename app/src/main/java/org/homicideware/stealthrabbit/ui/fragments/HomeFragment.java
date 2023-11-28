@@ -141,7 +141,7 @@ public class HomeFragment extends Fragment {
         executor.execute(() -> {
             String[] res = {""};
             try {
-                res[0] = new Web().getContent("https://raw.githubusercontent.com/Mirivan/sr-repository/main/changelog");
+                res[0] = new Web().getContent("https://git.killarious.org/homicideware/stealthrabbit/raw/branch/main/repo/changelog");
                 prefs.edit().putString("last_news", res[0]).apply();
             } catch (IOException e) {
                 new Handler(Looper.getMainLooper()).post(() -> sr_news_card.setVisibility(View.GONE));
@@ -158,7 +158,7 @@ public class HomeFragment extends Fragment {
 
         executor.execute(() -> {
             try {
-                final JSONObject bubblegum = new JSON().getFromWeb("https://raw.githubusercontent.com/Mirivan/sr-repository/main/update.json");
+                final JSONObject bubblegum = new JSON().getFromWeb("https://git.killarious.org/homicideware/stealthrabbit/raw/branch/main/repo/update.json");
 
                 if (bubblegum.has("version") && bubblegum.has("code") && bubblegum.has("url")) {
 
