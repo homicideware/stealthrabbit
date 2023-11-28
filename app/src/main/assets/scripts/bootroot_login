@@ -14,7 +14,7 @@ if [ ! -d "$MNT" ]; then
 fi
 
 if [ ! -x "$MNT/$CHROOT_EXEC" ]; then
-    echo "[-] sudo not installed. This is not a MaterialHunter problem!"
+    echo "[-] sudo not installed. This is not a StealthRabbit problem!"
     echo "Solutions:"
     echo "1. Try using busybox to login and install it"
     echo "2. Contact chroot builder"

@@ -11,7 +11,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:padding="4dp"
-        android:text="Allowed type:\n• URL to MaterialHunter repo config"
+        android:text="Allowed type:\n• URL to StealthRabbit repo config"
         android:textAppearance="?textAppearanceListItemSecondary"
         android:textColor="?android:textColorSecondary"
         android:textSize="14dp" />

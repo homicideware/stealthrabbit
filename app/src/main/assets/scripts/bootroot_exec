@@ -4,7 +4,7 @@ shels=$(readlink -f $0)
 . ${shels%/*}/bootroot_env
 
 if [ -z "$MNT" ]; then
-    echo "[-] \$MNT variable isn't defined, please run the MaterialHunter app first."
+    echo "[-] \$MNT variable isn't defined, please run the StealthRabbit app first."
     exit 2
 fi
 
@@ -15,7 +15,7 @@ if [ ! -d "$MNT" ]; then
 fi
 
 if [ ! -x "$MNT/$CHROOT_EXEC" ]; then
-    echo "[-] sudo not installed. This isn't a MaterialHunter problem!"
+    echo "[-] sudo not installed. This isn't a StealthRabbit problem!"
     echo "Solutions:"
     echo "1. Try using busybox to login and install it"
     echo "2. Contact chroot builder"

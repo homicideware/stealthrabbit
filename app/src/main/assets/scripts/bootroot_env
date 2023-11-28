@@ -5,11 +5,11 @@
 CHROOT_EXEC=/usr/bin/sudo
 
 ## Define chroot paths
-CHROOT_SYSTEM_PATH=`cat /data/data/material.hunter/shared_prefs/material.hunter.xml | sed -n 's/.*<string name="chroot_system_path">\(.*\)<\/string>/\1/p'`
+CHROOT_SYSTEM_PATH=`cat /data/data/org.homicideware.stealthrabbit/shared_prefs/org.homicideware.stealthrabbit.xml | sed -n 's/.*<string name="chroot_system_path">\(.*\)<\/string>/\1/p'`
 if [ -z $CHROOT_SYSTEM_PATH ]; then
     CHROOT_SYSTEM_PATH="/data/local/nhsystem"
 fi
-directory=`cat /data/data/material.hunter/shared_prefs/material.hunter.xml | sed -n 's/.*<string name="chroot_directory">\(.*\)<\/string>/\1/p'`
+directory=`cat /data/data/org.homicideware.stealthrabbit/shared_prefs/org.homicideware.stealthrabbit.xml | sed -n 's/.*<string name="chroot_directory">\(.*\)<\/string>/\1/p'`
 if [ -z $directory ]; then
     directory="chroot"
 fi
@@ -20,19 +20,19 @@ export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:$PATH
 ## Define busybox path
 BUSYBOX=`which busybox | head -n1`
 if [ -z $BUSYBOX ]; then
-    BUSYBOX=`cat /data/data/material.hunter/shared_prefs/material.hunter.xml | sed -n 's/.*<string name="busybox">\(.*\)<\/string>/\1/p'`
+    BUSYBOX=`cat /data/data/org.homicideware.stealthrabbit/shared_prefs/org.homicideware.stealthrabbit.xml | sed -n 's/.*<string name="busybox">\(.*\)<\/string>/\1/p'`
 fi
 
 ## Define chroot settings
-mount_sdcard=`cat /data/data/material.hunter/shared_prefs/material.hunter.xml | sed -n 's/.*<boolean name="mount_sdcard" value="\(.*\)" \/>/\1/p'`
-mount_system=`cat /data/data/material.hunter/shared_prefs/material.hunter.xml | sed -n 's/.*<boolean name="mount_system" value="\(.*\)" \/>/\1/p'`
-mount_data=`cat /data/data/material.hunter/shared_prefs/material.hunter.xml | sed -n 's/.*<boolean name="mount_data" value="\(.*\)" \/>/\1/p'`
-mount_modules=`cat /data/data/material.hunter/shared_prefs/material.hunter.xml | sed -n 's/.*<boolean name="mount_modules" value="\(.*\)" \/>/\1/p'`
+mount_sdcard=`cat /data/data/org.homicideware.stealthrabbit/shared_prefs/org.homicideware.stealthrabbit.xml | sed -n 's/.*<boolean name="mount_sdcard" value="\(.*\)" \/>/\1/p'`
+mount_system=`cat /data/data/org.homicideware.stealthrabbit/shared_prefs/org.homicideware.stealthrabbit.xml | sed -n 's/.*<boolean name="mount_system" value="\(.*\)" \/>/\1/p'`
+mount_data=`cat /data/data/org.homicideware.stealthrabbit/shared_prefs/org.homicideware.stealthrabbit.xml | sed -n 's/.*<boolean name="mount_data" value="\(.*\)" \/>/\1/p'`
+mount_modules=`cat /data/data/org.homicideware.stealthrabbit/shared_prefs/org.homicideware.stealthrabbit.xml | sed -n 's/.*<boolean name="mount_modules" value="\(.*\)" \/>/\1/p'`
 
 ## Define MNT (full path to target chroot)
 MNT="$CHROOT_SYSTEM_PATH/$directory"
 
-HOSTNAME=`cat /data/data/material.hunter/shared_prefs/material.hunter.xml | grep "\"hostname\"" | sed "s/^.*\"hostname\">\(.*\)<\/string>/\1/g"`
+HOSTNAME=`cat /data/data/org.homicideware.stealthrabbit/shared_prefs/org.homicideware.stealthrabbit.xml | grep "\"hostname\"" | sed "s/^.*\"hostname\">\(.*\)<\/string>/\1/g"`
 if [ -z $HOSTNAME ]; then
-    HOSTNAME="mh"
+    HOSTNAME="sr"
 fi

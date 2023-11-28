@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="Theme.MaterialHunter" parent="Theme.Material3.Light.NoActionBar">
+    <style name="Theme.StealthRabbit" parent="Theme.Material3.Light.NoActionBar">
         <item name="snackbarStyle">@style/Widget.Mirivan.Snackbar</item>
         <item name="snackbarTextViewStyle">@style/Widget.Mirivan.Snackbar.TextView</item>
         <item name="android:navigationBarColor">?attr/colorSurface</item>
@@ -11,7 +11,7 @@
         <item name="actionModeBackground">?attr/colorSurface</item>
     </style>
 
-    <style name="Theme.MaterialHunter.Transparent" parent="Theme.MaterialHunter">
+    <style name="Theme.StealthRabbit.Transparent" parent="Theme.StealthRabbit">
         <item name="android:background">@android:color/transparent</item>
         <item name="android:windowBackground">@android:color/transparent</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>

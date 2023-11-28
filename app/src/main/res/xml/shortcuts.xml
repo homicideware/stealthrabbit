@@ -7,8 +7,8 @@
         <intent
             android:action="android.intent.action.VIEW"
             android:data="home"
-            android:targetClass="material.hunter.ui.activities.MainActivity"
-            android:targetPackage="material.hunter" />
+            android:targetClass="org.homicideware.stealthrabbit.ui.activities.MainActivity"
+            android:targetPackage="org.homicideware.stealthrabbit" />
     </shortcut>
     <shortcut
         android:enabled="true"
@@ -17,8 +17,8 @@
         <intent
             android:action="android.intent.action.VIEW"
             android:data="manager"
-            android:targetClass="material.hunter.ui.activities.MainActivity"
-            android:targetPackage="material.hunter" />
+            android:targetClass="org.homicideware.stealthrabbit.ui.activities.MainActivity"
+            android:targetPackage="org.homicideware.stealthrabbit" />
     </shortcut>
     <shortcut
         android:enabled="true"
@@ -27,8 +27,8 @@
         <intent
             android:action="android.intent.action.VIEW"
             android:data="menu"
-            android:targetClass="material.hunter.ui.activities.MainActivity"
-            android:targetPackage="material.hunter" />
+            android:targetClass="org.homicideware.stealthrabbit.ui.activities.MainActivity"
+            android:targetPackage="org.homicideware.stealthrabbit" />
     </shortcut>
 
 </shortcuts>

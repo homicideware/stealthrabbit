@@ -40,7 +40,7 @@
         android:requestLegacyExternalStorage="true"
         android:resizeableActivity="true"
         android:supportsPictureInPicture="false"
-        android:theme="@style/Theme.MaterialHunter"
+        android:theme="@style/Theme.StealthRabbit"
         android:usesCleartextTraffic="true"
         android:windowSoftInputMode="adjustResize">
         <activity
@@ -48,7 +48,7 @@
             android:configChanges="orientation|screenSize"
             android:exported="true"
             android:launchMode="singleTop"
-            android:theme="@style/Theme.MaterialHunter">
+            android:theme="@style/Theme.StealthRabbit">
             <intent-filter android:label="Home">
                 <action android:name="android.intent.action.MAIN" />
 
@@ -66,10 +66,10 @@
             android:name=".ui.activities.TerminalRunActivity"
             android:excludeFromRecents="true"
             android:exported="true"
-            android:icon="@mipmap/ic_mh_termux"
+            android:icon="@mipmap/ic_sr_termux"
             android:label="Chroot Terminal"
             android:launchMode="standard"
-            android:theme="@style/Theme.MaterialHunter.Transparent">
+            android:theme="@style/Theme.StealthRabbit.Transparent">
             <intent-filter android:label="Chroot Terminal">
                 <action android:name="android.intent.action.VIEW" />
 
@@ -116,7 +116,7 @@
             android:exported="true"
             android:label="Settings"
             android:launchMode="singleTop"
-            android:theme="@style/Theme.MaterialHunter">
+            android:theme="@style/Theme.StealthRabbit">
             <intent-filter android:label="Settings">
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
@@ -132,7 +132,7 @@
             android:exported="true"
             android:label="USB Armory"
             android:launchMode="singleTop"
-            android:theme="@style/Theme.MaterialHunter">
+            android:theme="@style/Theme.StealthRabbit">
             <intent-filter android:label="USB Armory">
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
@@ -146,7 +146,7 @@
             android:exported="true"
             android:label="Custom Commands"
             android:launchMode="singleTop"
-            android:theme="@style/Theme.MaterialHunter">
+            android:theme="@style/Theme.StealthRabbit">
             <intent-filter android:label="Custom Commands">
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
@@ -160,7 +160,7 @@
             android:exported="true"
             android:label="Services"
             android:launchMode="singleTop"
-            android:theme="@style/Theme.MaterialHunter">
+            android:theme="@style/Theme.StealthRabbit">
             <intent-filter android:label="Services">
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
@@ -174,7 +174,7 @@
             android:exported="true"
             android:label="MAC Changer"
             android:launchMode="singleTop"
-            android:theme="@style/Theme.MaterialHunter">
+            android:theme="@style/Theme.StealthRabbit">
             <intent-filter android:label="MAC Changer">
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
@@ -188,7 +188,7 @@
             android:exported="true"
             android:label="Networking"
             android:launchMode="singleTop"
-            android:theme="@style/Theme.MaterialHunter">
+            android:theme="@style/Theme.StealthRabbit">
             <intent-filter android:label="Networking">
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
@@ -202,7 +202,7 @@
             android:exported="true"
             android:label="Nmap"
             android:launchMode="singleTop"
-            android:theme="@style/Theme.MaterialHunter">
+            android:theme="@style/Theme.StealthRabbit">
             <intent-filter android:label="Nmap">
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
@@ -216,7 +216,7 @@
             android:exported="true"
             android:label="OneShot"
             android:launchMode="singleTop"
-            android:theme="@style/Theme.MaterialHunter">
+            android:theme="@style/Theme.StealthRabbit">
             <intent-filter android:label="OneShot">
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
@@ -230,7 +230,7 @@
             android:exported="true"
             android:label="OTG Armory"
             android:launchMode="singleTop"
-            android:theme="@style/Theme.MaterialHunter">
+            android:theme="@style/Theme.StealthRabbit">
             <intent-filter android:label="OTG Armory">
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>

@@ -4,7 +4,7 @@ shels=$(readlink -f $0)
 . ${shels%/*}/bootroot_env
 
 if [ -z $BUSYBOX ]; then
-    echo "[-] BusyBox isn't defined. Please install it. If you have already installed it, but MaterialHunter still couldn't detect it by itself - open the application settings and specify the path to it manually."
+    echo "[-] BusyBox isn't defined. Please install it. If you have already installed it, but StealthRabbit still couldn't detect it by itself - open the application settings and specify the path to it manually."
     exit 2
 fi
 
@@ -13,7 +13,7 @@ f_chroot_usage(){
     echo "[!] chrootmgr [-p <your chroot folder>] -c \"status\" ---> return 0 if chroot is mounted, return 1 if chroot isn't yet mounted, return 2 if no chroot is found, return 3 if chroot corrupted."
     echo "[!] chrootmgr [-p <your chroot folder>] -c \"backup <full_path_of_your_chroot_folder> <full_path_with_desired_name.tar.[gx]z>\""
     echo "[!] chrootmgr [-p <your chroot folder>] -c \"restore <full_path_of_your_.tar.[gx]z> <chroot_system_path/>\""
-    echo "[!] chrootmgr [-p <your chroot folder>] -c \"remove <full_path_of_your_chroot_folder>\" ---> delete your chroot folder without rebooting the device, but not 100% guaranteed success."
+    echo "[!] chrootmgr [-p <your chroot folder>] -c \"remove <full_path_of_your_chroot_folder>\" ---> delete your chroot folder without rebooting the device, but not 100% guaranteed success. Check this link for more information: https://github.com/FerryAr/lhroot/issues/10"
     echo "[!] If -p option isn't specified, then the script will use the chroot path according to the app SharedPreferences."
 }
 
@@ -58,7 +58,7 @@ if [ ! $# -eq 0 ]; then
                     if [ "$($BUSYBOX chroot $MNT /bin/uname -n)" ]; then
                         echo "[+] Seems you have chroot installed already!"
                         if [ ! -x "$MNT/$CHROOT_EXEC" ]; then
-                            echo "[-] sudo not installed. This isn't a MaterialHunter problem!"
+                            echo "[-] sudo not installed. This isn't a StealthRabbit problem!"
                             if [ -z $(cat $MNT/etc/resolv.conf) ]; then
                                 echo "[-] An attempt was made to install sudo, but it failed, because resolv.conf is empty."
                                 echo "[!] Hint: you can set Google DNS manually for normal internet inside chroot:"
@@ -117,7 +117,7 @@ if [ ! $# -eq 0 ]; then
                             return 1
                         fi
                     else
-                        echo "[-] Chroot corrupted. This isn't a MaterialHunter problem!"
+                        echo "[-] Chroot corrupted. This isn't a StealthRabbit problem!"
                         echo "[!] If the error occurs..."
                         echo "Solutions:"
                         echo "1. Check the permissions of the chroot directories"
@@ -151,7 +151,7 @@ if [ ! $# -eq 0 ]; then
                         echo "[!] Chroot is already unmounted."
                     fi
                     echo "[!] Creating chroot backup from \"$TARGET_DIR\" to \"$2\"."
-                    echo "[$] Please don't kill the app during this process. MaterialHunter doesn't support background support for processes of this type, as it takes up an impressive amount of RAM."
+                    echo "[$] Please don't kill the app during this process. StealthRabbit doesn't support background support for processes of this type, as it takes up an impressive amount of RAM."
                     cd $1/../ || exit
                     if echo $2 | $BUSYBOX grep -q ".tar.[gx]z$"; then
                         if echo $2 | $BUSYBOX grep -q ".tar.xz$"; then
@@ -203,7 +203,7 @@ if [ ! $# -eq 0 ]; then
                         fi
                     done
                     echo "[!] Chroot occupies the space of the internal storage of your device, make sure that there is enough space to install the tar image, just to make sure it won't break your system."
-                    echo "[$] Please don't kill the app during this process. MaterialHunter doesn't support background support for processes of this type, as it takes up an impressive amount of RAM."
+                    echo "[$] Please don't kill the app during this process. StealthRabbit doesn't support background support for processes of this type, as it takes up an impressive amount of RAM."
                     echo "[!] Installing from \"$TARGET_TARBALL_PATH\""
                     echo "[!] It may take a while, please be patient until it is finished extracting..."
 

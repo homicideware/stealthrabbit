@@ -4,7 +4,7 @@ shels=$(readlink -f $0)
 . ${shels%/*}/bootroot_env
 
 if [ -z "$BUSYBOX" ]; then
-    echo "[-] BusyBox isn't defined. Please install it. If you have already installed it, but MaterialHunter still couldn't detect it by itself - open the application settings and specify the path to it manually."
+    echo "[-] BusyBox isn't defined. Please install it. If you have already installed it, but StealthRabbit still couldn't detect it by itself - open the application settings and specify the path to it manually."
     exit 2
 fi
 
@@ -21,7 +21,7 @@ fi
 # Check chroot status
 check_chroot() {
     if [ ! "$($BUSYBOX chroot $MNT /bin/uname)" ]; then
-        echo "[-] Chroot corrupted. This isn't a MaterialHunter problem!"
+        echo "[-] Chroot corrupted. This isn't a StealthRabbit problem!"
         echo "Solutions:"
         echo "1. Check the permissions of the chroot directories"
         echo "2. Try using busybox to login and fix it"
@@ -29,7 +29,7 @@ check_chroot() {
         return 3
     fi
     if [ ! -x "$MNT/$CHROOT_EXEC" ]; then
-        echo "[-] sudo not installed. This isn't a MaterialHunter problem!"
+        echo "[-] sudo not installed. This isn't a StealthRabbit problem!"
         echo "Solutions:"
         echo "1. Try using busybox to login and install it"
         echo "2. Contact chroot builder"
@@ -175,7 +175,7 @@ do_mount() {
     echo "$HOSTNAME"                                               > $MNT/proc/sys/kernel/hostname
 
     ######### START USER DEFINED SERVICES #########
-    . /data/data/material.hunter/files/etc/init.d/70services
+    . /data/data/org.homicideware.stealthrabbit/files/etc/init.d/70services
 
     ######### SETUP DONE #########
     echo "[+] Chroot mounted and ready to go."

@@ -13,7 +13,7 @@
         android:orientation="vertical">
 
         <com.google.android.material.card.MaterialCardView
-            android:id="@+id/mh_news_card"
+            android:id="@+id/sr_news_card"
             style="@style/Widget.Mirivan.NewsCardView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -38,7 +38,7 @@
                     android:orientation="vertical">
 
                     <TextView
-                        android:id="@+id/mh_news"
+                        android:id="@+id/sr_news"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:maxLines="4"
@@ -186,7 +186,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:padding="5dp"
-                        android:text="Click if you want to add MaterialHunter in to Magisk whitelist (disable toast notifications) or press to hide it."
+			    android:text="Press if you want to add StealthRabbit into Magisk whitelist (disable toast notifications / hide permission was granted pop-up)."
                         android:textColor="#cac4d0"
                         android:textSize="14dp"
                         android:textStyle="bold" />
@@ -237,7 +237,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:padding="5dp"
-                        android:text="Selinux is a tool for protecting system resources. Enforcing mode can interfere with some application functionality."
+                        android:text="SELinux is a tool for protecting system resources. Enforcing mode can interfere with some application functionality."
                         android:textColor="#cac4d0"
                         android:textSize="14dp" />
                 </LinearLayout>

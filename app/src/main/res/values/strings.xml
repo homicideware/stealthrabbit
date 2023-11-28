@@ -25,7 +25,7 @@
     </string-array>
 
     <string name="update">Update</string>
-    <string name="mh_repository">https://raw.githubusercontent.com/Mirivan/mh-repository/main/chroots.json</string>
+    <string name="sr_repository">https://raw.githubusercontent.com/Mirivan/sr-repository/main/chroots.json</string>
 
     <string-array name="themes">
         <item>Dark</item>

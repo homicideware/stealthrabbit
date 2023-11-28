@@ -4,9 +4,9 @@ if [ ! $? -eq 0 ]; then
     exit 1
 fi
 
-. /data/data/material.hunter/files/scripts/bootroot_env
+. /data/data/org.homicideware.stealthrabbit/files/scripts/bootroot_env
 
-if sh /data/data/material.hunter/files/scripts/chrootmgr -p $MNT -c 'status'; then
+if sh /data/data/org.homicideware.stealthrabbit/files/scripts/chrootmgr -p $MNT -c 'status'; then
     IS_CHROOT_MOUNTED=0
     echo "[+] IS_CHROOT_MOUNTED: Yes"
 else
@@ -14,7 +14,7 @@ else
     echo "[-] IS_CHROOT_MOUNTED: No"
 fi
 
-if [ -f "/data/data/material.hunter/files/scripts/init-custom-commands" ]; then
+if [ -f "/data/data/org.homicideware.stealthrabbit/files/scripts/init-custom-commands" ]; then
     echo "[!] Starting user defined commands..."
     while IFS= read -r line || [ -n "$line" ]; do
         read -r SENDTO CMD <<< $line
@@ -29,7 +29,7 @@ if [ -f "/data/data/material.hunter/files/scripts/init-custom-commands" ]; then
                 echo "[!] Chroot isn't mounted, skip executing: $CMD"
             fi
         fi
-    done < /data/data/material.hunter/files/scripts/init-custom-commands
+    done < /data/data/org.homicideware.stealthrabbit/files/scripts/init-custom-commands
     echo "[+] User defined commands has been all executed."
 else
     echo "[!] User commands isn't defined."

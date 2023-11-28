@@ -1,0 +1,67 @@
+{
+    "0": {
+        "name": "Kali 2019 (arm64)",
+        "url": "https://github.com/Mirivan/dev-root-project/raw/main/chroots/kalifs-arm64-minimal-2019.1.tar.gz",
+        "author": "Mirivan"
+    },
+    "1": {
+        "name": "Kali latest (arm64/full)",
+        "url": "https://kali.download/nethunter-images/current/rootfs/kalifs-arm64-full.tar.xz",
+        "author": "Offensive Security"
+    },
+    "2": {
+        "name": "Kali latest (arm64/minimal)",
+        "url": "https://kali.download/nethunter-images/current/rootfs/kalifs-arm64-minimal.tar.xz",
+        "author": "Offensive Security"
+    },
+    "3": {
+        "name": "Kali latest (arm64/nano)",
+        "url": "https://kali.download/nethunter-images/current/rootfs/kalifs-arm64-nano.tar.xz",
+        "author": "Offensive Security"
+    },
+    "4": {
+        "name": "Kali latest (armhf/full)",
+        "url": "https://kali.download/nethunter-images/current/rootfs/kalifs-armhf-full.tar.xz",
+        "author": "Offensive Security"
+    },
+    "5": {
+        "name": "Kali latest (armhf/minimal)",
+        "url": "https://kali.download/nethunter-images/current/rootfs/kalifs-armhf-minimal.tar.xz",
+        "author": "Offensive Security"
+    },
+    "6": {
+        "name": "Kali latest (armhf/nano)",
+        "url": "https://kali.download/nethunter-images/current/rootfs/kalifs-armhf-nano.tar.xz",
+        "author": "Offensive Security"
+    },
+    "7": {
+	"name": "Debian 12 Bookworm (arm64)",
+	"url": "NO LINK AVAILABLE",
+	"author": ""
+    },
+    "8": {
+        "name": "Debian 12 Bookworm (armhf)",
+	"url": "NO LINK AVAILABLE",
+	"author": ""
+    },
+    "9": {
+	"name": "Ubuntu 22.04 Jammy (arm64)",
+	"url": "http://cdimage.ubuntu.com/ubuntu-base/releases/22.04/release/ubuntu-base-22.04.3-base-arm64.tar.gz",
+	"author": "Canonical"
+    },
+    "10": {
+	 "name": "Ubuntu 22.04 Jammy (armhf)",
+	 "url": "http://cdimage.ubuntu.com/ubuntu-base/releases/22.04/release/ubuntu-base-22.04.3-base-armhf.tar.gz",
+	 "author": "Canonical"
+     },
+     "11": {
+	  "name": "Ubuntu 23.04 Lunar (arm64)",
+	  "url": "http://cdimage.ubuntu.com/ubuntu-base/releases/23.04/release/ubuntu-base-23.04-base-arm64.tar.gz",
+	  "author": "Canonical"
+     },
+     "12": {
+	  "name": "Ubuntu 23.04 Lunar (armhf)",
+	  "url": "http://cdimage.ubuntu.com/ubuntu-base/releases/23.04/release/ubuntu-base-23.04-base-armhf.tar.gz",
+	  "author": "Canonical"
+     }
+}
